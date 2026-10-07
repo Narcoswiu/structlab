@@ -695,3 +695,130 @@ describe("каталог: университети, специалности, у
     expect(denied.error).not.toBeNull();
   });
 });
+
+describe("публични форми: чакащ списък, контакт, брояч срещу спам", () => {
+  const email = `wait-${crypto.randomUUID().slice(0, 8)}@rls.test`;
+  let waitlistId: string;
+  let messageId: string;
+
+  beforeAll(async () => {
+    const entry = await service
+      .from("waitlist")
+      .insert({ email, university: "ВСУ", specialty: "СИ", year: 2 })
+      .select("id")
+      .single();
+    if (entry.error) throw entry.error;
+    waitlistId = entry.data.id;
+    const message = await service
+      .from("contact_messages")
+      .insert({ name: "Тест", email, message: "Съобщение за тест." })
+      .select("id")
+      .single();
+    if (message.error) throw message.error;
+    messageId = message.data.id;
+  });
+
+  afterAll(async () => {
+    await service.from("waitlist").delete().eq("id", waitlistId);
+    await service.from("contact_messages").delete().eq("id", messageId);
+  });
+
+  it("без вход никой не може да чете или пише директно в таблиците", async () => {
+    for (const table of [
+      "waitlist",
+      "contact_messages",
+      "request_throttle",
+    ] as const) {
+      const read = await anon.from(table).select("*").limit(1);
+      expect(read.error).not.toBeNull();
+    }
+    const write = await anon
+      .from("waitlist")
+      .insert({
+        email: "x@rls.test",
+        university: "У",
+        specialty: "С",
+        year: 1,
+      });
+    expect(write.error).not.toBeNull();
+  });
+
+  it("студент не вижда чакащите и съобщенията", async () => {
+    expect((await active.client.from("waitlist").select("id")).data).toEqual(
+      [],
+    );
+    expect(
+      (await active.client.from("contact_messages").select("id")).data,
+    ).toEqual([]);
+    const throttle = await active.client.from("request_throttle").select("id");
+    expect(throttle.error).not.toBeNull();
+  });
+
+  it("admin вижда чакащите и съобщенията и отбелязва поканените", async () => {
+    const list = await admin.client
+      .from("waitlist")
+      .select("email")
+      .eq("id", waitlistId);
+    expect(list.data).toEqual([{ email }]);
+    const messages = await admin.client
+      .from("contact_messages")
+      .select("name")
+      .eq("id", messageId);
+    expect(messages.data).toEqual([{ name: "Тест" }]);
+
+    const marked = await admin.client
+      .from("waitlist")
+      .update({ invited_at: iso(0) })
+      .eq("id", waitlistId)
+      .select("id");
+    expect(marked.data).toHaveLength(1);
+  });
+
+  it("admin не може да подмени имейла в списъка, нито текста на съобщение", async () => {
+    const emailChange = await admin.client
+      .from("waitlist")
+      .update({ email: "other@rls.test" })
+      .eq("id", waitlistId);
+    expect(emailChange.error).not.toBeNull();
+    const textChange = await admin.client
+      .from("contact_messages")
+      .update({ message: "подменено" })
+      .eq("id", messageId);
+    expect(textChange.error).not.toBeNull();
+  });
+
+  it("един имейл влиза в списъка само веднъж", async () => {
+    const again = await service
+      .from("waitlist")
+      .insert({ email, university: "ВСУ", specialty: "СИ", year: 2 });
+    expect(again.error).not.toBeNull();
+  });
+
+  it("базата отхвърля невалидни данни", async () => {
+    const bad = [
+      { email: "Caps@rls.test", university: "У", specialty: "С", year: 1 },
+      { email: "ok@rls.test", university: "У", specialty: "С", year: 9 },
+      { email: "ok2@rls.test", university: "", specialty: "С", year: 1 },
+    ];
+    for (const row of bad) {
+      expect((await service.from("waitlist").insert(row)).error).not.toBeNull();
+    }
+    const longMessage = await service
+      .from("contact_messages")
+      .insert({ name: "Т", email: "ok@rls.test", message: "я".repeat(4001) });
+    expect(longMessage.error).not.toBeNull();
+  });
+
+  it("демо главата не отваря достъп до останалото съдържание", async () => {
+    const chapters = await anon
+      .from("chapters")
+      .select("id")
+      .eq("is_demo", true);
+    expect(chapters.error).not.toBeNull();
+    const none = await expired.client
+      .from("chapters")
+      .select("id")
+      .eq("is_demo", true);
+    expect(none.data).toEqual([]);
+  });
+});

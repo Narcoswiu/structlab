@@ -22,6 +22,7 @@ export default defineConfig({
         "**/auth.spec.ts",
         "**/reader.spec.ts",
         "**/catalog.spec.ts",
+        "**/public.spec.ts",
       ],
     },
   ],

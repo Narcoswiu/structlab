@@ -20,7 +20,7 @@ export function WhyIBeam() {
             правоъгълник със същата площ.
           </p>
           <Link
-            href="/login"
+            href="/demo/uchebnik"
             className="inline-flex min-h-11 items-center self-start font-extrabold text-link hover:text-link-hover"
           >
             Прочети в учебника →

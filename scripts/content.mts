@@ -60,6 +60,8 @@ type Meta = {
   title: string;
   summary: string;
   published: boolean;
+  /** публична демо глава (вижда се без вход, само в „Леко“) */
+  demo?: boolean;
   sources: { title: string; url?: string }[];
   figures?: Record<string, FigureSpec>;
 };
@@ -208,6 +210,7 @@ export async function pushChapters(
           summary: chapter.meta.summary,
           sources: chapter.meta.sources,
           is_published: chapter.meta.published,
+          is_demo: chapter.meta.demo === true,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "module_id,slug" },

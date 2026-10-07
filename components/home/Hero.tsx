@@ -31,10 +31,10 @@ export function Hero() {
                 <ArrowRight className="size-[18px]" strokeWidth={2.5} />
               </Link>
               <Link
-                href="/#features"
+                href="/demo"
                 className={buttonClass({ variant: "outline", size: "lg" })}
               >
-                Виж възможностите
+                Пробвай демото
               </Link>
             </div>
             <div className="flex flex-wrap gap-x-7 gap-y-2.5 text-sm font-semibold text-dim">

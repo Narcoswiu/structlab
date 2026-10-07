@@ -18,9 +18,16 @@ type SendEmailInput = {
   to: string;
   subject: string;
   template: ReactElement;
+  /** на кого да отиде отговорът, ако не е подателят */
+  replyTo?: string;
 };
 
-export async function sendEmail({ to, subject, template }: SendEmailInput) {
+export async function sendEmail({
+  to,
+  subject,
+  template,
+  replyTo,
+}: SendEmailInput) {
   if (!isEmailConfigured()) {
     throw new Error("Пощата не е настроена (липсват SMTP_HOST / EMAIL_FROM).");
   }
@@ -45,6 +52,7 @@ export async function sendEmail({ to, subject, template }: SendEmailInput) {
   await transport.sendMail({
     from: serverEnv.EMAIL_FROM,
     to,
+    replyTo,
     subject,
     html,
     text,

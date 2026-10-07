@@ -1,6 +1,8 @@
 export const siteName = "StructLab";
 
 export const navLinks = [
+  { href: "/welcome", label: "Въведение" },
+  { href: "/demo", label: "Демо" },
   { href: "/#features", label: "Възможности" },
   { href: "/#spec", label: "Специалности" },
   { href: "/#ai", label: "AI асистент" },
@@ -34,20 +36,23 @@ export const pricePlans: PricePlan[] = [
   },
 ];
 
-/** Страници, които идват в следващ етап. Ключът е адресът (/login, /demo…). */
-export const comingSoonPages = {
-  welcome: {
-    title: "Въведение",
-    text: "Обиколката в 7 стъпки показва как работят таблото, учебникът и лабораториите. Подготвяме я.",
-  },
-  demo: {
-    title: "Демо лаборатория",
-    text: "BeamLab – лабораторията за греди с живи диаграми Q и M – е в разработка.",
-  },
-  contact: {
-    title: "Контакт",
-    text: "Страницата за контакт ще бъде добавена преди пускането на сайта.",
-  },
-} as const;
+export const footerLinks = [
+  { href: "/welcome", label: "Въведение" },
+  { href: "/demo", label: "Демо" },
+  { href: "/privacy", label: "Поверителност" },
+  { href: "/terms", label: "Общи условия" },
+  { href: "/contact", label: "Контакт" },
+] as const;
 
-export type ComingSoonSlug = keyof typeof comingSoonPages;
+/** Публичните страници с истинско съдържание – за sitemap.xml. */
+export const publicPaths = [
+  "/",
+  "/welcome",
+  "/demo",
+  "/demo/uchebnik",
+  "/demo/laboratoriya",
+  "/request-invite",
+  "/contact",
+  "/privacy",
+  "/terms",
+] as const;

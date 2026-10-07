@@ -321,3 +321,49 @@ export async function changeEnrollment(formData: FormData): Promise<void> {
   }
   revalidatePath("/admin");
 }
+
+const waitlistInviteSchema = z.object({
+  waitlistId: z.uuid(),
+  planId: z.uuid(),
+});
+
+/**
+ * Кани човек от списъка на чакащите. Използва същия поток като „Нова покана“
+ * и след успех отбелязва в списъка кога е поканен.
+ */
+export async function inviteFromWaitlist(
+  _prev: InviteFormState,
+  formData: FormData,
+): Promise<InviteFormState> {
+  await requireAdmin();
+  const parsed = waitlistInviteSchema.safeParse({
+    waitlistId: formData.get("waitlistId"),
+    planId: formData.get("planId"),
+  });
+  if (!parsed.success) return { error: "Невалидна заявка." };
+
+  const supabase = await createClient();
+  const { data: entry } = await supabase
+    .from("waitlist")
+    .select("id, email")
+    .eq("id", parsed.data.waitlistId)
+    .maybeSingle();
+  if (!entry) return { error: "Записът не съществува." };
+
+  const invite = new FormData();
+  invite.set("emails", entry.email);
+  invite.set("fullName", "");
+  invite.set("planId", parsed.data.planId);
+  if (formData.get("sendNow") === "on") invite.set("sendNow", "on");
+  const result = await createInvites({}, invite);
+
+  const created = result.results?.some((item) => item.url);
+  if (created) {
+    await supabase
+      .from("waitlist")
+      .update({ invited_at: new Date().toISOString() })
+      .eq("id", entry.id);
+    revalidatePath("/admin");
+  }
+  return { error: result.error, results: result.results };
+}

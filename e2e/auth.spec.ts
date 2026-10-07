@@ -75,6 +75,7 @@ test("admin създава покана и получава линк за коп
 
   await page.getByLabel("Имейли").fill(student.email.toUpperCase());
   await page
+    .getByRole("region", { name: "Нова покана" })
     .getByRole("combobox", { name: "План" })
     .selectOption({ label: "Безплатен достъп · 14 дни" });
   await page.getByRole("button", { name: "Създай покани" }).click();
@@ -203,6 +204,7 @@ test("покана с план „завинаги“ дава достъп бе
   await page.goto("/admin");
   await page.getByLabel("Имейли").fill(email);
   await page
+    .getByRole("region", { name: "Нова покана" })
     .getByRole("combobox", { name: "План" })
     .selectOption({ label: "Безплатен достъп завинаги · без срок" });
   await page.getByRole("button", { name: "Създай покани" }).click();

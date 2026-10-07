@@ -3,7 +3,12 @@ import { TiltCard } from "@/components/three-d/TiltCard";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "./SectionHeading";
 
-const activeModules = ["Механика", "СМ", "Строителна статика", "Стоманобетон"];
+const activeModules = [
+  "Съпротивление на материалите",
+  "Теоретична механика",
+  "Инженерна геология",
+  "Строителни машини",
+];
 const upcoming = ["Архитектура", "Геодезия", "Транспортно строителство"];
 
 export function Specialties() {
@@ -22,7 +27,10 @@ export function Specialties() {
       <div className="flex flex-wrap gap-4">
         <TiltCard className="flex-[1_1_260px] gap-3.5 border-primary p-6">
           <Badge variant="success">АКТИВНА</Badge>
-          <h3 className="text-xl font-extrabold">Строително инженерство</h3>
+          <h3 className="text-xl font-extrabold">Строителни специалности</h3>
+          <p className="text-sm leading-[1.5] text-muted-foreground">
+            ВСУ „Любен Каравелов“: СИ, ССС, ССС-СК, СМ · УАСГ: ССС, УС
+          </p>
           <div className="flex flex-wrap gap-1.5">
             {activeModules.map((name) => (
               <Badge key={name} variant="tag">
@@ -31,7 +39,7 @@ export function Specialties() {
             ))}
           </div>
           <Link
-            href="/login"
+            href="/demo"
             className="mt-auto inline-flex min-h-11 items-center self-start font-extrabold text-link hover:text-link-hover"
           >
             Към модулите →

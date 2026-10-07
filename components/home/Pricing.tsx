@@ -46,7 +46,7 @@ export function Pricing() {
               ))}
             </ul>
             <Link
-              href="/login"
+              href="/request-invite"
               aria-label={`Избери план „${plan.name}“`}
               className={buttonClass({
                 variant: plan.recommended ? "default" : "outline",

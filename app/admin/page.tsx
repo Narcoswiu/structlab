@@ -6,6 +6,7 @@ import { changeEnrollment } from "@/app/admin/actions";
 import { InviteCreateForm } from "@/components/admin/InviteCreateForm";
 import { InviteRowActions } from "@/components/admin/InviteRowActions";
 import { PlanDurationForm } from "@/components/admin/PlanDurationForm";
+import { WaitlistInviteForm } from "@/components/admin/WaitlistInviteForm";
 import { PageIntro } from "@/components/PageIntro";
 import { Badge } from "@/components/ui/badge";
 import { SubmitButton } from "@/components/ui/form";
@@ -56,6 +57,8 @@ export default async function AdminPage() {
     feedback,
     dismissed,
     authUsers,
+    waitlist,
+    contactMessages,
   ] = await Promise.all([
     supabase
       .from("access_plans")
@@ -88,7 +91,18 @@ export default async function AdminPage() {
     // Имейлите са в auth.users, докъдето RLS не стига – след requireAdmin()
     // ги четем със secret key.
     createAdminClient().auth.admin.listUsers({ perPage: 200 }),
+    supabase
+      .from("waitlist")
+      .select("id, email, university, specialty, year, created_at, invited_at")
+      .order("created_at", { ascending: false })
+      .limit(200),
+    supabase
+      .from("contact_messages")
+      .select("id, name, email, message, created_at")
+      .order("created_at", { ascending: false })
+      .limit(20),
   ]);
+  const waiting = (waitlist.data ?? []).filter((entry) => !entry.invited_at);
 
   const emailById = new Map(
     (authUsers.data?.users ?? []).map((user) => [user.id, user.email ?? ""]),
@@ -282,6 +296,64 @@ export default async function AdminPage() {
         <p className="text-sm text-dim">
           Плановете „без срок“ не изтичат и нямат настройка за дни.
         </p>
+      </Panel>
+
+      <Panel title={`Чакащи за покана (${waiting.length})`}>
+        {waitlist.data?.length ? (
+          <ul className="flex flex-col">
+            {waitlist.data.map((entry) => (
+              <li
+                key={entry.id}
+                className="flex flex-col gap-3 border-t border-line py-4 first:border-0 first:pt-0"
+              >
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <span className="font-bold break-all">{entry.email}</span>
+                  <Badge variant={entry.invited_at ? "success" : "default"}>
+                    {entry.invited_at ? "ПОКАНЕН" : "ЧАКА"}
+                  </Badge>
+                </div>
+                <p className="text-sm text-dim">
+                  {entry.university} · {entry.specialty} · {entry.year} курс ·
+                  записан на {formatDate(entry.created_at)}
+                  {entry.invited_at
+                    ? ` · поканен на ${formatDate(entry.invited_at)}`
+                    : ""}
+                </p>
+                {entry.invited_at ? null : (
+                  <WaitlistInviteForm
+                    waitlistId={entry.id}
+                    plans={plans.data ?? []}
+                    emailConfigured={emailConfigured}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-muted-foreground">Още няма записани.</p>
+        )}
+      </Panel>
+
+      <Panel title="Съобщения от „Контакт“ (последните 20)">
+        {contactMessages.data?.length ? (
+          <ul className="flex flex-col">
+            {contactMessages.data.map((item) => (
+              <li
+                key={item.id}
+                className="flex flex-col gap-1 border-t border-line py-4 first:border-0 first:pt-0"
+              >
+                <p className="leading-[1.6] whitespace-pre-wrap">
+                  {item.message}
+                </p>
+                <p className="text-sm break-all text-dim">
+                  {item.name} · {item.email} · {formatDate(item.created_at)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="text-muted-foreground">Още няма съобщения.</p>
+        )}
       </Panel>
 
       <Panel title="Обратна връзка (последните 20)">

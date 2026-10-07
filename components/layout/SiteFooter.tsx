@@ -1,12 +1,6 @@
 import Link from "next/link";
-import { siteName } from "@/lib/site";
+import { footerLinks, siteName } from "@/lib/site";
 import { Container } from "./Container";
-
-const footerLinks = [
-  { href: "/privacy", label: "Поверителност" },
-  { href: "/terms", label: "Общи условия" },
-  { href: "/contact", label: "Контакт" },
-];
 
 export function SiteFooter() {
   return (

@@ -11,7 +11,14 @@ export const metadata: Metadata = {
     template: `%s · ${siteName}`,
   },
   description:
-    "Учебници в два режима, интерактивни лаборатории и AI асистент за студенти по строително инженерство.",
+    "Учебник в два режима и интерактивни лаборатории по Съпротивление на материалите за студенти по строителство.",
+  // всяка страница посочва собствения си адрес като каноничен
+  alternates: { canonical: "./" },
+  openGraph: {
+    type: "website",
+    locale: "bg_BG",
+    siteName,
+  },
 };
 
 export const viewport: Viewport = {

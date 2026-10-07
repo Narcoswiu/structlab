@@ -79,14 +79,14 @@ isOneToOne: false
                   ]
                 },"chapters": {
                   Row: {
-                    "created_at": string,"id": string,"is_published": boolean,"module_id": string,"number": number,"slug": string,"sources": NonNullable<Json>,"summary": string,"title": string,"updated_at": string
+                    "created_at": string,"id": string,"is_demo": boolean,"is_published": boolean,"module_id": string,"number": number,"slug": string,"sources": NonNullable<Json>,"summary": string,"title": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"id"?: string,"is_published"?: boolean,"module_id": string,"number": number,"slug": string,"sources"?: NonNullable<Json>,"summary"?: string,"title": string,"updated_at"?: string
+                    "created_at"?: string,"id"?: string,"is_demo"?: boolean,"is_published"?: boolean,"module_id": string,"number": number,"slug": string,"sources"?: NonNullable<Json>,"summary"?: string,"title": string,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"id"?: string,"is_published"?: boolean,"module_id"?: string,"number"?: number,"slug"?: string,"sources"?: NonNullable<Json>,"summary"?: string,"title"?: string,"updated_at"?: string
+                    "created_at"?: string,"id"?: string,"is_demo"?: boolean,"is_published"?: boolean,"module_id"?: string,"number"?: number,"slug"?: string,"sources"?: NonNullable<Json>,"summary"?: string,"title"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -96,6 +96,20 @@ isOneToOne: false
       referencedRelation: "modules"
       referencedColumns: ["id"]
     }
+                  ]
+                },"contact_messages": {
+                  Row: {
+                    "created_at": string,"email": string,"handled_at": string | null,"id": string,"message": string,"name": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"email": string,"handled_at"?: string | null,"id"?: string,"message": string,"name": string
+                  }
+                  Update: {
+                    "created_at"?: string,"email"?: string,"handled_at"?: string | null,"id"?: string,"message"?: string,"name"?: string
+                  }
+                  Relationships: [
+                    
                   ]
                 },"curriculum_items": {
                   Row: {
@@ -251,6 +265,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"request_throttle": {
+                  Row: {
+                    "created_at": string,"id": number,"key_hash": string,"kind": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: never,"key_hash": string,"kind": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: never,"key_hash"?: string,"kind"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"specialties": {
                   Row: {
                     "degree": string,"id": string,"name": string,"note": string,"short_name": string,"slug": string,"sort_order": number,"university_id": string,"years": number
@@ -295,6 +323,20 @@ isOneToOne: false
                   }
                   Update: {
                     "font_size"?: number,"intro_dismissed"?: NonNullable<Json>,"marketing_consent"?: boolean,"reader_mode"?: string,"reminders_enabled"?: boolean,"terms_accepted_at"?: string | null,"theme"?: string,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"waitlist": {
+                  Row: {
+                    "consent_at": string,"created_at": string,"email": string,"id": string,"invited_at": string | null,"specialty": string,"university": string,"year": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "consent_at"?: string,"created_at"?: string,"email": string,"id"?: string,"invited_at"?: string | null,"specialty": string,"university": string,"year": number
+                  }
+                  Update: {
+                    "consent_at"?: string,"created_at"?: string,"email"?: string,"id"?: string,"invited_at"?: string | null,"specialty"?: string,"university"?: string,"year"?: number
                   }
                   Relationships: [
                     

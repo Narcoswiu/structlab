@@ -28,7 +28,6 @@ for (const path of [
   "/",
   "/login",
   "/forgot-password",
-  "/welcome",
   "/privacy",
   "/terms",
   "/invite/abc",

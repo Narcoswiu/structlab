@@ -10,19 +10,19 @@ export function DemoCta() {
             Достъпът е с покана
           </h2>
           <p className="text-muted-foreground">
-            Платформата е в бета версия. Ако си получил покана, приеми я от
-            линка в имейла и влез с имейла и паролата си.
+            Платформата е в бета версия. Остави имейла си и ще ти пишем, когато
+            има място. Ако вече имаш покана, приеми я от линка в имейла.
           </p>
         </div>
         <Link
-          href="/login"
+          href="/request-invite"
           className={buttonClass({
             variant: "warm",
             size: "lg",
             className: "px-7",
           })}
         >
-          Вход
+          Поискай покана
         </Link>
       </div>
     </section>
