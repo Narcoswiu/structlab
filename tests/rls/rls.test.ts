@@ -414,3 +414,29 @@ describe("feedback", () => {
     );
   });
 });
+
+describe("login_link_requests – само за сървъра", () => {
+  it("нито анонимен, нито влязъл потребител може да чете или пише", async () => {
+    const row = { email_hash: "a".repeat(64) };
+    for (const client of [anon, active.client, admin.client]) {
+      const read = await client.from("login_link_requests").select("id");
+      expect(read.error).not.toBeNull();
+      const write = await client.from("login_link_requests").insert(row);
+      expect(write.error).not.toBeNull();
+    }
+  });
+
+  it("сървърът може да записва и брои", async () => {
+    const hash = "b".repeat(64);
+    const insert = await service
+      .from("login_link_requests")
+      .insert({ email_hash: hash });
+    expect(insert.error).toBeNull();
+    const { count } = await service
+      .from("login_link_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("email_hash", hash);
+    expect(count).toBeGreaterThanOrEqual(1);
+    await service.from("login_link_requests").delete().eq("email_hash", hash);
+  });
+});

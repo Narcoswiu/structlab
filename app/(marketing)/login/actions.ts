@@ -6,6 +6,7 @@ import { LoginLinkEmail } from "@/emails/LoginLinkEmail";
 import { safeNextPath } from "@/lib/auth";
 import { isEmailConfigured, sendEmail } from "@/lib/email/send";
 import type { FormState } from "@/lib/form-state";
+import { allowLoginLink } from "@/lib/login-link-throttle";
 import { absoluteUrl } from "@/lib/site-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -68,6 +69,13 @@ export async function requestLoginLink(
   }
 
   const { email, kind } = parsed.data;
+  // Същият отговор и когато няма такъв акаунт или лимитът е стигнат.
+  const sameAnswer: FormState = {
+    success:
+      "Ако има акаунт с този имейл, изпратихме линк. Провери и папка „Спам“. Нов линк може да се поиска след минута.",
+  };
+  if (!(await allowLoginLink(email))) return sameAnswer;
+
   const admin = createAdminClient();
   const { data, error } = await admin.auth.admin.generateLink({
     type: kind,
@@ -96,9 +104,5 @@ export async function requestLoginLink(
     }
   }
 
-  // Същият отговор и когато няма такъв акаунт.
-  return {
-    success:
-      "Ако има акаунт с този имейл, изпратихме линк. Провери и папка „Спам“.",
-  };
+  return sameAnswer;
 }

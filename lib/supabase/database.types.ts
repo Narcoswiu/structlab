@@ -91,6 +91,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"login_link_requests": {
+                  Row: {
+                    "created_at": string,"email_hash": string,"id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"email_hash": string,"id"?: never
+                  }
+                  Update: {
+                    "created_at"?: string,"email_hash"?: string,"id"?: never
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"modules": {
                   Row: {
                     "created_at": string,"description": string,"id": string,"is_published": boolean,"slug": string,"sort_order": number,"title": string

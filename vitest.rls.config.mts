@@ -5,7 +5,12 @@ import { defineConfig } from "vitest/config";
 // от бързите unit тестове.
 export default defineConfig({
   resolve: {
-    alias: { "@": fileURLToPath(new URL(".", import.meta.url)) },
+    alias: {
+      "@": fileURLToPath(new URL(".", import.meta.url)),
+      "server-only": fileURLToPath(
+        new URL("./tests/rls/empty-module.ts", import.meta.url),
+      ),
+    },
   },
   test: {
     environment: "node",
