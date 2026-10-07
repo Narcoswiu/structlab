@@ -53,3 +53,26 @@ test("бутоните в героя са поне 44 px високи", async ({
     expect(box?.height).toBeGreaterThanOrEqual(44);
   }
 });
+
+test("страницата не нарушава Content-Security-Policy и има защитни заглавия", async ({
+  page,
+}) => {
+  const problems: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") problems.push(message.text());
+  });
+  page.on("pageerror", (error) => problems.push(error.message));
+
+  const response = await page.goto("/");
+  await page.getByLabel("Факултетен номер").fill("2059");
+  await expect(page.getByText("35\u00A0kN", { exact: true })).toBeVisible();
+
+  const headers = response!.headers();
+  expect(headers["content-security-policy"]).toContain(
+    "frame-ancestors 'none'",
+  );
+  expect(headers["x-frame-options"]).toBe("DENY");
+  expect(headers["x-content-type-options"]).toBe("nosniff");
+  expect(headers["x-powered-by"]).toBeUndefined();
+  expect(problems).toEqual([]);
+});
