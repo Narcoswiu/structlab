@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  LIFETIME_EXPIRY,
   computeAccessExpiry,
+  computePlanExpiry,
+  describePlanDuration,
   generateInviteToken,
   getInviteStatus,
   hashInviteToken,
@@ -75,6 +78,34 @@ describe("computeAccessExpiry", () => {
     expect(computeAccessExpiry(start, 14).toISOString()).toBe(
       "2026-10-21T09:30:00.000Z",
     );
+  });
+});
+
+describe("планове без срок", () => {
+  const start = new Date("2026-10-07T09:30:00Z");
+
+  it("обикновен план изтича след броя си дни", () => {
+    expect(
+      computePlanExpiry(start, { duration_days: 14, is_lifetime: false }),
+    ).toEqual(new Date("2026-10-21T09:30:00Z"));
+  });
+
+  it("план без срок пренебрегва дните и не изтича", () => {
+    const expiry = computePlanExpiry(start, {
+      duration_days: 14,
+      is_lifetime: true,
+    });
+    expect(expiry).toEqual(LIFETIME_EXPIRY);
+    expect(expiry.getUTCFullYear()).toBe(2999);
+  });
+
+  it("описва срока с думи", () => {
+    expect(
+      describePlanDuration({ duration_days: 14, is_lifetime: false }),
+    ).toBe("14 дни");
+    expect(
+      describePlanDuration({ duration_days: 3660, is_lifetime: true }),
+    ).toBe("без срок");
   });
 });
 

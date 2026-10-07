@@ -59,7 +59,7 @@ export default async function AdminPage() {
   ] = await Promise.all([
     supabase
       .from("access_plans")
-      .select("id, name, duration_days, is_beta")
+      .select("id, name, duration_days, is_beta, is_lifetime")
       .order("created_at"),
     supabase
       .from("invites")
@@ -75,7 +75,9 @@ export default async function AdminPage() {
       .limit(200),
     supabase
       .from("enrollments")
-      .select("id, user_id, expires_at, revoked_at, access_plans(name)")
+      .select(
+        "id, user_id, expires_at, revoked_at, access_plans(name, is_lifetime)",
+      )
       .order("expires_at", { ascending: false }),
     supabase
       .from("feedback")
@@ -216,11 +218,13 @@ export default async function AdminPage() {
                   {profile.full_name || "без име"} · от{" "}
                   {formatDate(profile.created_at)}
                   {enrollment
-                    ? ` · ${enrollment.access_plans?.name} до ${formatDate(enrollment.expires_at)}${
-                        active
-                          ? ` (още ${daysUntil(enrollment.expires_at, now)} дни)`
-                          : ""
-                      }`
+                    ? enrollment.access_plans?.is_lifetime
+                      ? ` · ${enrollment.access_plans.name} (без срок)`
+                      : ` · ${enrollment.access_plans?.name} до ${formatDate(enrollment.expires_at)}${
+                          active
+                            ? ` (още ${daysUntil(enrollment.expires_at, now)} дни)`
+                            : ""
+                        }`
                     : profile.role === "admin"
                       ? ""
                       : " · без план"}
@@ -235,13 +239,15 @@ export default async function AdminPage() {
                       name="enrollmentId"
                       value={enrollment.id}
                     />
-                    <SubmitButton
-                      variant="outline"
-                      name="intent"
-                      value="extend"
-                    >
-                      Удължи
-                    </SubmitButton>
+                    {enrollment.access_plans?.is_lifetime ? null : (
+                      <SubmitButton
+                        variant="outline"
+                        name="intent"
+                        value="extend"
+                      >
+                        Удължи
+                      </SubmitButton>
+                    )}
                     {enrollment.revoked_at ? (
                       <SubmitButton
                         variant="outline"
@@ -268,9 +274,14 @@ export default async function AdminPage() {
       </Panel>
 
       <Panel title="Срок на плановете">
-        {(plans.data ?? []).map((plan) => (
-          <PlanDurationForm key={plan.id} plan={plan} />
-        ))}
+        {(plans.data ?? [])
+          .filter((plan) => !plan.is_lifetime)
+          .map((plan) => (
+            <PlanDurationForm key={plan.id} plan={plan} />
+          ))}
+        <p className="text-sm text-dim">
+          Плановете „без срок“ не изтичат и нямат настройка за дни.
+        </p>
       </Panel>
 
       <Panel title="Обратна връзка (последните 20)">

@@ -57,6 +57,9 @@ test("admin създава покана и получава линк за коп
   ).toBeVisible();
 
   await page.getByLabel("Имейли").fill(student.email.toUpperCase());
+  await page
+    .getByRole("combobox", { name: "План" })
+    .selectOption({ label: "Безплатен достъп · 14 дни" });
   await page.getByRole("button", { name: "Създай покани" }).click();
 
   const link = page.locator("code", { hasText: "/invite/" }).first();
@@ -172,4 +175,51 @@ test("изходът прекратява сесията", async ({ page }) => {
   await expect(page).toHaveURL(/\/login\?notice=signed-out/);
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/login\?next=/);
+});
+
+test("покана с план „завинаги“ дава достъп без срок", async ({
+  page,
+  browser,
+}) => {
+  const email = `founder-${Date.now()}@structlab.test`;
+  await signInOk(page, E2E_ADMIN.email, E2E_ADMIN.password);
+  await page.goto("/admin");
+  await page.getByLabel("Имейли").fill(email);
+  await page
+    .getByRole("combobox", { name: "План" })
+    .selectOption({ label: "Безплатен достъп завинаги · без срок" });
+  await page.getByRole("button", { name: "Създай покани" }).click();
+  const url =
+    (await page
+      .locator("code", { hasText: "/invite/" })
+      .first()
+      .textContent()) ?? "";
+
+  const context = await browser.newContext();
+  const founder = await context.newPage();
+  await founder.goto(url);
+  await expect(founder.getByText("без срок")).toBeVisible();
+  await founder.getByLabel("Име и фамилия").fill("Ива Първа");
+  await founder
+    .getByLabel("Парола", { exact: true })
+    .fill("founder-password-1");
+  await founder.getByLabel("Повтори паролата").fill("founder-password-1");
+  await founder.getByRole("checkbox").check();
+  await founder.getByRole("button", { name: "Създай акаунт и влез" }).click();
+  await founder.waitForURL(/\/dashboard$/);
+  await expect(founder.getByText("без срок")).toBeVisible();
+  await expect(founder.getByText(/още \d+ дни/)).toHaveCount(0);
+  await expect(
+    founder.getByRole("heading", { name: "Съпротивление на материалите" }),
+  ).toBeVisible();
+  await context.close();
+
+  await page.reload();
+  const row = page
+    .getByRole("region", { name: /^Потребители/ })
+    .getByRole("listitem")
+    .filter({ hasText: email });
+  await expect(row.getByText("(без срок)")).toBeVisible();
+  await expect(row.getByRole("button", { name: "Удължи" })).toHaveCount(0);
+  await expect(row.getByRole("button", { name: "Спри достъпа" })).toBeVisible();
 });

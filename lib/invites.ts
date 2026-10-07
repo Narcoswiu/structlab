@@ -30,7 +30,28 @@ export function getInviteStatus(
   return "pending";
 }
 
-/** Край на достъпа: от началото + броя дни на плана. */
+/** Дата „без край“ за планове без срок (виж миграцията lifetime_plan). */
+export const LIFETIME_EXPIRY = new Date("2999-12-31T00:00:00.000Z");
+
+/** Край на достъпа според плана: безсрочен или начало + броя дни. */
+export function computePlanExpiry(
+  start: Date,
+  plan: { duration_days: number; is_lifetime: boolean },
+): Date {
+  return plan.is_lifetime
+    ? LIFETIME_EXPIRY
+    : computeAccessExpiry(start, plan.duration_days);
+}
+
+/** „14 дни“ или „без срок“ – за показване в интерфейса. */
+export function describePlanDuration(plan: {
+  duration_days: number;
+  is_lifetime: boolean;
+}): string {
+  return plan.is_lifetime ? "без срок" : `${plan.duration_days} дни`;
+}
+
+/** Край на достъпа: от началото + броя дни. */
 export function computeAccessExpiry(start: Date, durationDays: number): Date {
   return new Date(start.getTime() + durationDays * 24 * 60 * 60 * 1000);
 }

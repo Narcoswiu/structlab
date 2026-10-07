@@ -8,10 +8,16 @@ import {
   SubmitButton,
   inputClass,
 } from "@/components/ui/form";
+import { describePlanDuration } from "@/lib/invites";
 import { InviteResults } from "./InviteResults";
 
 type InviteCreateFormProps = {
-  plans: { id: string; name: string; duration_days: number }[];
+  plans: {
+    id: string;
+    name: string;
+    duration_days: number;
+    is_lifetime: boolean;
+  }[];
   emailConfigured: boolean;
 };
 
@@ -61,7 +67,7 @@ export function InviteCreateForm({
           <select id="planId" name="planId" required className={inputClass}>
             {plans.map((plan) => (
               <option key={plan.id} value={plan.id}>
-                {plan.name} · {plan.duration_days} дни
+                {plan.name} · {describePlanDuration(plan)}
               </option>
             ))}
           </select>

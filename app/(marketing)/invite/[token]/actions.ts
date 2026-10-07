@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { FormState } from "@/lib/form-state";
 import {
-  computeAccessExpiry,
+  computePlanExpiry,
   getInviteStatus,
   hashInviteToken,
   isValidInviteTokenFormat,
@@ -68,7 +68,7 @@ export async function acceptInvite(
 
   const { data: plan } = await admin
     .from("access_plans")
-    .select("id, duration_days, is_beta")
+    .select("id, duration_days, is_beta, is_lifetime")
     .eq("id", invite.plan_id)
     .single();
   if (!plan) return { error: INVALID };
@@ -115,7 +115,7 @@ export async function acceptInvite(
     plan_id: plan.id,
     source: plan.is_beta ? "beta" : "invite",
     starts_at: now.toISOString(),
-    expires_at: computeAccessExpiry(now, plan.duration_days).toISOString(),
+    expires_at: computePlanExpiry(now, plan).toISOString(),
   });
   if (enrollError) {
     await admin.auth.admin.deleteUser(userId);

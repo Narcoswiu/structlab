@@ -35,7 +35,12 @@ export type InviteResult = {
 
 export type InviteFormState = FormState & { results?: InviteResult[] };
 
-type Plan = { id: string; name: string; duration_days: number };
+type Plan = {
+  id: string;
+  name: string;
+  duration_days: number;
+  is_lifetime: boolean;
+};
 
 async function deliverInvite(
   invite: { email: string; fullName: string; token: string; expiresAt: Date },
@@ -48,12 +53,14 @@ async function deliverInvite(
   try {
     await sendEmail({
       to: invite.email,
-      subject: `Покана за StructLab – ${plan.duration_days} дни пълен достъп`,
+      subject: plan.is_lifetime
+        ? "Покана за StructLab – пълен безплатен достъп"
+        : `Покана за StructLab – ${plan.duration_days} дни пълен достъп`,
       template: InviteEmail({
         fullName: invite.fullName,
         inviteUrl: url,
         planName: plan.name,
-        durationDays: plan.duration_days,
+        durationDays: plan.is_lifetime ? null : plan.duration_days,
         inviteExpiresOn: formatDate(invite.expiresAt),
         contactEmail: getContactEmail(),
       }),
@@ -116,7 +123,7 @@ export async function createInvites(
   const supabase = await createClient();
   const { data: plan } = await supabase
     .from("access_plans")
-    .select("id, name, duration_days")
+    .select("id, name, duration_days, is_lifetime")
     .eq("id", parsed.data.planId)
     .single();
   if (!plan) return { values, error: "Избраният план не съществува." };
@@ -200,7 +207,9 @@ export async function renewInvite(
     })
     .eq("id", parsed.data.inviteId)
     .is("accepted_at", null)
-    .select("id, email, full_name, access_plans(id, name, duration_days)")
+    .select(
+      "id, email, full_name, access_plans(id, name, duration_days, is_lifetime)",
+    )
     .maybeSingle();
   if (!invite?.access_plans) {
     return { error: "Поканата вече е приета или не съществува." };
@@ -291,10 +300,10 @@ export async function changeEnrollment(formData: FormData): Promise<void> {
   } else {
     const { data } = await supabase
       .from("enrollments")
-      .select("expires_at, access_plans(duration_days)")
+      .select("expires_at, access_plans(duration_days, is_lifetime)")
       .eq("id", enrollmentId)
       .single();
-    if (data?.access_plans) {
+    if (data?.access_plans && !data.access_plans.is_lifetime) {
       // Удължаваме от по-късното от „сега“ и текущия край.
       const base = new Date(
         Math.max(Date.now(), new Date(data.expires_at).getTime()),

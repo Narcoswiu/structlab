@@ -6,7 +6,8 @@ export type InviteEmailProps = {
   fullName: string;
   inviteUrl: string;
   planName: string;
-  durationDays: number;
+  /** null = достъп без срок */
+  durationDays: number | null;
   /** до кога важи самата покана, вече форматирано: „21.10.2026“ */
   inviteExpiresOn: string;
   contactEmail: string;
@@ -38,10 +39,15 @@ export function InviteEmail({
   const greeting = fullName.trim()
     ? `Здравей, ${fullName.trim()}!`
     : "Здравей!";
+  const lifetime = durationDays === null;
 
   return (
     <EmailLayout
-      preview={`Имаш покана за StructLab – ${durationDays} дни пълен безплатен достъп.`}
+      preview={
+        lifetime
+          ? "Имаш покана за StructLab – пълен безплатен достъп без срок."
+          : `Имаш покана за StructLab – ${durationDays} дни пълен безплатен достъп.`
+      }
     >
       <Text style={emailText.h1}>{greeting}</Text>
       <Text style={emailText.p}>
@@ -77,8 +83,9 @@ export function InviteEmail({
             color: emailColors.ink,
           }}
         >
-          <strong>{planName}</strong> – пълен достъп до всичко в платформата за{" "}
-          <strong>{durationDays} дни</strong>. Безплатно, без банкова карта.
+          <strong>{planName}</strong> – пълен достъп до всичко в платформата,{" "}
+          <strong>{lifetime ? "без срок" : `за ${durationDays} дни`}</strong>.
+          Безплатно, без банкова карта.
         </Text>
       </Section>
 
@@ -147,9 +154,11 @@ export function InviteEmail({
       </Section>
 
       <Text style={emailText.small}>
-        Поканата е лична и важи до <strong>{inviteExpiresOn}</strong>.{" "}
-        {durationDays}-те дни достъп започват да текат от момента, в който я
-        приемеш.
+        Поканата е лична и трябва да се приеме до{" "}
+        <strong>{inviteExpiresOn}</strong>.{" "}
+        {lifetime
+          ? "След това достъпът ти остава без срок."
+          : `${durationDays}-те дни достъп започват да текат от момента, в който я приемеш.`}
       </Text>
       <Text style={emailText.small}>
         Ако бутонът не работи, копирай този адрес в браузъра:

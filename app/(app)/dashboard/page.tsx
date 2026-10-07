@@ -23,7 +23,7 @@ export default async function DashboardPage() {
       .order("sort_order"),
     supabase
       .from("enrollments")
-      .select("expires_at, revoked_at, starts_at, access_plans(name)")
+      .select("expires_at, access_plans(name, is_lifetime)")
       .eq("user_id", user.id)
       .is("revoked_at", null)
       .gt("expires_at", new Date().toISOString())
@@ -54,11 +54,18 @@ export default async function DashboardPage() {
         </h1>
         {enrollment ? (
           <p className="text-muted-foreground">
-            План „{enrollment.access_plans?.name}“ · активен до{" "}
-            <strong className="text-foreground">
-              {formatDate(enrollment.expires_at)}
-            </strong>{" "}
-            (още {daysUntil(enrollment.expires_at)} дни)
+            План „{enrollment.access_plans?.name}“ ·{" "}
+            {enrollment.access_plans?.is_lifetime ? (
+              <strong className="text-foreground">без срок</strong>
+            ) : (
+              <>
+                активен до{" "}
+                <strong className="text-foreground">
+                  {formatDate(enrollment.expires_at)}
+                </strong>{" "}
+                (още {daysUntil(enrollment.expires_at)} дни)
+              </>
+            )}
           </p>
         ) : user.role === "admin" ? (
           <p className="text-muted-foreground">

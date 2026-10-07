@@ -26,6 +26,19 @@ describe("имейл с покана", () => {
     expect(html).toContain('lang="bg"');
   });
 
+  it("при план без срок не споменава дни", async () => {
+    const html = await render(InviteEmail({ ...invite, durationDays: null }));
+    expect(html).toContain("без срок");
+    expect(html).not.toContain("14 дни");
+    expect(html).not.toContain("дни достъп започват");
+    expect(html).toContain("достъпът ти остава без срок");
+    expect(html).not.toContain("null");
+    const text = await render(InviteEmail({ ...invite, durationDays: null }), {
+      plainText: true,
+    });
+    expect(text).not.toContain("null");
+  });
+
   it("без име поздравява неутрално", async () => {
     const html = await render(InviteEmail({ ...invite, fullName: "  " }));
     expect(html).toContain("Здравей!");

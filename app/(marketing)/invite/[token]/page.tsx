@@ -4,6 +4,7 @@ import { AcceptInviteForm } from "@/components/auth/AcceptInviteForm";
 import { AuthCard } from "@/components/auth/AuthCard";
 import { buttonClass } from "@/components/ui/button";
 import {
+  describePlanDuration,
   getInviteStatus,
   hashInviteToken,
   isValidInviteTokenFormat,
@@ -30,7 +31,11 @@ export default async function InvitePage(props: PageProps<"/invite/[token]">) {
   let problem: keyof typeof problems | null = "invalid";
   let invite: { email: string; full_name: string; plan_id: string } | null =
     null;
-  let plan: { name: string; duration_days: number } | null = null;
+  let plan: {
+    name: string;
+    duration_days: number;
+    is_lifetime: boolean;
+  } | null = null;
 
   if (isValidInviteTokenFormat(token)) {
     const admin = createAdminClient();
@@ -45,7 +50,7 @@ export default async function InvitePage(props: PageProps<"/invite/[token]">) {
       invite = data;
       const planResult = await admin
         .from("access_plans")
-        .select("name, duration_days")
+        .select("name, duration_days, is_lifetime")
         .eq("id", data.plan_id)
         .single();
       plan = planResult.data;
@@ -72,9 +77,11 @@ export default async function InvitePage(props: PageProps<"/invite/[token]">) {
         <>
           Получаваш план{" "}
           <strong className="text-foreground">{plan.name}</strong> – пълен
-          достъп за{" "}
-          <strong className="text-foreground">{plan.duration_days} дни</strong>.
-          Остава само да си избереш парола.
+          достъп,{" "}
+          <strong className="text-foreground">
+            {plan.is_lifetime ? "без срок" : `за ${describePlanDuration(plan)}`}
+          </strong>
+          . Остава само да си избереш парола.
         </>
       }
     >
