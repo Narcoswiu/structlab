@@ -97,6 +97,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"curriculum_items": {
+                  Row: {
+                    "id": string,"module_id": string | null,"sort_order": number,"specialty_id": string,"term": Database["public"]['Enums']["term"],"title": string,"year": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: string,"module_id"?: string | null,"sort_order"?: number,"specialty_id": string,"term": Database["public"]['Enums']["term"],"title": string,"year": number
+                  }
+                  Update: {
+                    "id"?: string,"module_id"?: string | null,"sort_order"?: number,"specialty_id"?: string,"term"?: Database["public"]['Enums']["term"],"title"?: string,"year"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "curriculum_items_module_id_fkey"
+      columns: ["module_id"]
+isOneToOne: false
+      referencedRelation: "modules"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "curriculum_items_specialty_id_fkey"
+      columns: ["specialty_id"]
+isOneToOne: false
+      referencedRelation: "specialties"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"enrollments": {
                   Row: {
                     "created_at": string,"expires_at": string,"id": string,"plan_id": string,"revoked_at": string | null,"source": Database["public"]['Enums']["enrollment_source"],"starts_at": string,"user_id": string
@@ -207,14 +233,54 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "created_at": string,"full_name": string,"id": string,"role": Database["public"]['Enums']["user_role"]
+                    "created_at": string,"full_name": string,"id": string,"role": Database["public"]['Enums']["user_role"],"specialty_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"full_name"?: string,"id": string,"role"?: Database["public"]['Enums']["user_role"]
+                    "created_at"?: string,"full_name"?: string,"id": string,"role"?: Database["public"]['Enums']["user_role"],"specialty_id"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"full_name"?: string,"id"?: string,"role"?: Database["public"]['Enums']["user_role"]
+                    "created_at"?: string,"full_name"?: string,"id"?: string,"role"?: Database["public"]['Enums']["user_role"],"specialty_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "profiles_specialty_id_fkey"
+      columns: ["specialty_id"]
+isOneToOne: false
+      referencedRelation: "specialties"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"specialties": {
+                  Row: {
+                    "degree": string,"id": string,"name": string,"note": string,"short_name": string,"slug": string,"sort_order": number,"university_id": string,"years": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "degree": string,"id"?: string,"name": string,"note"?: string,"short_name": string,"slug": string,"sort_order"?: number,"university_id": string,"years": number
+                  }
+                  Update: {
+                    "degree"?: string,"id"?: string,"name"?: string,"note"?: string,"short_name"?: string,"slug"?: string,"sort_order"?: number,"university_id"?: string,"years"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "specialties_university_id_fkey"
+      columns: ["university_id"]
+isOneToOne: false
+      referencedRelation: "universities"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"universities": {
+                  Row: {
+                    "id": string,"name": string,"short_name": string,"slug": string,"sort_order": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "id"?: string,"name": string,"short_name": string,"slug": string,"sort_order"?: number
+                  }
+                  Update: {
+                    "id"?: string,"name"?: string,"short_name"?: string,"slug"?: string,"sort_order"?: number
                   }
                   Relationships: [
                     
@@ -247,10 +313,15 @@ isOneToOne: false
                            },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"module_titles":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "chapter_count": number,"id": string,"slug": string,"title": string
+            }[]
                            }
           }
           Enums: {
-            "content_mode": "easy"|"detailed","enrollment_source": "stripe"|"manual"|"invite"|"beta","user_role": "admin"|"student"
+            "content_mode": "easy"|"detailed","enrollment_source": "stripe"|"manual"|"invite"|"beta","term": "winter"|"summer","user_role": "admin"|"student"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -370,7 +441,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "content_mode": ["easy", "detailed"],"enrollment_source": ["stripe", "manual", "invite", "beta"],"user_role": ["admin", "student"]
+            "content_mode": ["easy", "detailed"],"enrollment_source": ["stripe", "manual", "invite", "beta"],"term": ["winter", "summer"],"user_role": ["admin", "student"]
           }
         }
 } as const

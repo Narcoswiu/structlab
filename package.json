@@ -20,7 +20,10 @@
     "admin:create": "node --env-file=.env.local scripts/create-admin.mjs",
     "content:verify": "node scripts/content.mts verify",
     "content:push:local": "node scripts/content.mts push --local",
-    "content:push": "node --env-file=.env.local scripts/content.mts push"
+    "content:push": "node --env-file=.env.local scripts/content.mts push",
+    "catalog:verify": "node scripts/catalog.mts verify",
+    "catalog:push:local": "node scripts/catalog.mts push --local",
+    "catalog:push": "node --env-file=.env.local scripts/catalog.mts push"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

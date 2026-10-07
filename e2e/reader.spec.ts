@@ -185,9 +185,12 @@ test("всяка глава от таблото се отваря цяла – �
   page,
 }) => {
   await signIn(page, E2E_READER.email, E2E_READER.password);
-  const links = await page
-    .locator('a[href^="/learn/"]')
-    .evaluateAll((items) => items.map((item) => item.getAttribute("href")!));
+  const links = await page.locator('a[href^="/learn/"]').evaluateAll((items) =>
+    items
+      .map((item) => item.getAttribute("href")!)
+      // само връзките към глави: /learn/<модул>/<глава>
+      .filter((href) => href.split("/").length === 4),
+  );
   expect(links.length).toBeGreaterThanOrEqual(3);
 
   for (const href of links) {

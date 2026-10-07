@@ -222,8 +222,9 @@ describe("user_settings", () => {
 
 describe("modules – достъп само с активен план", () => {
   it("активният студент вижда модула", async () => {
+    // планът е „всички модули“, затова вижда и останалите от каталога
     const { data } = await active.client.from("modules").select("id");
-    expect(data).toEqual([{ id: moduleId }]);
+    expect(data).toContainEqual({ id: moduleId });
   });
 
   it("студент с изтекъл план не вижда нищо", async () => {
@@ -301,9 +302,9 @@ describe("enrollments", () => {
       .from("enrollments")
       .update({ revoked_at: null })
       .eq("user_id", active.id);
-    expect((await active.client.from("modules").select("id")).data).toEqual([
-      { id: moduleId },
-    ]);
+    expect(
+      (await active.client.from("modules").select("id")).data,
+    ).toContainEqual({ id: moduleId });
   });
 });
 
@@ -558,5 +559,139 @@ describe("chapters – учебникът се вижда само с актив
       .eq("chapter_id", publishedId)
       .single();
     expect(check.data?.body).toBe("## Загадка\nтекст");
+  });
+});
+
+describe("каталог: университети, специалности, учебни планове", () => {
+  let specialtyId: string;
+  let universityId: string;
+
+  beforeAll(async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+    const university = await service
+      .from("universities")
+      .insert({
+        slug: `rls-${suffix}`,
+        short_name: "ТЕСТ",
+        name: "Тестов университет",
+      })
+      .select("id")
+      .single();
+    if (university.error) throw university.error;
+    universityId = university.data.id;
+    const specialty = await service
+      .from("specialties")
+      .insert({
+        university_id: universityId,
+        slug: "test",
+        short_name: "Т",
+        name: "Тестова специалност",
+        degree: "бакалавър",
+        years: 4,
+      })
+      .select("id")
+      .single();
+    if (specialty.error) throw specialty.error;
+    specialtyId = specialty.data.id;
+    await service.from("curriculum_items").insert({
+      specialty_id: specialtyId,
+      year: 2,
+      term: "winter",
+      title: "Съпротивление на материалите",
+      module_id: moduleId,
+    });
+  });
+
+  afterAll(async () => {
+    await service.from("universities").delete().eq("id", universityId);
+  });
+
+  it("без вход каталогът не се вижда", async () => {
+    for (const table of [
+      "universities",
+      "specialties",
+      "curriculum_items",
+    ] as const) {
+      const { data, error } = await anon.from(table).select("*").limit(1);
+      expect(error).not.toBeNull();
+      expect(data).toBeNull();
+    }
+  });
+
+  it("всеки влязъл потребител вижда учебните планове – и без активен план", async () => {
+    for (const client of [active.client, expired.client]) {
+      const { data } = await client
+        .from("curriculum_items")
+        .select("title")
+        .eq("specialty_id", specialtyId);
+      expect(data).toEqual([{ title: "Съпротивление на материалите" }]);
+    }
+  });
+
+  it("никой влязъл потребител не може да променя каталога", async () => {
+    for (const client of [active.client, admin.client]) {
+      const rename = await client
+        .from("specialties")
+        .update({ name: "Подменена" })
+        .eq("id", specialtyId);
+      expect(rename.error).not.toBeNull();
+      const add = await client.from("curriculum_items").insert({
+        specialty_id: specialtyId,
+        year: 1,
+        term: "winter",
+        title: "Измислена",
+      });
+      expect(add.error).not.toBeNull();
+    }
+  });
+
+  it("потребителят избира своята специалност, но не и чужда", async () => {
+    const own = await active.client
+      .from("profiles")
+      .update({ specialty_id: specialtyId })
+      .eq("id", active.id)
+      .select("specialty_id")
+      .single();
+    expect(own.data?.specialty_id).toBe(specialtyId);
+
+    const other = await active.client
+      .from("profiles")
+      .update({ specialty_id: specialtyId })
+      .eq("id", expired.id)
+      .select("id");
+    expect(other.data).toEqual([]);
+  });
+
+  it("базата отхвърля несъществуваща специалност", async () => {
+    const { error } = await active.client
+      .from("profiles")
+      .update({ specialty_id: crypto.randomUUID() })
+      .eq("id", active.id);
+    expect(error).not.toBeNull();
+  });
+
+  it("заедно със специалността не може да се смени ролята", async () => {
+    const { error } = await active.client
+      .from("profiles")
+      .update({ specialty_id: specialtyId, role: "admin" })
+      .eq("id", active.id);
+    expect(error).not.toBeNull();
+    const check = await service
+      .from("profiles")
+      .select("role")
+      .eq("id", active.id)
+      .single();
+    expect(check.data?.role).toBe("student");
+  });
+
+  it("module_titles показва името на модула и на потребител без достъп, но не и съдържанието", async () => {
+    const titles = await expired.client.rpc("module_titles");
+    expect(
+      titles.data?.some((m) => m.slug === "saprotivlenie-na-materialite"),
+    ).toBe(true);
+    const chapters = await expired.client.from("chapters").select("id");
+    expect(chapters.data).toEqual([]);
+    const denied = await anon.rpc("module_titles");
+    expect(denied.error).not.toBeNull();
   });
 });

@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import type { FormState } from "@/lib/form-state";
@@ -99,4 +100,30 @@ export async function changePassword(
     return { error: "Паролата не беше сменена. Избери друга и опитай пак." };
   }
   return { success: "Паролата е сменена." };
+}
+
+const specialtySchema = z.uuid();
+
+/** Потребителят избира (или сменя) специалността си. */
+export async function chooseSpecialty(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const user = await requireUser();
+  const parsed = specialtySchema.safeParse(formData.get("specialtyId"));
+  if (!parsed.success) return { error: "Избери специалност от списъка." };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ specialty_id: parsed.data })
+    .eq("id", user.id)
+    .select("id")
+    .maybeSingle();
+  // външният ключ в базата отхвърля несъществуваща специалност
+  if (error || !data) return { error: "Специалността не беше записана." };
+
+  revalidatePath("/dashboard");
+  revalidatePath("/account");
+  return { success: "Специалността е записана." };
 }

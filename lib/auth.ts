@@ -8,6 +8,8 @@ export type CurrentUser = {
   email: string;
   fullName: string;
   role: "admin" | "student";
+  /** избраната от потребителя специалност */
+  specialtyId: string | null;
 };
 
 /**
@@ -22,7 +24,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, role")
+    .select("full_name, role, specialty_id")
     .eq("id", data.user.id)
     .single();
   if (!profile) return null;
@@ -32,6 +34,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     email: data.user.email ?? "",
     fullName: profile.full_name,
     role: profile.role,
+    specialtyId: profile.specialty_id,
   };
 });
 

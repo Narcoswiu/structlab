@@ -51,6 +51,9 @@ export default async function globalSetup() {
   });
 
   // Главите на учебника (ако са налични на тази машина) – в локалната база.
+  execFileSync("node", ["scripts/catalog.mts", "push", "--local"], {
+    stdio: ["ignore", "ignore", "inherit"],
+  });
   execFileSync("node", ["scripts/content.mts", "push", "--local"], {
     stdio: ["ignore", "ignore", "inherit"],
   });
