@@ -1,4 +1,5 @@
 import { Check } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { SectionHeading } from "./SectionHeading";
 
 const modes = [
@@ -15,12 +16,13 @@ export function AiAssistant() {
       className="flex scroll-mt-6 flex-wrap items-center gap-10 pt-16 lg:gap-12 lg:pt-[104px]"
     >
       <div className="flex min-w-0 flex-[1_1_400px] flex-col gap-4">
+        <Badge variant="soon">СКОРО</Badge>
         <SectionHeading
           eyebrow="AI АСИСТЕНТ"
           title="Учи те, а не преписва вместо теб"
         >
-          Отговаря само по съдържанието на платформата и посочва урока, от който
-          е взел отговора.
+          Ще отговаря само по съдържанието на платформата и ще посочва урока, от
+          който е взел отговора.
         </SectionHeading>
         <ul className="flex flex-col gap-2.5 pt-1">
           {modes.map((mode) => (

@@ -312,8 +312,8 @@
 }
 
 .reader-toolbar {
-  position: sticky;
-  top: 0;
+  /* на телефон лентата е на два реда – там не я лепим за екрана */
+  position: static;
   z-index: 20;
   display: flex;
   flex-wrap: wrap;
@@ -325,6 +325,12 @@
   background: var(--rd-bg);
   border-bottom: 1px solid var(--rd-line);
   color: var(--rd-heading);
+}
+@media (min-width: 640px) {
+  .reader-toolbar {
+    position: sticky;
+    top: 0;
+  }
 }
 .reader-article {
   max-width: 44rem;

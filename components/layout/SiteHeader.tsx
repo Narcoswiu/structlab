@@ -23,11 +23,8 @@ export function SiteHeader() {
         ))}
       </nav>
       <div className="flex gap-2.5">
-        <Link href="/login" className={buttonClass({ variant: "ghost" })}>
+        <Link href="/login" className={buttonClass({ className: "px-5" })}>
           Вход
-        </Link>
-        <Link href="/demo" className={buttonClass({ className: "px-5" })}>
-          Пробвай демото
         </Link>
       </div>
     </header>

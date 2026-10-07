@@ -14,6 +14,13 @@ import {
   renderBeamFigure,
   type BeamFigureOptions,
 } from "../lib/content/beam-figure.ts";
+import {
+  renderBarFigure,
+  renderRigidBeamFigure,
+  type BarFigureSpec,
+  type RigidBeamFigureSpec,
+} from "../lib/content/axial-figure.ts";
+import { renderSectionFigure } from "../lib/content/section-figure.ts";
 import { findSvgProblem } from "../lib/content/svg.ts";
 import {
   verifyChapterBody,
@@ -22,12 +29,31 @@ import {
   type GlossaryEntry,
 } from "../lib/content/verify.ts";
 import type { Beam } from "../lib/engineering/beam.ts";
+import type { Rect } from "../lib/engineering/section.ts";
 
-type FigureSpec = {
-  title: string;
-  beam: Beam;
-  parts?: BeamFigureOptions["parts"];
-};
+type FigureSpec =
+  | { title: string; beam: Beam; parts?: BeamFigureOptions["parts"] }
+  | { title: string; section: Rect[]; principal?: boolean }
+  | ({ kind: "bar" } & BarFigureSpec)
+  | ({ kind: "rigid-beam" } & RigidBeamFigureSpec);
+
+function renderFigure(spec: FigureSpec): string {
+  if ("beam" in spec) {
+    return renderBeamFigure(spec.beam, {
+      title: spec.title,
+      parts: spec.parts,
+    });
+  }
+  if ("section" in spec) {
+    return renderSectionFigure(spec.section, {
+      title: spec.title,
+      principal: spec.principal,
+    });
+  }
+  return spec.kind === "bar"
+    ? renderBarFigure(spec)
+    : renderRigidBeamFigure(spec);
+}
 type Meta = {
   number: number;
   slug: string;
@@ -71,10 +97,7 @@ export function loadChapters(): LoadedChapter[] {
       // фигури: начертани от изчисленията + ръчно нарисувани SVG файлове
       const figures: Record<string, string> = {};
       for (const [figureName, spec] of Object.entries(meta.figures ?? {})) {
-        figures[figureName] = renderBeamFigure(spec.beam, {
-          title: spec.title,
-          parts: spec.parts,
-        });
+        figures[figureName] = renderFigure(spec);
       }
       const figuresDir = path.join(dir, "figures");
       if (existsSync(figuresDir)) {

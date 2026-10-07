@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { Button, buttonClass } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 
 type PageIntroProps = {
   /** уникално име на екрана, напр. "dashboard" */
@@ -61,15 +60,6 @@ export function PageIntro({
         </span>
       </div>
       <div className="flex flex-wrap gap-2">
-        <Link
-          href="/welcome"
-          className={buttonClass({
-            variant: "outline",
-            className: "border-intro-line bg-transparent px-4",
-          })}
-        >
-          Пълна обиколка
-        </Link>
         <Button onClick={handleDismiss}>Разбрах</Button>
       </div>
     </motion.section>

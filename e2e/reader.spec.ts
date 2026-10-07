@@ -180,3 +180,37 @@ test("потребител без активен план не може да о�
   expect(response?.status()).toBe(404);
   await expect(page.getByText("Вземи пластмасова линийка")).toHaveCount(0);
 });
+
+test("всяка глава от таблото се отваря цяла – и в двата режима", async ({
+  page,
+}) => {
+  await signIn(page, E2E_READER.email, E2E_READER.password);
+  const links = await page
+    .locator('a[href^="/learn/"]')
+    .evaluateAll((items) => items.map((item) => item.getAttribute("href")!));
+  expect(links.length).toBeGreaterThanOrEqual(3);
+
+  for (const href of links) {
+    for (const mode of ["easy", "detailed"]) {
+      await page.goto(`${href}?mode=${mode}`);
+      const prose = page.locator(".reader-prose");
+      await expect(page.locator(".reader-prose > h2")).toHaveCount(7);
+      await expect(page.getByText("[липсва фигура]")).toHaveCount(0);
+      expect(await page.locator(".figure svg").count()).toBeGreaterThanOrEqual(
+        2,
+      );
+      expect(await prose.locator(".katex").count()).toBeGreaterThan(10);
+      // няма останали сурови означения и неизрисувани формули
+      await expect(prose).not.toContainText("$$");
+      await expect(prose).not.toContainText(":::");
+      await expect(prose.locator(".katex-error")).toHaveCount(0);
+      // нито един ред не излиза извън екрана
+      const overflow = await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth -
+          document.documentElement.clientWidth,
+      );
+      expect(overflow).toBeLessThanOrEqual(0);
+    }
+  }
+});

@@ -30,6 +30,7 @@ for (const path of [
   "/forgot-password",
   "/welcome",
   "/privacy",
+  "/terms",
   "/invite/abc",
 ]) {
   test(`публична страница ${path}`, async ({ page }) => {
@@ -55,6 +56,14 @@ test("вътрешни страници: табло, профил, админ, �
   }
 
   // четецът – и в трите теми, защото контрастът е различен във всяка
+  // всяка глава в тъмната тема
+  for (const slug of ["inertsionni-momenti", "opan-i-natisk"]) {
+    await page.goto(
+      `/learn/saprotivlenie-na-materialite/${slug}?mode=detailed`,
+    );
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expectNoViolations(page);
+  }
   await page.goto(
     "/learn/saprotivlenie-na-materialite/razrezni-usiliya?mode=detailed",
   );

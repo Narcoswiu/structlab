@@ -1,7 +1,6 @@
 export const siteName = "StructLab";
 
 export const navLinks = [
-  { href: "/welcome", label: "Въведение" },
   { href: "/#features", label: "Възможности" },
   { href: "/#spec", label: "Специалности" },
   { href: "/#ai", label: "AI асистент" },
@@ -44,10 +43,6 @@ export const comingSoonPages = {
   demo: {
     title: "Демо лаборатория",
     text: "BeamLab – лабораторията за греди с живи диаграми Q и M – е в разработка.",
-  },
-  terms: {
-    title: "Общи условия",
-    text: "Общите условия ще бъдат публикувани преди пускането на сайта.",
   },
   contact: {
     title: "Контакт",

@@ -16,14 +16,14 @@ export function WhyIBeam() {
           </h2>
           <p className="text-[17px] leading-[1.65] text-muted-foreground">
             Същото количество стомана, но поясите са далеч от оста. Затова
-            инерционният момент е до 11 пъти по-голям, отколкото при плътен
+            инерционният момент е многократно по-голям, отколкото при плътен
             правоъгълник със същата площ.
           </p>
           <Link
             href="/login"
             className="inline-flex min-h-11 items-center self-start font-extrabold text-link hover:text-link-hover"
           >
-            Прочети в Глава 5 →
+            Прочети в учебника →
           </Link>
         </div>
       </div>

@@ -48,7 +48,7 @@ test("анимациите спират при prefers-reduced-motion", async ({
 
 test("бутоните в героя са поне 44 px високи", async ({ page }) => {
   await page.goto("/");
-  for (const name of ["Вход", "Пробвай демото", "Отвори лабораторията"]) {
+  for (const name of ["Вход", "Вход с покана", "Виж възможностите"]) {
     const box = await page.getByRole("link", { name }).first().boundingBox();
     expect(box?.height).toBeGreaterThanOrEqual(44);
   }

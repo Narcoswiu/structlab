@@ -26,15 +26,15 @@ export function Hero() {
               който води към решението, вместо да го дава наготово.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Link href="/demo" className={buttonClass({ size: "lg" })}>
-                Отвори лабораторията
+              <Link href="/login" className={buttonClass({ size: "lg" })}>
+                Вход с покана
                 <ArrowRight className="size-[18px]" strokeWidth={2.5} />
               </Link>
               <Link
-                href="/welcome"
+                href="/#features"
                 className={buttonClass({ variant: "outline", size: "lg" })}
               >
-                Как работи сайтът
+                Виж възможностите
               </Link>
             </div>
             <div className="flex flex-wrap gap-x-7 gap-y-2.5 text-sm font-semibold text-dim">

@@ -61,11 +61,12 @@ export function FeedbackButton() {
       <Button
         variant="outline"
         aria-expanded={open}
-        className="shadow-[0_12px_30px_-12px_rgba(0,0,0,0.7)]"
+        aria-label="Обратна връзка"
+        className="px-3 shadow-[0_12px_30px_-12px_rgba(0,0,0,0.7)] sm:px-[18px]"
         onClick={() => setOpen((value) => !value)}
       >
         <MessageSquarePlus aria-hidden="true" className="size-[18px]" />
-        Обратна връзка
+        <span className="hidden sm:inline">Обратна връзка</span>
       </Button>
     </div>
   );

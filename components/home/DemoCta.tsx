@@ -7,21 +7,22 @@ export function DemoCta() {
       <div className="flex flex-wrap items-center justify-between gap-6 rounded-[20px] border border-line-strong bg-surface-2 p-6 sm:p-10">
         <div className="flex flex-col gap-2">
           <h2 className="text-[24px] font-extrabold sm:text-[30px]">
-            Започни с безплатното демо
+            Достъпът е с покана
           </h2>
           <p className="text-muted-foreground">
-            Една глава и лабораторията за греди – без регистрация.
+            Платформата е в бета версия. Ако си получил покана, приеми я от
+            линка в имейла и влез с имейла и паролата си.
           </p>
         </div>
         <Link
-          href="/demo"
+          href="/login"
           className={buttonClass({
             variant: "warm",
             size: "lg",
             className: "px-7",
           })}
         >
-          Пробвай сега
+          Вход
         </Link>
       </div>
     </section>

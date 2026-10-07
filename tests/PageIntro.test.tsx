@@ -21,13 +21,13 @@ function renderIntro(dismissed = false) {
 afterEach(cleanup);
 
 describe("PageIntro", () => {
-  it("показва заглавието, текста и линк към обиколката", () => {
+  it("показва заглавието и текста", () => {
     renderIntro();
     expect(screen.getByText("КАКВО Е ТАЗИ СТРАНИЦА")).toBeInTheDocument();
     expect(screen.getByText("Табло – твоят начален екран")).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Пълна обиколка" }),
-    ).toHaveAttribute("href", "/welcome");
+      screen.getByText("Оттук продължаваш откъдето си спрял."),
+    ).toBeInTheDocument();
   });
 
   it("не се показва, ако потребителят вече го е скрил", () => {
