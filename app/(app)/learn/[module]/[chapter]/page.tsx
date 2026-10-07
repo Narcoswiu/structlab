@@ -8,7 +8,9 @@ import {
   type ReaderMode,
   type ReaderTheme,
 } from "@/components/reader/ReaderShell";
+import { ReadingTracker } from "@/components/tracking/ReadingTracker";
 import { requireUser } from "@/lib/auth";
+import { getTrackingAcceptedAt } from "@/lib/tracking";
 import { createClient } from "@/lib/supabase/server";
 
 const slugPattern = /^[a-z0-9-]{1,80}$/;
@@ -96,6 +98,7 @@ export default async function ChapterPage(
     (figuresResult.data ?? []).map((figure) => [figure.name, figure.svg]),
   );
   const sources = parseSources(chapter.sources);
+  const trackingAccepted = Boolean(await getTrackingAcceptedAt(user.id));
   const theme: ReaderTheme =
     settings?.theme === "light" || settings?.theme === "sepia"
       ? settings.theme
@@ -107,6 +110,11 @@ export default async function ChapterPage(
       mode={mode}
       initialTheme={theme}
       initialFontSize={settings?.font_size ?? 2}
+      track={
+        trackingAccepted
+          ? { module: moduleSlug, chapter: chapterSlug }
+          : undefined
+      }
       header={
         <header className="reader-header">
           <Link href="/dashboard" className="reader-back">
@@ -120,6 +128,9 @@ export default async function ChapterPage(
         </header>
       }
     >
+      {trackingAccepted ? (
+        <ReadingTracker module={moduleSlug} chapter={chapterSlug} mode={mode} />
+      ) : null}
       <ChapterBody markdown={bodyResult.data.body} figures={figures} />
       {sources.length > 0 ? (
         <section className="reader-sources" aria-label="Източници">

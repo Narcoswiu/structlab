@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import type { FormState } from "@/lib/form-state";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 const introIdSchema = z.string().regex(/^[a-z0-9-]{1,40}$/);
@@ -126,4 +127,20 @@ export async function chooseSpecialty(
   revalidatePath("/dashboard");
   revalidatePath("/account");
   return { success: "Специалността е записана." };
+}
+
+/**
+ * Потребителят потвърждава известието за проследяването. Записва се кога.
+ * Колоната не може да се променя от клиента, затова записът е със secret key –
+ * но само за собствения ред на влезлия потребител.
+ */
+export async function acceptTrackingNotice(): Promise<void> {
+  const user = await requireUser();
+  const admin = createAdminClient();
+  await admin
+    .from("user_settings")
+    .update({ tracking_notice_accepted_at: new Date().toISOString() })
+    .eq("user_id", user.id)
+    .is("tracking_notice_accepted_at", null);
+  revalidatePath("/", "layout");
 }

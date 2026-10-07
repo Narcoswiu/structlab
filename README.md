@@ -47,6 +47,7 @@ pnpm dev
 | `pnpm admin:create <имейл>`      | прави акаунт администратор                                                                   |
 | `pnpm content:verify`            | проверява главите на учебника по правилата за съдържание                                     |
 | `pnpm content:push`              | качва главите в базата                                                                       |
+| `pnpm catalog:push`              | качва каталога на специалностите (`content/catalog.yml`)                                     |
 | `pnpm format`                    | форматиране с Prettier                                                                       |
 
 ## Структура

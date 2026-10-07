@@ -6,7 +6,9 @@ import { NoAccess } from "@/components/app/NoAccess";
 import { BeamLab } from "@/components/labs/BeamLab";
 import { PageIntro } from "@/components/PageIntro";
 import { hasActiveAccess } from "@/lib/access";
+import { LabTracker } from "@/components/tracking/LabTracker";
 import { requireUser } from "@/lib/auth";
+import { getTrackingAcceptedAt } from "@/lib/tracking";
 import { getDismissedIntros } from "@/lib/user-settings";
 
 export const metadata: Metadata = { title: "Лаборатория за греди" };
@@ -17,6 +19,8 @@ export default async function BeamLabPage() {
     hasActiveAccess(user),
     getDismissedIntros(),
   ]);
+
+  const trackingAccepted = Boolean(await getTrackingAcceptedAt(user.id));
 
   return (
     <>
@@ -46,7 +50,14 @@ export default async function BeamLabPage() {
           часовниковата стрелка. Диаграмата M е от страната на опънатите нишки.
         </p>
       </div>
-      {allowed ? <BeamLab /> : <NoAccess />}
+      {allowed ? (
+        <>
+          {trackingAccepted ? <LabTracker lab="beam" /> : null}
+          <BeamLab />
+        </>
+      ) : (
+        <NoAccess />
+      )}
     </>
   );
 }

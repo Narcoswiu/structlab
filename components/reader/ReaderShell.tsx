@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Minus, Plus } from "lucide-react";
 import { saveReaderSettings } from "@/app/(app)/learn/actions";
+import { trackEvent } from "@/components/tracking/trackEvent";
 import { cn } from "@/lib/utils";
 
 export type ReaderTheme = "light" | "sepia" | "dark";
@@ -16,6 +17,8 @@ type ReaderShellProps = {
   initialFontSize: number;
   header: React.ReactNode;
   children: React.ReactNode;
+  /** ако е подадено, смяната на режима се записва като събитие */
+  track?: { module: string; chapter: string };
 };
 
 const themes: { id: ReaderTheme; label: string; swatch: string }[] = [
@@ -35,6 +38,7 @@ export function ReaderShell({
   initialFontSize,
   header,
   children,
+  track,
 }: ReaderShellProps) {
   const router = useRouter();
   const [theme, setTheme] = useState(initialTheme);
@@ -72,6 +76,7 @@ export function ReaderShell({
   function changeMode(next: ReaderMode) {
     if (next === mode) return;
     const hash = currentSection.current ? `#${currentSection.current}` : "";
+    if (track) trackEvent({ type: "mode_toggle", ...track, mode: next });
     startTransition(async () => {
       await saveReaderSettings({ reader_mode: next });
       router.push(`${basePath}?mode=${next}${hash}`);

@@ -10,6 +10,7 @@ import { allowLoginLink } from "@/lib/login-link-throttle";
 import { absoluteUrl } from "@/lib/site-url";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { recordLoginIfAccepted } from "@/lib/tracking";
 
 const signInSchema = z.object({
   email: z.email().max(254),
@@ -36,8 +37,11 @@ export async function signIn(
   if (!parsed.success) return invalid;
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { data: session, error } = await supabase.auth.signInWithPassword(
+    parsed.data,
+  );
   if (error) return invalid;
+  if (session.user) await recordLoginIfAccepted(session.user.id);
 
   redirect(safeNextPath(formData.get("next")));
 }

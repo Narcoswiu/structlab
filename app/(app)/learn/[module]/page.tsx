@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ProgressBar } from "@/components/app/ProgressBar";
 import { requireUser } from "@/lib/auth";
+import { getMyProgress } from "@/lib/progress";
 import { createClient } from "@/lib/supabase/server";
 
 const slugPattern = /^[a-z0-9-]{1,80}$/;
@@ -12,7 +14,7 @@ async function loadModule(slug: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("modules")
-    .select("title, description, chapters(slug, number, title, summary)")
+    .select("title, description, chapters(id, slug, number, title, summary)")
     .eq("slug", slug)
     .order("number", { referencedTable: "chapters" })
     .maybeSingle();
@@ -29,9 +31,10 @@ export async function generateMetadata(
 
 export default async function ModulePage(props: PageProps<"/learn/[module]">) {
   const { module: slug } = await props.params;
-  await requireUser();
+  const user = await requireUser();
   const data = await loadModule(slug);
   if (!data) notFound();
+  const { byChapter } = await getMyProgress(user.id);
 
   return (
     <>
@@ -57,8 +60,13 @@ export default async function ModulePage(props: PageProps<"/learn/[module]">) {
                 href={`/learn/${slug}/${chapter.slug}`}
                 className="lift flex flex-col gap-1.5 rounded-2xl border border-line bg-surface p-5 no-underline sm:p-6"
               >
-                <span className="font-mono text-sm text-primary">
-                  Глава {chapter.number}
+                <span className="flex flex-wrap items-center justify-between gap-3">
+                  <span className="font-mono text-sm text-primary">
+                    Глава {chapter.number}
+                  </span>
+                  {byChapter.has(chapter.id) ? (
+                    <ProgressBar progress={byChapter.get(chapter.id)!} />
+                  ) : null}
                 </span>
                 <span className="text-xl font-extrabold text-foreground">
                   {chapter.title}

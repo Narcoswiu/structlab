@@ -3,13 +3,16 @@ import Link from "next/link";
 import { LayoutGrid } from "lucide-react";
 import { dismissIntro } from "@/app/(app)/actions";
 import { NoAccess } from "@/components/app/NoAccess";
+import { ProgressBar } from "@/components/app/ProgressBar";
 import { SpecialtyPicker } from "@/components/app/SpecialtyPicker";
 import { StudyPlan } from "@/components/app/StudyPlan";
 import { PageIntro } from "@/components/PageIntro";
 import { TiltCard } from "@/components/three-d/TiltCard";
 import { Badge } from "@/components/ui/badge";
+import { buttonClass } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth";
 import { getPlan, listSpecialties } from "@/lib/catalog";
+import { getMyProgress } from "@/lib/progress";
 import { daysUntil, formatDate } from "@/lib/format-date";
 import { createClient } from "@/lib/supabase/server";
 import { getDismissedIntros } from "@/lib/user-settings";
@@ -24,7 +27,7 @@ export default async function DashboardPage() {
   const [modulesResult, enrollmentsResult, dismissed] = await Promise.all([
     supabase
       .from("modules")
-      .select("id, slug, title, description, chapters(slug, number, title)")
+      .select("id, slug, title, description, chapters(id, slug, number, title)")
       .order("sort_order")
       .order("number", { referencedTable: "chapters" }),
     supabase
@@ -37,6 +40,7 @@ export default async function DashboardPage() {
       .limit(1),
     getDismissedIntros(),
   ]);
+  const myProgress = await getMyProgress(user.id);
   const specialties = await listSpecialties();
   const specialty = specialties.find((item) => item.id === user.specialtyId);
   const plan = specialty ? await getPlan(specialty.id, specialty.years) : null;
@@ -88,6 +92,32 @@ export default async function DashboardPage() {
         ) : null}
       </div>
 
+      {hasAccess && myProgress.resume ? (
+        <section
+          aria-label="Продължи откъдето спря"
+          className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-primary bg-surface-hi p-5 sm:p-6"
+        >
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <span className="text-xs font-extrabold tracking-[1.2px] text-link uppercase">
+              Продължи откъдето спря
+            </span>
+            <span className="text-xl font-extrabold">
+              {myProgress.resume.chapterTitle}
+            </span>
+            <span className="text-sm text-dim">
+              {myProgress.resume.moduleTitle}
+              {myProgress.resume.sectionTitle
+                ? ` · стигна до „${myProgress.resume.sectionTitle}“`
+                : ""}
+            </span>
+            <ProgressBar progress={myProgress.resume.progress} />
+          </div>
+          <Link href={myProgress.resume.href} className={buttonClass()}>
+            Продължи
+          </Link>
+        </section>
+      ) : null}
+
       {hasAccess ? (
         specialty && plan ? (
           <StudyPlan specialty={specialty} plan={plan} />
@@ -135,7 +165,14 @@ export default async function DashboardPage() {
                           <span className="font-mono text-sm text-dim">
                             {String(chapter.number).padStart(2, "0")}
                           </span>
-                          {chapter.title}
+                          <span className="min-w-0 flex-1">
+                            {chapter.title}
+                          </span>
+                          {myProgress.byChapter.has(chapter.id) ? (
+                            <ProgressBar
+                              progress={myProgress.byChapter.get(chapter.id)!}
+                            />
+                          ) : null}
                         </Link>
                       </li>
                     ))}

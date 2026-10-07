@@ -14,6 +14,8 @@ const serverEnvSchema = z.object({
   SMTP_USER: optional,
   SMTP_PASS: optional,
   EMAIL_FROM: optional,
+  // защитава нощната задача /api/cron/aggregate
+  CRON_SECRET: optional,
 });
 
 export const serverEnv = serverEnvSchema.parse({
@@ -23,4 +25,5 @@ export const serverEnv = serverEnvSchema.parse({
   SMTP_USER: process.env.SMTP_USER,
   SMTP_PASS: process.env.SMTP_PASS,
   EMAIL_FROM: process.env.EMAIL_FROM,
+  CRON_SECRET: process.env.CRON_SECRET,
 });

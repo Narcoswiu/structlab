@@ -48,7 +48,7 @@ test("вътрешни страници: табло, профил, админ, �
   await page.waitForURL(/\/dashboard$/);
   await expectNoViolations(page);
 
-  for (const path of ["/account", "/admin", "/design"]) {
+  for (const path of ["/account", "/admin", "/admin/activity", "/design"]) {
     await page.goto(path);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expectNoViolations(page);

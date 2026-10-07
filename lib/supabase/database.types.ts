@@ -137,6 +137,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"daily_activity": {
+                  Row: {
+                    "day": string,"events": number,"seconds": number,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "day": string,"events"?: number,"seconds"?: number,"user_id": string
+                  }
+                  Update: {
+                    "day"?: string,"events"?: number,"seconds"?: number,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"enrollments": {
                   Row: {
                     "created_at": string,"expires_at": string,"id": string,"plan_id": string,"revoked_at": string | null,"source": Database["public"]['Enums']["enrollment_source"],"starts_at": string,"user_id": string
@@ -154,6 +168,26 @@ isOneToOne: false
       columns: ["plan_id"]
 isOneToOne: false
       referencedRelation: "access_plans"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"events": {
+                  Row: {
+                    "chapter_id": string | null,"created_at": string,"id": number,"lab": string | null,"mode": Database["public"]['Enums']["content_mode"] | null,"section": string | null,"type": Database["public"]['Enums']["event_type"],"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "chapter_id"?: string | null,"created_at"?: string,"id"?: never,"lab"?: string | null,"mode"?: Database["public"]['Enums']["content_mode"] | null,"section"?: string | null,"type": Database["public"]['Enums']["event_type"],"user_id": string
+                  }
+                  Update: {
+                    "chapter_id"?: string | null,"created_at"?: string,"id"?: never,"lab"?: string | null,"mode"?: Database["public"]['Enums']["content_mode"] | null,"section"?: string | null,"type"?: Database["public"]['Enums']["event_type"],"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "events_chapter_id_fkey"
+      columns: ["chapter_id"]
+isOneToOne: false
+      referencedRelation: "chapters"
       referencedColumns: ["id"]
     }
                   ]
@@ -265,6 +299,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"progress": {
+                  Row: {
+                    "chapter_id": string,"first_opened_at": string,"last_activity_at": string,"last_mode": Database["public"]['Enums']["content_mode"] | null,"last_section": string | null,"seconds": number,"sections_seen": (string)[],"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "chapter_id": string,"first_opened_at"?: string,"last_activity_at"?: string,"last_mode"?: Database["public"]['Enums']["content_mode"] | null,"last_section"?: string | null,"seconds"?: number,"sections_seen"?: (string)[],"user_id": string
+                  }
+                  Update: {
+                    "chapter_id"?: string,"first_opened_at"?: string,"last_activity_at"?: string,"last_mode"?: Database["public"]['Enums']["content_mode"] | null,"last_section"?: string | null,"seconds"?: number,"sections_seen"?: (string)[],"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "progress_chapter_id_fkey"
+      columns: ["chapter_id"]
+isOneToOne: false
+      referencedRelation: "chapters"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"request_throttle": {
                   Row: {
                     "created_at": string,"id": number,"key_hash": string,"kind": string
@@ -315,14 +369,14 @@ isOneToOne: false
                   ]
                 },"user_settings": {
                   Row: {
-                    "font_size": number,"intro_dismissed": NonNullable<Json>,"marketing_consent": boolean,"reader_mode": string,"reminders_enabled": boolean,"terms_accepted_at": string | null,"theme": string,"updated_at": string,"user_id": string
+                    "font_size": number,"intro_dismissed": NonNullable<Json>,"marketing_consent": boolean,"reader_mode": string,"reminders_enabled": boolean,"terms_accepted_at": string | null,"theme": string,"tracking_notice_accepted_at": string | null,"updated_at": string,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "font_size"?: number,"intro_dismissed"?: NonNullable<Json>,"marketing_consent"?: boolean,"reader_mode"?: string,"reminders_enabled"?: boolean,"terms_accepted_at"?: string | null,"theme"?: string,"updated_at"?: string,"user_id": string
+                    "font_size"?: number,"intro_dismissed"?: NonNullable<Json>,"marketing_consent"?: boolean,"reader_mode"?: string,"reminders_enabled"?: boolean,"terms_accepted_at"?: string | null,"theme"?: string,"tracking_notice_accepted_at"?: string | null,"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "font_size"?: number,"intro_dismissed"?: NonNullable<Json>,"marketing_consent"?: boolean,"reader_mode"?: string,"reminders_enabled"?: boolean,"terms_accepted_at"?: string | null,"theme"?: string,"updated_at"?: string,"user_id"?: string
+                    "font_size"?: number,"intro_dismissed"?: NonNullable<Json>,"marketing_consent"?: boolean,"reader_mode"?: string,"reminders_enabled"?: boolean,"terms_accepted_at"?: string | null,"theme"?: string,"tracking_notice_accepted_at"?: string | null,"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     
@@ -347,11 +401,17 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "can_read_chapter":
+            "activity_day":
+{ Args: { "moment": string }; Returns: string
+                           },
+"can_read_chapter":
 { Args: { "target_chapter": string }; Returns: boolean
                            },
 "has_module_access":
 { Args: { "target_module": string }; Returns: boolean
+                           },
+"heartbeat_seconds":
+{ Args: Record<PropertyKey, never>; Returns: number
                            },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
@@ -360,10 +420,18 @@ isOneToOne: false
 { Args: Record<PropertyKey, never>; Returns: {
               "chapter_count": number,"id": string,"slug": string,"title": string
             }[]
+                           },
+"rebuild_aggregates":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "activity_rows": number,"progress_rows": number,"purged": number
+            }[]
+                           },
+"record_event":
+{ Args: { "p_chapter"?: string,"p_lab"?: string,"p_mode"?: Database["public"]['Enums']["content_mode"],"p_section"?: string,"p_type": Database["public"]['Enums']["event_type"],"p_user": string }; Returns: boolean
                            }
           }
           Enums: {
-            "content_mode": "easy"|"detailed","enrollment_source": "stripe"|"manual"|"invite"|"beta","term": "winter"|"summer","user_role": "admin"|"student"
+            "content_mode": "easy"|"detailed","enrollment_source": "stripe"|"manual"|"invite"|"beta","event_type": "login"|"chapter_open"|"section_view"|"heartbeat"|"mode_toggle"|"pdf_download"|"lab_open","term": "winter"|"summer","user_role": "admin"|"student"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -483,7 +551,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "content_mode": ["easy", "detailed"],"enrollment_source": ["stripe", "manual", "invite", "beta"],"term": ["winter", "summer"],"user_role": ["admin", "student"]
+            "content_mode": ["easy", "detailed"],"enrollment_source": ["stripe", "manual", "invite", "beta"],"event_type": ["login", "chapter_open", "section_view", "heartbeat", "mode_toggle", "pdf_download", "lab_open"],"term": ["winter", "summer"],"user_role": ["admin", "student"]
           }
         }
 } as const

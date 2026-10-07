@@ -9,6 +9,7 @@ import { PlanDurationForm } from "@/components/admin/PlanDurationForm";
 import { WaitlistInviteForm } from "@/components/admin/WaitlistInviteForm";
 import { PageIntro } from "@/components/PageIntro";
 import { Badge } from "@/components/ui/badge";
+import { buttonClass } from "@/components/ui/button";
 import { SubmitButton } from "@/components/ui/form";
 import { requireAdmin } from "@/lib/auth";
 import { isEmailConfigured } from "@/lib/email/send";
@@ -132,9 +133,17 @@ export default async function AdminPage() {
         удължаваш достъпа. Регистрация без покана няма.
       </PageIntro>
 
-      <h1 className="font-display text-[clamp(24px,5vw,36px)] leading-[1.15] font-bold">
-        Админ
-      </h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-display text-[clamp(24px,5vw,36px)] leading-[1.15] font-bold">
+          Админ
+        </h1>
+        <Link
+          href="/admin/activity"
+          className={buttonClass({ variant: "outline" })}
+        >
+          Активност на потребителите →
+        </Link>
+      </div>
 
       <Panel title="Нова покана">
         <InviteCreateForm

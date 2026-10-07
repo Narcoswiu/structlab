@@ -6,7 +6,9 @@ import { NoAccess } from "@/components/app/NoAccess";
 import { SectionLab } from "@/components/labs/SectionLab";
 import { PageIntro } from "@/components/PageIntro";
 import { hasActiveAccess } from "@/lib/access";
+import { LabTracker } from "@/components/tracking/LabTracker";
 import { requireUser } from "@/lib/auth";
+import { getTrackingAcceptedAt } from "@/lib/tracking";
 import { getDismissedIntros } from "@/lib/user-settings";
 
 export const metadata: Metadata = { title: "Лаборатория за сечения" };
@@ -17,6 +19,8 @@ export default async function SectionLabPage() {
     hasActiveAccess(user),
     getDismissedIntros(),
   ]);
+
+  const trackingAccepted = Boolean(await getTrackingAcceptedAt(user.id));
 
   return (
     <>
@@ -46,7 +50,14 @@ export default async function SectionLabPage() {
           вертикалната y през центъра на тежестта.
         </p>
       </div>
-      {allowed ? <SectionLab /> : <NoAccess />}
+      {allowed ? (
+        <>
+          {trackingAccepted ? <LabTracker lab="section" /> : null}
+          <SectionLab />
+        </>
+      ) : (
+        <NoAccess />
+      )}
     </>
   );
 }

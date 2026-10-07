@@ -145,7 +145,7 @@ test("„Разбрах“ се помни в акаунта, а обратна�
   const saved = page.waitForResponse(
     (response) => response.request().method() === "POST",
   );
-  await page.getByRole("button", { name: "Разбрах" }).click();
+  await page.getByRole("button", { name: "Разбрах", exact: true }).click();
   await expect(intro).toBeHidden();
   expect((await saved).ok()).toBe(true);
   await page.reload();
