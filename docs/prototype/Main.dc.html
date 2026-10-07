@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<title>StructLab – начало</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0F1C}
+a{color:#9CC3FF}a:hover{color:#D3E4FF}
+.t3d{transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.t3d:hover{transform:perspective(1000px) rotateX(4deg) rotateY(-6deg) translateY(-6px);box-shadow:0 28px 50px -18px rgba(0,0,0,.6),0 0 0 1px rgba(110,168,255,.28)}
+.lift{transition:transform .35s,box-shadow .35s}
+.lift:hover{transform:translateY(-4px);box-shadow:0 24px 48px -20px rgba(0,0,0,.6)}
+.float3d{animation:float3d 8s ease-in-out infinite;transform-style:preserve-3d}
+@keyframes float3d{0%,100%{transform:perspective(1200px) rotateX(7deg) rotateY(-11deg) translateY(0)}50%{transform:perspective(1200px) rotateX(3deg) rotateY(-5deg) translateY(-10px)}}
+.spin3d{animation:spin3d 9s ease-in-out infinite;transform-style:preserve-3d}
+@keyframes spin3d{0%,100%{transform:rotateX(-18deg) rotateY(-38deg)}50%{transform:rotateX(-12deg) rotateY(38deg)}}
+.intro3d{animation:intro3d .7s cubic-bezier(.2,.7,.2,1) both;transform-origin:top center}
+@keyframes intro3d{from{opacity:0;transform:perspective(900px) rotateX(-14deg) translateY(-10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.float3d,.spin3d,.intro3d{animation:none}.t3d,.lift{transition:none}.t3d:hover,.lift:hover{transform:none}}
+</style>
+</helmet>
+<div style="background: #0A0F1C; color: #EAF0F8; font-family: Manrope, 'Segoe UI', sans-serif">
+
+<div style="position: relative; overflow: hidden; border-bottom: 1px solid #1A2540">
+<div aria-hidden="true" style="position: absolute; left: -25%; right: -25%; bottom: -60px; height: 340px; background-image: linear-gradient(rgba(110,168,255,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(110,168,255,0.22) 1px, transparent 1px); background-size: 52px 52px; transform: perspective(520px) rotateX(66deg); transform-origin: bottom center; opacity: 0.5; pointer-events: none"></div>
+<div style="position: relative; max-width: 1200px; margin: 0 auto; padding: 0 32px; box-sizing: border-box">
+
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 0">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #EAF0F8">
+<span style="width: 38px; height: 38px; border-radius: 10px; background: #15213A; border: 1px solid #2B3B5E; display: inline-flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 36 36" fill="none" stroke="#6EA8FF" stroke-width="3" aria-hidden="true"><path d="M6 7h24M6 29h24M18 7v22"></path></svg></span>
+<span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 19px">StructLab</span>
+</a>
+<nav style="display: flex; flex-wrap: wrap; gap: 4px 28px; font-size: 15px; font-weight: 600">
+<a href="Welcome.dc.html" style="color: #B6C2D6; text-decoration: none">Въведение</a>
+<a href="#features" style="color: #B6C2D6; text-decoration: none">Възможности</a>
+<a href="#spec" style="color: #B6C2D6; text-decoration: none">Специалности</a>
+<a href="#ai" style="color: #B6C2D6; text-decoration: none">AI асистент</a>
+<a href="#prices" style="color: #B6C2D6; text-decoration: none">Цени</a>
+</nav>
+<div style="display: flex; gap: 10px">
+<a href="Library.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 10px; color: #EAF0F8; text-decoration: none; font-weight: 700">Вход</a>
+<a href="BeamLab.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 20px; border-radius: 10px; background: #6EA8FF; color: #0A0F1C; text-decoration: none; font-weight: 800">Пробвай демото</a>
+</div>
+</header>
+
+<section style="display: flex; flex-wrap: wrap; align-items: center; gap: 56px; padding: 88px 0 104px">
+<div style="flex: 1 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 28px">
+<span style="align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: #15213A; border: 1px solid #2B3B5E; font-size: 14px; font-weight: 600; color: #B6C2D6"><span style="width: 8px; height: 8px; border-radius: 50%; background: #5EE0A8"></span>За студенти по строителство и архитектура</span>
+<h1 style="margin: 0; font-family: Unbounded, sans-serif; font-size: 54px; line-height: 1.08; font-weight: 700; letter-spacing: -0.5px">Инженерството, обяснено ясно.</h1>
+<p style="margin: 0; font-size: 19px; line-height: 1.65; color: #B6C2D6; max-width: 520px">Учебници в два режима, интерактивни лаборатории и AI асистент, който води към решението, вместо да го дава наготово.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<a href="BeamLab.dc.html" style="display: inline-flex; align-items: center; gap: 10px; min-height: 54px; padding: 0 26px; border-radius: 12px; background: #6EA8FF; color: #0A0F1C; text-decoration: none; font-weight: 800; font-size: 17px">Отвори лабораторията<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0A0F1C" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+<a href="Welcome.dc.html" style="display: inline-flex; align-items: center; min-height: 54px; padding: 0 26px; border-radius: 12px; border: 1px solid #2B3B5E; background: #101A2E; color: #EAF0F8; text-decoration: none; font-weight: 700; font-size: 17px">Как работи сайтът</a>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 10px 28px; font-size: 14px; color: #8C9AB3; font-weight: 600">
+<span>Леко ⇄ Подробно</span><span>Лични задания</span><span>Проследяване на напредъка</span>
+</div>
+</div>
+
+<div class="float3d" style="flex: 1 1 460px; min-width: 0; position: relative; padding: 24px 0 24px 24px; box-sizing: border-box">
+<div style="background: #101A2E; border: 1px solid #2B3B5E; border-radius: 18px; overflow: hidden">
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #1F2C47; font-size: 14px">
+<span style="font-weight: 700">BeamLab · проста греда</span>
+<span style="display: inline-flex; align-items: center; gap: 6px; color: #5EE0A8; font-weight: 600"><span style="width: 7px; height: 7px; border-radius: 50%; background: #5EE0A8"></span>на живо</span>
+</div>
+<div style="padding: 18px 18px 8px">
+<svg viewBox="0 0 520 300" style="width: 100%; height: auto; display: block" aria-label="Греда със сила и моментова диаграма">
+<line x1="40" y1="90" x2="480" y2="90" stroke="#EAF0F8" stroke-width="6" stroke-linecap="round"></line>
+<polygon points="40,96 28,118 52,118" fill="none" stroke="#8C9AB3" stroke-width="2"></polygon>
+<polygon points="480,96 468,118 492,118" fill="none" stroke="#8C9AB3" stroke-width="2"></polygon>
+<line x1="216" y1="18" x2="216" y2="80" stroke="#FFA45C" stroke-width="3"></line>
+<polygon points="216,86 208,70 224,70" fill="#FFA45C"></polygon>
+<text x="228" y="34" fill="#FFA45C" font-family="JetBrains Mono, monospace" font-size="14">F = 30 kN</text>
+<line x1="40" y1="160" x2="480" y2="160" stroke="#2B3B5E" stroke-width="1.5"></line>
+<polygon points="40,160 216,262 480,160" fill="rgba(110,168,255,0.16)" stroke="#6EA8FF" stroke-width="2.5"></polygon>
+<circle cx="216" cy="262" r="5" fill="#FFA45C"></circle>
+<text x="228" y="286" fill="#9CC3FF" font-family="JetBrains Mono, monospace" font-size="14">M max = 43,2 kN·m</text>
+</svg>
+</div>
+<div style="display: flex; gap: 10px; padding: 0 18px 18px">
+<span style="flex: 1 1 0; padding: 10px 12px; border-radius: 10px; background: #15213A; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B6C2D6">R<sub>A</sub> = 18,00 kN</span>
+<span style="flex: 1 1 0; padding: 10px 12px; border-radius: 10px; background: #15213A; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B6C2D6">R<sub>B</sub> = 12,00 kN</span>
+</div>
+</div>
+<div style="position: absolute; left: 0; bottom: 0; max-width: 260px; padding: 14px 16px; border-radius: 14px; background: #15213A; border: 1px solid #2B3B5E; font-size: 14px; line-height: 1.5; color: #EAF0F8">
+<span style="display: block; font-size: 12px; font-weight: 700; color: #FFA45C; margin-bottom: 4px">AI асистент</span>Q сменя знака под силата – там M е най-голям.</div>
+</div>
+</section>
+</div>
+</div>
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 32px; box-sizing: border-box">
+
+<section style="padding: 104px 0 0">
+<div class="lift" style="display: flex; flex-wrap: wrap; align-items: center; gap: 40px; padding: 40px; border-radius: 20px; background: #101A2E; border: 1px solid #1F2C47; overflow: hidden">
+<div aria-hidden="true" style="flex: 1 1 360px; min-width: 0; height: 320px; display: flex; align-items: center; justify-content: center; perspective: 900px">
+<div class="spin3d" style="position: relative; width: 1px; height: 1px">
+<sc-for list="{{beam}}" as="l" hint-placeholder-count="24">
+<div style="position: absolute; left: -95px; top: -75px; width: 190px; height: 150px; transform: translateZ({{l.z}})">
+<div style="position: absolute; left: 0; top: 0; width: 190px; height: 24px; background: {{l.c}}"></div>
+<div style="position: absolute; left: 85px; top: 24px; width: 20px; height: 102px; background: {{l.c}}"></div>
+<div style="position: absolute; left: 0; top: 126px; width: 190px; height: 24px; background: {{l.c}}"></div>
+</div>
+</sc-for>
+</div>
+</div>
+<div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<span style="font-size: 14px; font-weight: 800; letter-spacing: 1.5px; color: #FFA45C">3D</span>
+<h2 style="margin: 0; font-size: 34px; line-height: 1.15; font-weight: 800; letter-spacing: -0.5px">Защо стоманените греди са с форма „I“?</h2>
+<p style="margin: 0; color: #B6C2D6; font-size: 17px; line-height: 1.65">Същото количество стомана, но поясите са далеч от оста. Затова инерционният момент е до 11 пъти по-голям, отколкото при плътен правоъгълник със същата площ.</p>
+<a href="Reader.dc.html" style="font-weight: 800">Прочети в Глава 5 →</a>
+</div>
+</div>
+</section>
+
+<section id="features" style="padding: 104px 0 0; display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 640px">
+<span style="font-size: 14px; font-weight: 800; letter-spacing: 1.5px; color: #FFA45C">ВЪЗМОЖНОСТИ</span>
+<h2 style="margin: 0; font-size: 38px; line-height: 1.15; font-weight: 800; letter-spacing: -0.5px">Всичко за един модул – на едно място</h2>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<div class="t3d" style="flex: 1 1 340px; min-width: 0; padding: 28px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; display: flex; flex-direction: column; gap: 14px">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: #15213A; display: inline-flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6EA8FF" stroke-width="2" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"></path><path d="M4 19V5"></path></svg></span>
+<h3 style="margin: 0; font-size: 20px; font-weight: 800">Учебници в два режима</h3>
+<p style="margin: 0; color: #B6C2D6; line-height: 1.6">„Леко“ – с примери от живота. „Подробно“ – с изводи и граници на валидност. Превключваш на всяка глава.</p>
+</div>
+<div class="t3d" style="flex: 1 1 340px; min-width: 0; padding: 28px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; display: flex; flex-direction: column; gap: 14px">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: #15213A; display: inline-flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6EA8FF" stroke-width="2" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"></path></svg></span>
+<h3 style="margin: 0; font-size: 20px; font-weight: 800">Интерактивни лаборатории</h3>
+<p style="margin: 0; color: #B6C2D6; line-height: 1.6">Греди, сечения, кръг на Мор. Местиш товара – диаграмите се преначертават веднага.</p>
+</div>
+<div class="t3d" style="flex: 1 1 340px; min-width: 0; padding: 28px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; display: flex; flex-direction: column; gap: 14px">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: #15213A; display: inline-flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6EA8FF" stroke-width="2" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"></path></svg></span>
+<h3 style="margin: 0; font-size: 20px; font-weight: 800">AI асистент по учебника</h3>
+<p style="margin: 0; color: #B6C2D6; line-height: 1.6">Обяснява по-просто, води с въпроси и проверява снимка на ръкописното ти решение.</p>
+</div>
+<div class="t3d" style="flex: 1 1 340px; min-width: 0; padding: 28px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; display: flex; flex-direction: column; gap: 14px">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: #15213A; display: inline-flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFA45C" stroke-width="2" aria-hidden="true"><path d="M4 4h16v16H4z"></path><path d="M8 9h8M8 13h5"></path></svg></span>
+<h3 style="margin: 0; font-size: 20px; font-weight: 800">Лични задания</h3>
+<p style="margin: 0; color: #B6C2D6; line-height: 1.6">Вариантът се смята от факултетния номер, а отговорите се проверяват стъпка по стъпка.</p>
+</div>
+<div class="t3d" style="flex: 1 1 340px; min-width: 0; padding: 28px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; display: flex; flex-direction: column; gap: 14px">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: #15213A; display: inline-flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFA45C" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"></path></svg></span>
+<h3 style="margin: 0; font-size: 20px; font-weight: 800">Повторение през интервали</h3>
+<p style="margin: 0; color: #B6C2D6; line-height: 1.6">Въпросите се връщат точно когато започваш да ги забравяш – 5 минути на ден.</p>
+</div>
+<div class="t3d" style="flex: 1 1 340px; min-width: 0; padding: 28px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; display: flex; flex-direction: column; gap: 14px">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: #15213A; display: inline-flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFA45C" stroke-width="2" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"></path></svg></span>
+<h3 style="margin: 0; font-size: 20px; font-weight: 800">Ясен напредък</h3>
+<p style="margin: 0; color: #B6C2D6; line-height: 1.6">Виждаш докъде си стигнал по всеки модул и какво трябва да минеш преди следващия.</p>
+</div>
+</div>
+</section>
+
+<section style="padding: 104px 0 0; display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 640px">
+<span style="font-size: 14px; font-weight: 800; letter-spacing: 1.5px; color: #FFA45C">МЕТОД</span>
+<h2 style="margin: 0; font-size: 38px; line-height: 1.15; font-weight: 800; letter-spacing: -0.5px">Всяка тема минава през 4 стъпки</h2>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<div class="t3d" style="flex: 1 1 240px; min-width: 0; padding: 24px; border-radius: 16px; border-top: 3px solid #6EA8FF; background: #101A2E; display: flex; flex-direction: column; gap: 10px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #6EA8FF">01</span><h3 style="margin: 0; font-size: 19px; font-weight: 800">Загадка</h3><p style="margin: 0; color: #B6C2D6; line-height: 1.6">Опит от живота: линийка, гъба, спагети.</p></div>
+<div class="t3d" style="flex: 1 1 240px; min-width: 0; padding: 24px; border-radius: 16px; border-top: 3px solid #6EA8FF; background: #101A2E; display: flex; flex-direction: column; gap: 10px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #6EA8FF">02</span><h3 style="margin: 0; font-size: 19px; font-weight: 800">Виж и разбери</h3><p style="margin: 0; color: #B6C2D6; line-height: 1.6">Рисунка, после формула.</p></div>
+<div class="t3d" style="flex: 1 1 240px; min-width: 0; padding: 24px; border-radius: 16px; border-top: 3px solid #FFA45C; background: #101A2E; display: flex; flex-direction: column; gap: 10px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #FFA45C">03</span><h3 style="margin: 0; font-size: 19px; font-weight: 800">Решен пример</h3><p style="margin: 0; color: #B6C2D6; line-height: 1.6">Стъпка по стъпка, с „Защо?“.</p></div>
+<div class="t3d" style="flex: 1 1 240px; min-width: 0; padding: 24px; border-radius: 16px; border-top: 3px solid #FFA45C; background: #101A2E; display: flex; flex-direction: column; gap: 10px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #FFA45C">04</span><h3 style="margin: 0; font-size: 19px; font-weight: 800">Провери се</h3><p style="margin: 0; color: #B6C2D6; line-height: 1.6">Тест и повторение след дни.</p></div>
+</div>
+<div style="display: flex; flex-wrap: wrap; border-radius: 18px; overflow: hidden; border: 1px solid #1F2C47">
+<div style="flex: 1 1 420px; min-width: 0; padding: 32px; background: #F5F7FA; color: #141C2B; display: flex; flex-direction: column; gap: 14px">
+<span style="align-self: flex-start; padding: 6px 12px; border-radius: 999px; background: #DCE8FF; color: #1D3F80; font-weight: 800; font-size: 13px">ЛЕКО</span>
+<p style="margin: 0; font-size: 18px; line-height: 1.7">Огъни гъба за миене като усмивка. Горе тя се свива, долу се разтяга, а по средата има слой, който не се променя – неутралната ос.</p>
+</div>
+<div style="flex: 1 1 420px; min-width: 0; padding: 32px; background: #ECF0F5; color: #141C2B; display: flex; flex-direction: column; gap: 14px">
+<span style="align-self: flex-start; padding: 6px 12px; border-radius: 999px; background: #FFE3CC; color: #8A3C00; font-weight: 800; font-size: 13px">ПОДРОБНО</span>
+<p style="margin: 0; font-size: 18px; line-height: 1.7">По хипотезата на Бернули ε = y/ρ. По закона на Хук σ = E·y/ρ, а от равновесието E·I/ρ = M следва σ = M·y/I.</p>
+</div>
+</div>
+</section>
+
+<section id="spec" style="padding: 104px 0 0; display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; flex-direction: column; gap: 12px; max-width: 680px">
+<span style="font-size: 14px; font-weight: 800; letter-spacing: 1.5px; color: #FFA45C">СПЕЦИАЛНОСТИ</span>
+<h2 style="margin: 0; font-size: 38px; line-height: 1.15; font-weight: 800; letter-spacing: -0.5px">Подредено като в европейските университети</h2>
+<p style="margin: 0; color: #B6C2D6; font-size: 17px; line-height: 1.6">Специалност → курс → семестър → модул → тема. Всеки модул показва какво трябва да знаеш преди него.</p>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px">
+<div class="t3d" style="flex: 1 1 260px; min-width: 0; padding: 24px; border-radius: 16px; background: #101A2E; border: 1px solid #6EA8FF; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center"><span style="padding: 5px 10px; border-radius: 999px; background: #123528; color: #7CEBB9; font-size: 12px; font-weight: 800">АКТИВНА</span></div>
+<h3 style="margin: 0; font-size: 20px; font-weight: 800">Строително инженерство</h3>
+<div style="display: flex; flex-wrap: wrap; gap: 6px"><span style="padding: 5px 10px; border-radius: 8px; background: #15213A; font-size: 13px; color: #B6C2D6">Механика</span><span style="padding: 5px 10px; border-radius: 8px; background: #15213A; font-size: 13px; color: #B6C2D6">СМ</span><span style="padding: 5px 10px; border-radius: 8px; background: #15213A; font-size: 13px; color: #B6C2D6">Строителна статика</span><span style="padding: 5px 10px; border-radius: 8px; background: #15213A; font-size: 13px; color: #B6C2D6">Стоманобетон</span></div>
+<a href="Library.dc.html" style="font-weight: 800; margin-top: auto">Към модулите →</a>
+</div>
+<div class="t3d" style="flex: 1 1 260px; min-width: 0; padding: 24px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; display: flex; flex-direction: column; gap: 14px">
+<div><span style="padding: 5px 10px; border-radius: 999px; background: #241F3D; color: #C9BDFE; font-size: 12px; font-weight: 800">СКОРО</span></div>
+<h3 style="margin: 0; font-size: 20px; font-weight: 800">Архитектура</h3>
+<p style="margin: 0; color: #8C9AB3; font-size: 14px">[модулите се уточняват]</p>
+</div>
+<div class="t3d" style="flex: 1 1 260px; min-width: 0; padding: 24px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; display: flex; flex-direction: column; gap: 14px">
+<div><span style="padding: 5px 10px; border-radius: 999px; background: #241F3D; color: #C9BDFE; font-size: 12px; font-weight: 800">СКОРО</span></div>
+<h3 style="margin: 0; font-size: 20px; font-weight: 800">Геодезия</h3>
+<p style="margin: 0; color: #8C9AB3; font-size: 14px">[модулите се уточняват]</p>
+</div>
+<div class="t3d" style="flex: 1 1 260px; min-width: 0; padding: 24px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; display: flex; flex-direction: column; gap: 14px">
+<div><span style="padding: 5px 10px; border-radius: 999px; background: #241F3D; color: #C9BDFE; font-size: 12px; font-weight: 800">СКОРО</span></div>
+<h3 style="margin: 0; font-size: 20px; font-weight: 800">Транспортно строителство</h3>
+<p style="margin: 0; color: #8C9AB3; font-size: 14px">[модулите се уточняват]</p>
+</div>
+</div>
+</section>
+
+<section style="padding: 104px 0 0">
+<div style="display: flex; flex-wrap: wrap; gap: 40px; align-items: center; padding: 40px; border-radius: 20px; background: #101A2E; border: 1px solid #1F2C47">
+<div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<span style="font-size: 14px; font-weight: 800; letter-spacing: 1.5px; color: #FFA45C">ПРОБВАЙ</span>
+<h2 style="margin: 0; font-size: 32px; line-height: 1.2; font-weight: 800">Твоето задание за секунда</h2>
+<p style="margin: 0; color: #B6C2D6; line-height: 1.6">Въведи факултетния си номер – вариантът се изчислява по формулите от листа на курсовата.</p>
+<label for="fac" style="font-weight: 700; font-size: 14px; color: #B6C2D6">Факултетен номер</label>
+<input id="fac" type="text" inputmode="numeric" value="{{fac}}" onChange="{{onFac}}" style="min-height: 54px; padding: 0 18px; border-radius: 12px; border: 1px solid #2B3B5E; background: #0A0F1C; color: #EAF0F8; font-family: 'JetBrains Mono', monospace; font-size: 22px; max-width: 280px">
+</div>
+<div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 13px; color: #8C9AB3; font-weight: 600">Курсова №1 · схема 1 · k₂ = {{k2}}, k₃ = {{k3}}, k₄ = {{k4}}</span>
+<sc-if value="{{ok}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<div style="flex: 1 1 140px; padding: 18px; border-radius: 14px; background: #15213A; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; color: #8C9AB3">Сила F</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 24px">{{F}} kN</span></div>
+<div style="flex: 1 1 140px; padding: 18px; border-radius: 14px; background: #15213A; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; color: #8C9AB3">Момент M</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 24px">{{M}} kN·m</span></div>
+<div style="flex: 1 1 140px; padding: 18px; border-radius: 14px; background: #15213A; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; color: #8C9AB3">Товар q</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 24px">{{q}} kN/m</span></div>
+<div style="flex: 1 1 140px; padding: 18px; border-radius: 14px; background: #15213A; display: flex; flex-direction: column; gap: 4px"><span style="font-size: 13px; color: #8C9AB3">Дължина a</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 24px">{{a}} m</span></div>
+</div>
+</sc-if>
+<sc-if value="{{notOk}}" hint-placeholder-val="{{ false }}">
+<span style="padding: 18px; border-radius: 14px; background: #2A1E12; color: #FFC58F">Въведи поне 4 цифри.</span>
+</sc-if>
+</div>
+</div>
+</section>
+
+<section id="ai" style="padding: 104px 0 0; display: flex; flex-wrap: wrap; gap: 48px; align-items: center">
+<div style="flex: 1 1 400px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+<span style="font-size: 14px; font-weight: 800; letter-spacing: 1.5px; color: #FFA45C">AI АСИСТЕНТ</span>
+<h2 style="margin: 0; font-size: 38px; line-height: 1.15; font-weight: 800; letter-spacing: -0.5px">Учи те, а не преписва вместо теб</h2>
+<p style="margin: 0; color: #B6C2D6; font-size: 17px; line-height: 1.6">Отговаря само по съдържанието на платформата и посочва урока, от който е взел отговора.</p>
+<div style="display: flex; flex-direction: column; gap: 10px; padding-top: 4px">
+<span style="display: flex; gap: 10px; align-items: center; font-weight: 600"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5EE0A8" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>Обясни по-просто</span>
+<span style="display: flex; gap: 10px; align-items: center; font-weight: 600"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5EE0A8" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>Сократов режим – води с въпроси</span>
+<span style="display: flex; gap: 10px; align-items: center; font-weight: 600"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5EE0A8" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>Провери снимка на решението ми</span>
+<span style="display: flex; gap: 10px; align-items: center; font-weight: 600"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5EE0A8" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>Дай ми подобна задача</span>
+</div>
+</div>
+<div style="flex: 1 1 440px; min-width: 0; padding: 24px; border-radius: 20px; background: #101A2E; border: 1px solid #1F2C47; display: flex; flex-direction: column; gap: 14px">
+<div style="align-self: flex-end; max-width: 80%; padding: 12px 16px; border-radius: 14px 14px 4px 14px; background: #24427A; line-height: 1.5">Защо армировката на балкона е горе?</div>
+<div style="align-self: flex-start; max-width: 88%; padding: 14px 16px; border-radius: 14px 14px 14px 4px; background: #15213A; line-height: 1.6; color: #DCE4F0">Балконът е конзола. При стената моментът опъва горните нишки, а бетонът не понася опън – затова стоманата е горе.<span style="display: block; margin-top: 8px; font-size: 13px; color: #9CC3FF">Източник: Глава 3 · В реалния живот</span></div>
+<div style="align-self: flex-start; max-width: 88%; padding: 12px 16px; border-radius: 14px; border: 1px dashed #3A4C70; color: #FFC58F; font-size: 15px">А къде е опънът при проста греда?</div>
+</div>
+</section>
+
+<section id="prices" style="padding: 104px 0 0; display: flex; flex-direction: column; gap: 40px">
+<div style="display: flex; flex-direction: column; gap: 12px; align-items: center; text-align: center">
+<span style="font-size: 14px; font-weight: 800; letter-spacing: 1.5px; color: #FFA45C">ЦЕНИ</span>
+<h2 style="margin: 0; font-size: 38px; line-height: 1.15; font-weight: 800; letter-spacing: -0.5px">Прост и честен достъп</h2>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center">
+<div class="t3d" style="flex: 1 1 320px; max-width: 420px; padding: 32px; border-radius: 20px; background: #101A2E; border: 1px solid #1F2C47; display: flex; flex-direction: column; gap: 18px">
+<h3 style="margin: 0; font-size: 20px; font-weight: 800">Семестър</h3>
+<span style="font-family: Unbounded, sans-serif; font-size: 40px">[ЦЕНА] €</span>
+<div style="display: flex; flex-direction: column; gap: 10px; color: #B6C2D6">
+<span style="display: flex; gap: 10px; align-items: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6EA8FF" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>Модулите на семестъра</span>
+<span style="display: flex; gap: 10px; align-items: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6EA8FF" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>Всички лаборатории</span>
+<span style="display: flex; gap: 10px; align-items: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6EA8FF" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>AI асистент с месечен лимит</span>
+</div>
+<a href="Library.dc.html" style="display: inline-flex; justify-content: center; align-items: center; min-height: 50px; border-radius: 12px; border: 1px solid #2B3B5E; color: #EAF0F8; text-decoration: none; font-weight: 800; margin-top: auto">Избери</a>
+</div>
+<div class="t3d" style="flex: 1 1 320px; max-width: 420px; padding: 32px; border-radius: 20px; background: #13203A; border: 1px solid #6EA8FF; display: flex; flex-direction: column; gap: 18px">
+<div style="display: flex; justify-content: space-between; align-items: center"><h3 style="margin: 0; font-size: 20px; font-weight: 800">Цяла година</h3><span style="padding: 5px 10px; border-radius: 999px; background: #6EA8FF; color: #0A0F1C; font-size: 12px; font-weight: 800">ПРЕПОРЪЧАН</span></div>
+<span style="font-family: Unbounded, sans-serif; font-size: 40px">[ЦЕНА] €</span>
+<div style="display: flex; flex-direction: column; gap: 10px; color: #B6C2D6">
+<span style="display: flex; gap: 10px; align-items: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6EA8FF" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>Двата семестъра</span>
+<span style="display: flex; gap: 10px; align-items: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6EA8FF" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>Лични задания</span>
+<span style="display: flex; gap: 10px; align-items: center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6EA8FF" stroke-width="2.5" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>Разширен AI асистент</span>
+</div>
+<a href="Library.dc.html" style="display: inline-flex; justify-content: center; align-items: center; min-height: 50px; border-radius: 12px; background: #6EA8FF; color: #0A0F1C; text-decoration: none; font-weight: 800; margin-top: auto">Избери</a>
+</div>
+</div>
+</section>
+
+<section style="padding: 104px 0 88px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 24px; padding: 40px; border-radius: 20px; background: #15213A; border: 1px solid #2B3B5E">
+<div style="display: flex; flex-direction: column; gap: 8px"><h2 style="margin: 0; font-size: 30px; font-weight: 800">Започни с безплатното демо</h2><p style="margin: 0; color: #B6C2D6">Една глава и лабораторията за греди – без регистрация.</p></div>
+<a href="BeamLab.dc.html" style="display: inline-flex; align-items: center; min-height: 54px; padding: 0 28px; border-radius: 12px; background: #FFA45C; color: #0A0F1C; text-decoration: none; font-weight: 800; font-size: 17px">Пробвай сега</a>
+</div>
+</section>
+
+<footer style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; padding: 28px 0 40px; border-top: 1px solid #1A2540; color: #8C9AB3; font-size: 14px">
+<span>© StructLab</span>
+<div style="display: flex; gap: 24px"><a href="#" style="color: #8C9AB3">Поверителност</a><a href="#" style="color: #8C9AB3">Общи условия</a><a href="#" style="color: #8C9AB3">Контакт</a></div>
+</footer>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4700}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { fac: '3147' };
+  }
+  renderVals() {
+    const raw = String(this.state.fac || '').replace(/\D/g, '');
+    const d = raw.split('').map(Number);
+    const ok = d.length >= 4;
+    const k2 = ok ? d[1] : 0, k3 = ok ? d[2] : 0, k4 = ok ? d[3] : 0;
+    return {
+      fac: this.state.fac,
+      onFac: (e) => this.setState({ fac: e.target.value }),
+      ok: ok, notOk: !ok,
+      k2: ok ? k2 : '–', k3: ok ? k3 : '–', k4: ok ? k4 : '–',
+      F: 30 + k3, M: 45 + k4, q: 5 + k4,
+      a: (6 + 0.2 * k2).toFixed(1).replace('.', ','),
+      beam: Array.from({ length: 64 }, (_, i) => ({ z: ((i - 31.5) * 2.6).toFixed(1) + 'px', c: (i === 0 || i === 63) ? '#6EA8FF' : (i % 2 ? '#2C4F8E' : '#29497F') }))
+    };
+  }
+}
+</script>
+</body>
+</html>

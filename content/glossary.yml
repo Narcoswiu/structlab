@@ -1,0 +1,116 @@
+# Речник на термините – единствен източник за терминологията в учебниците.
+# preferred: термин, който използваме; also_ok: допустими синоними; avoid: да не се използват.
+# Да се допълва при всяка нова глава. Спорни термини – да се сверят с лекциите на курса.
+
+- preferred: напрежение
+  symbol: "σ, τ"
+  en: stress
+  avoid: [стрес]
+- preferred: нормално напрежение
+  symbol: "σ"
+  en: normal stress
+- preferred: тангенциално напрежение
+  symbol: "τ"
+  en: shear stress
+  also_ok: [срязващо напрежение]
+- preferred: относително удължение
+  symbol: "ε"
+  en: strain
+  also_ok: [относителна деформация]
+- preferred: разрезни усилия
+  en: internal forces
+  also_ok: [вътрешни усилия]
+- preferred: нормална сила
+  symbol: "N"
+  en: axial force
+- preferred: напречна сила
+  symbol: "Q"
+  en: shear force
+- preferred: огъващ момент
+  symbol: "M"
+  en: bending moment
+- preferred: опорна реакция
+  en: support reaction
+- preferred: неподвижна шарнирна опора
+  en: pinned support
+- preferred: подвижна шарнирна опора
+  en: roller support
+- preferred: запъване
+  en: fixed support
+  also_ok: [вграждане]
+- preferred: конзола
+  en: cantilever
+- preferred: възел
+  en: joint
+- preferred: пунктирано влакно
+  en: reference (dashed) fibre
+- preferred: център на тежестта
+  en: centroid
+  also_ok: [тежище]
+- preferred: статичен момент
+  symbol: "S"
+  en: first moment of area
+- preferred: инерционен момент
+  symbol: "I"
+  en: second moment of area
+  note: "геометрична характеристика (cm⁴); да не се бърка с масовия инерционен момент от физиката"
+- preferred: центробежен инерционен момент
+  symbol: "I_xy"
+  en: product of inertia
+  also_ok: [девиационен инерционен момент]
+- preferred: полярен инерционен момент
+  symbol: "I_p"
+  en: polar moment of inertia
+- preferred: съпротивителен момент
+  symbol: "W"
+  en: section modulus
+  avoid: [секционен модул]
+- preferred: радиус на инерция
+  symbol: "i"
+  en: radius of gyration
+- preferred: главни оси
+  en: principal axes
+- preferred: неутрална ос
+  en: neutral axis
+- preferred: модул на еластичност
+  symbol: "E"
+  en: Young's modulus
+  also_ok: [модул на Юнг]
+- preferred: модул на срязване
+  symbol: "G"
+  en: shear modulus
+- preferred: граница на провлачане
+  symbol: "f_y"
+  en: yield strength
+  avoid: [граница на текучест]
+- preferred: коравина
+  en: stiffness
+  avoid: [твърдост]
+  note: "твърдост = hardness (друго свойство)"
+- preferred: якост
+  en: strength
+- preferred: провисване
+  symbol: "f"
+  en: deflection
+- preferred: еластична линия
+  en: elastic curve
+- preferred: усукване
+  en: torsion
+- preferred: усукващ момент
+  symbol: "T"
+  en: torque
+- preferred: изкълчване
+  en: buckling
+  avoid: [бъклинг]
+- preferred: свободна дължина
+  symbol: "μ·L"
+  en: effective (buckling) length
+  also_ok: [изчислителна дължина]
+- preferred: гъвкавост
+  symbol: "λ"
+  en: slenderness
+- preferred: критична сила
+  symbol: "F_cr"
+  en: critical (Euler) load
+- preferred: армировка
+  en: reinforcement

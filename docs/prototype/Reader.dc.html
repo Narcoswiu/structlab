@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<title>StructLab – учебник, Глава 6</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;600&amp;family=Literata:ital,wght@0,400;0,600;1,400&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#2457C5}a:hover{color:#163C8C}
+.t3d{transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.t3d:hover{transform:perspective(1000px) rotateX(4deg) rotateY(-6deg) translateY(-6px);box-shadow:0 28px 50px -18px rgba(0,0,0,.6),0 0 0 1px rgba(110,168,255,.28)}
+.lift{transition:transform .35s,box-shadow .35s}
+.lift:hover{transform:translateY(-4px);box-shadow:0 24px 48px -20px rgba(0,0,0,.6)}
+.float3d{animation:float3d 8s ease-in-out infinite;transform-style:preserve-3d}
+@keyframes float3d{0%,100%{transform:perspective(1200px) rotateX(7deg) rotateY(-11deg) translateY(0)}50%{transform:perspective(1200px) rotateX(3deg) rotateY(-5deg) translateY(-10px)}}
+.spin3d{animation:spin3d 9s ease-in-out infinite;transform-style:preserve-3d}
+@keyframes spin3d{0%,100%{transform:rotateX(-18deg) rotateY(-38deg)}50%{transform:rotateX(-12deg) rotateY(38deg)}}
+.intro3d{animation:intro3d .7s cubic-bezier(.2,.7,.2,1) both;transform-origin:top center}
+@keyframes intro3d{from{opacity:0;transform:perspective(900px) rotateX(-14deg) translateY(-10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.float3d,.spin3d,.intro3d{animation:none}.t3d,.lift{transition:none}.t3d:hover,.lift:hover{transform:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: {{t.page}}; color: {{t.text}}; font-family: Manrope, 'Segoe UI', sans-serif">
+
+<header style="background: {{t.bar}}; border-bottom: 1px solid {{t.line}}">
+<div style="max-width: 1280px; margin: 0 auto; padding: 12px 24px; box-sizing: border-box; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px">
+<a href="Library.dc.html" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: {{t.text}}; text-decoration: none; font-weight: 700">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"></path></svg>Библиотека</a>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<div role="group" aria-label="Режим" style="display: inline-flex; padding: 3px; gap: 3px; border-radius: 10px; background: {{t.chip}}">
+<button type="button" onClick="{{setEasy}}" aria-pressed="{{easyPressed}}" style="min-height: 38px; padding: 0 14px; border-radius: 8px; border: none; background: {{easyBg}}; color: {{easyFg}}; font-family: Manrope, sans-serif; font-weight: 800; font-size: 14px">Леко</button>
+<button type="button" onClick="{{setDetailed}}" aria-pressed="{{detPressed}}" style="min-height: 38px; padding: 0 14px; border-radius: 8px; border: none; background: {{detBg}}; color: {{detFg}}; font-family: Manrope, sans-serif; font-weight: 800; font-size: 14px">Подробно</button>
+</div>
+<div role="group" aria-label="Тема" style="display: inline-flex; padding: 3px; gap: 3px; border-radius: 10px; background: {{t.chip}}">
+<sc-for list="{{themes}}" as="th" hint-placeholder-count="3">
+<button type="button" onClick="{{th.pick}}" aria-label="{{th.aria}}" style="width: 38px; height: 38px; border-radius: 8px; border: 2px solid {{th.ring}}; background: {{th.swatch}}; color: {{th.fg}}; font-family: Literata, serif; font-weight: 600; font-size: 15px">Аа</button>
+</sc-for>
+</div>
+<div role="group" aria-label="Размер на шрифта" style="display: inline-flex; padding: 3px; gap: 3px; border-radius: 10px; background: {{t.chip}}">
+<button type="button" onClick="{{smaller}}" aria-label="По-малък шрифт" style="width: 38px; height: 38px; border-radius: 8px; border: none; background: transparent; color: {{t.text}}; font-family: Manrope, sans-serif; font-weight: 800; font-size: 13px">A−</button>
+<button type="button" onClick="{{bigger}}" aria-label="По-голям шрифт" style="width: 38px; height: 38px; border-radius: 8px; border: none; background: transparent; color: {{t.text}}; font-family: Manrope, sans-serif; font-weight: 800; font-size: 17px">A+</button>
+</div>
+<button type="button" onClick="{{dlChapter}}" style="display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border-radius: 10px; border: none; background: #2457C5; color: #FFFFFF; font-family: Manrope, sans-serif; font-weight: 800; font-size: 14px">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>Изтегли PDF</button>
+</div>
+</div>
+<div style="height: 3px; background: {{t.line}}"><div style="height: 3px; width: 40%; background: #2457C5"></div></div>
+</header>
+
+<sc-if value="{{hasStatus}}" hint-placeholder-val="{{ false }}">
+<div style="max-width: 1280px; margin: 12px auto 0; padding: 0 24px; box-sizing: border-box"><div style="padding: 12px 16px; border-radius: 10px; background: {{t.box}}; color: {{t.boxText}}; font-size: 14px; font-weight: 600">{{status}}</div></div>
+</sc-if>
+
+<sc-if value="{{introOn}}" hint-placeholder-val="{{ true }}">
+<div style="max-width: 1280px; margin: 16px auto 0; padding: 0 24px; box-sizing: border-box">
+<section aria-label="Въведение към страницата" class="intro3d" style="display: flex; flex-wrap: wrap; gap: 18px; align-items: center; padding: 20px 22px; border-radius: 14px; background: {{t.box}}; color: {{t.boxText}}; border: 1px solid {{t.line}}">
+<span style="width: 50px; height: 50px; border-radius: 12px; background: {{t.paper}}; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 50px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"></path><path d="M4 19V5"></path></svg></span>
+<div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; font-weight: 800; letter-spacing: 1.2px">КАКВО Е ТАЗИ СТРАНИЦА</span>
+<span style="font-size: 18px; font-weight: 800">Учебник – четене, което не уморява</span>
+<span style="line-height: 1.6; font-size: 15px">Всяка глава минава през 7 стъпки – от загадка до „Запомни“. Горе вдясно сменяш Леко ⇄ Подробно, темата и размера на шрифта, а PDF изтегляш с един бутон.</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<a href="Welcome.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid {{t.line}}; color: {{t.boxText}}; text-decoration: none; font-weight: 700">Пълна обиколка</a>
+<button type="button" onClick="{{hideIntro}}" style="min-height: 44px; padding: 0 18px; border-radius: 10px; border: none; background: #2457C5; color: #FFFFFF; font-family: Manrope, sans-serif; font-weight: 800">Разбрах</button>
+</div>
+</section>
+</div>
+</sc-if>
+
+<div style="max-width: 1280px; margin: 0 auto; padding: 28px 24px 80px; box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start">
+
+<nav aria-label="Съдържание на главата" style="flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 800; letter-spacing: 1.2px; color: {{t.muted}}; padding: 0 10px 8px">СЪДЪРЖАНИЕ</span>
+<a href="#s1" style="padding: 9px 10px; border-radius: 8px; color: {{t.text}}; text-decoration: none; font-size: 15px">1 · Загадка</a>
+<a href="#s2" style="padding: 9px 10px; border-radius: 8px; color: {{t.text}}; text-decoration: none; font-size: 15px">2 · Виж</a>
+<a href="#s3" style="padding: 9px 10px; border-radius: 8px; background: {{t.chip}}; color: {{t.text}}; text-decoration: none; font-size: 15px; font-weight: 800">3 · Разбери</a>
+<a href="#s4" style="padding: 9px 10px; border-radius: 8px; color: {{t.text}}; text-decoration: none; font-size: 15px">4 · Решен пример</a>
+<a href="#s5" style="padding: 9px 10px; border-radius: 8px; color: {{t.text}}; text-decoration: none; font-size: 15px">5 · В реалния живот</a>
+<a href="#s6" style="padding: 9px 10px; border-radius: 8px; color: {{t.text}}; text-decoration: none; font-size: 15px">6 · Провери се</a>
+<a href="#s7" style="padding: 9px 10px; border-radius: 8px; color: {{t.text}}; text-decoration: none; font-size: 15px">7 · Запомни</a>
+</div>
+<div style="padding: 16px; border-radius: 12px; border: 1px solid {{t.line}}; background: {{t.paper}}; display: flex; flex-direction: column; gap: 10px">
+<div aria-hidden="true" style="height: 180px; display: flex; align-items: center; justify-content: center; perspective: 800px">
+<div class="float3d" style="position: relative; width: 112px; height: 152px">
+<sc-for list="{{pages}}" as="pg" hint-placeholder-count="10">
+<div style="position: absolute; left: 0; top: 0; width: 112px; height: 152px; border-radius: 3px 8px 8px 3px; background: {{pg.c}}; transform: translateZ({{pg.z}})"></div>
+</sc-for>
+<div style="position: absolute; left: 0; top: 0; width: 112px; height: 152px; border-radius: 3px 8px 8px 3px; background: #1F3A70; transform: translateZ(14px); display: flex; flex-direction: column; justify-content: space-between; padding: 14px 12px; box-sizing: border-box; color: #FFFFFF">
+<span style="font-family: Manrope, sans-serif; font-size: 9px; font-weight: 800; letter-spacing: 1px; color: #9CC3FF">STRUCTLAB</span>
+<span style="font-family: Manrope, sans-serif; font-size: 14px; font-weight: 800; line-height: 1.2">Съпротивление на материалите</span>
+<span style="height: 4px; width: 40px; background: #FFA45C; border-radius: 2px"></span>
+</div>
+</div>
+</div>
+<span style="font-size: 12px; font-weight: 800; letter-spacing: 1.2px; color: {{t.muted}}">ИЗТЕГЛИ</span>
+<button type="button" onClick="{{dlChapter}}" style="display: flex; justify-content: space-between; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid {{t.line}}; background: transparent; color: {{t.text}}; font-family: Manrope, sans-serif; font-weight: 700; font-size: 14px">Глава 6 · PDF<span style="color: {{t.muted}}; font-weight: 600">3 стр.</span></button>
+<button type="button" onClick="{{dlBook}}" style="display: flex; justify-content: space-between; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid {{t.line}}; background: transparent; color: {{t.text}}; font-family: Manrope, sans-serif; font-weight: 700; font-size: 14px">Целият учебник<span style="color: {{t.muted}}; font-weight: 600">25 стр.</span></button>
+</div>
+</nav>
+
+<article style="flex: 999 1 560px; min-width: 0; background: {{t.paper}}; border: 1px solid {{t.line}}; border-radius: 16px; padding: 56px 64px; box-sizing: border-box">
+<div style="max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; font-family: Literata, Georgia, serif; font-size: {{fs}}; line-height: 1.8">
+
+<div style="display: flex; flex-direction: column; gap: 10px; font-family: Manrope, sans-serif">
+<span style="font-size: 13px; font-weight: 800; letter-spacing: 1.4px; color: {{t.accent}}">ГЛАВА 6 · СЪПРОТИВЛЕНИЕ НА МАТЕРИАЛИТЕ</span>
+<h1 style="margin: 0; font-size: 36px; line-height: 1.2; font-weight: 800; letter-spacing: -0.4px; color: {{t.head}}">Огъване: нормални и тангенциални напрежения</h1>
+<span style="font-size: 14px; color: {{t.muted}}; font-weight: 600">≈ {{readTime}} мин четене · режим „{{modeName}}“</span>
+</div>
+<div style="padding: 18px 22px; border-radius: 12px; background: {{t.box}}; color: {{t.boxText}}; font-family: Manrope, sans-serif; font-size: 16px; line-height: 1.65"><b>Какво ще научиш:</b> как се разпределя напрежението в огъната греда, формулата σ = M·y/I, съпротивителния момент W и защо бетонните греди имат армировка долу.</div>
+
+<h2 id="s1" style="margin: 18px 0 0; font-family: Manrope, sans-serif; font-size: {{fsH}}; line-height: 1.3; font-weight: 800; color: {{t.head}}"><span style="color: {{t.accent}}">1 ·</span> Загадка</h2>
+<p style="margin: 0">Вземи гъба за миене и начертай с химикал вертикални черти по страната ѝ. Огъни я като усмивка. Какво става с чертите? А с горния и с долния ръб?</p>
+
+<h2 id="s2" style="margin: 18px 0 0; font-family: Manrope, sans-serif; font-size: {{fsH}}; line-height: 1.3; font-weight: 800; color: {{t.head}}"><span style="color: {{t.accent}}">2 ·</span> Виж</h2>
+<figure style="margin: 0; display: flex; flex-direction: column; gap: 10px">
+<img src="/_blob/7e98fa6d4c82167890c546a299ddb88b" alt="Гъба преди и след огъване: горе се свива, долу се разтяга, неутралната ос не се променя" style="width: 100%; height: auto; border-radius: 12px; border: 1px solid {{t.line}}; background: #FFFFFF">
+<figcaption style="font-family: Manrope, sans-serif; font-size: 14px; color: {{t.muted}}">Фиг. 6.1. Чертите остават прави, но се накланят.</figcaption>
+</figure>
+<p style="margin: 0">Чертите остават <b>прави</b> – само се завъртат. Горният ръб се скъсява (натиск), долният се удължава (опън). Между тях има слой, който не се променя: <b>неутралният слой</b>. Линията му в сечението е <b>неутралната ос</b>.</p>
+
+<h2 id="s3" style="margin: 18px 0 0; font-family: Manrope, sans-serif; font-size: {{fsH}}; line-height: 1.3; font-weight: 800; color: {{t.head}}"><span style="color: {{t.accent}}">3 ·</span> Разбери</h2>
+<sc-if value="{{isEasy}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 22px">
+<p style="margin: 0">Колкото по-далеч е едно влакно от неутралната ос, толкова повече се разтяга или свива. Затова и напрежението расте право пропорционално на разстоянието <i>y</i>:</p>
+<div style="align-self: center; padding: 18px 36px; border-radius: 12px; background: {{t.formula}}; border: 1px solid {{t.line}}; font-family: 'JetBrains Mono', monospace; font-size: 26px">σ = M · y / I</div>
+<figure style="margin: 0; display: flex; flex-direction: column; gap: 10px">
+<img src="/_blob/04b2741557d40f490c634a864d588bd8" alt="Разпределение на напрежението по височината: натиск горе, опън долу, нула на неутралната ос" style="width: 100%; height: auto; border-radius: 12px; border: 1px solid {{t.line}}; background: #FFFFFF">
+<figcaption style="font-family: Manrope, sans-serif; font-size: 14px; color: {{t.muted}}">Фиг. 6.2. Напрежението е 0 на неутралната ос и расте към ръбовете.</figcaption>
+</figure>
+<p style="margin: 0">Най-голямото напрежение е в най-далечните нишки: σ<sub>max</sub> = M / W, където <b>W = I / y<sub>max</sub></b> е съпротивителният момент. За правоъгълник W = b·h²/6.</p>
+<div style="padding: 18px 22px; border-radius: 12px; background: {{t.box}}; color: {{t.boxText}}; font-family: Manrope, sans-serif; font-size: 16px; line-height: 1.65"><b>Защо?</b> M идва от диаграмите (глави 3–4), W – от формата на сечението (глава 5), а якостта R – от материала. Проверката е σ<sub>max</sub> = M/W ≤ R, а оразмеряването – W ≥ M/R.</div>
+</div>
+</sc-if>
+<sc-if value="{{isDetailed}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 18px">
+<p style="margin: 0"><b>Предпоставки.</b> Чисто огъване (Q = 0), еластичен хомогенен материал, малки деформации. По хипотезата на Бернули равнинните сечения остават равнинни и перпендикулярни на деформираната ос.</p>
+<p style="margin: 0"><b>1. Геометрия.</b> Влакно на разстояние y от неутралния слой с радиус на кривина ρ получава ε = y / ρ.</p>
+<p style="margin: 0"><b>2. Закон на Хук.</b> σ = E · ε = E · y / ρ – напрежението е линейно по височината.</p>
+<p style="margin: 0"><b>3. Равновесие.</b> ∫σ dA = (E/ρ)·S<sub>x</sub> = 0, следователно неутралната ос минава през центъра на тежестта. ∫σ·y dA = (E/ρ)·I = M.</p>
+<div style="align-self: center; padding: 18px 32px; border-radius: 12px; background: {{t.formula}}; border: 1px solid {{t.line}}; font-family: 'JetBrains Mono', monospace; font-size: 22px">1/ρ = M/(E·I)  ⇒  σ = M·y/I</div>
+<p style="margin: 0"><b>Граници на валидност.</b> Формулата е точна при чисто огъване; при напречно огъване грешката е пренебрежима за дълги греди (L/h &gt; 5). Не важи над границата на провлачане и при силно криви греди.</p>
+</div>
+</sc-if>
+
+<h2 id="s4" style="margin: 18px 0 0; font-family: Manrope, sans-serif; font-size: {{fsH}}; line-height: 1.3; font-weight: 800; color: {{t.head}}"><span style="color: {{t.accent}}">4 ·</span> Решен пример – дървена греда на тераса</h2>
+<p style="margin: 0">Греда 10 × 20 cm е подпряна в двата края с отвор 4 m и носи 2 kN/m. Дървото C24 издържа 24 MPa на огъване. Издържа ли гредата?</p>
+<ol style="margin: 0; padding-left: 26px; display: flex; flex-direction: column; gap: 8px">
+<li>Максимален момент: M = q·L²/8 = 2·4²/8 = <b>4 kN·m</b>.</li>
+<li>Съпротивителен момент: W = 10·20²/6 = <b>666,7 cm³</b>.</li>
+<li>Напрежение: σ = 4·10⁶ / 666,7·10³ = <b>6,0 MPa &lt; 24 MPa</b> – издържа.</li>
+</ol>
+<p style="margin: 0">Ако същата греда се постави <b>плашмя</b>, W = 20·10²/6 = 333,3 cm³ и σ = <b>12,0 MPa</b> – двойно повече.</p>
+<sc-if value="{{isDetailed}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<p style="margin: 0"><b>Допълнително: оразмеряване на стоманена греда.</b> За рамката от Курсова №2 (M<sub>max</sub> = 311,92 kN·m, стомана S235): W ≥ 311,92·10⁶ / 235 = 1327 cm³. IPE 400 (1156 cm³) не стига; <b>IPE 450</b> (1500 cm³) дава σ = 208 MPa. Опростена проверка – без коефициенти на сигурност и проверка за устойчивост.</p>
+</div>
+</sc-if>
+
+<h2 id="s5" style="margin: 18px 0 0; font-family: Manrope, sans-serif; font-size: {{fsH}}; line-height: 1.3; font-weight: 800; color: {{t.head}}"><span style="color: {{t.accent}}">5 ·</span> В реалния живот</h2>
+<figure style="margin: 0; display: flex; flex-direction: column; gap: 10px">
+<img src="/_blob/fefa3e3373b3af8a270161d88cc1983e" alt="Стоманобетонна греда с армировка в долната, опъната зона" style="width: 100%; height: auto; border-radius: 12px; border: 1px solid {{t.line}}; background: #FFFFFF">
+<figcaption style="font-family: Manrope, sans-serif; font-size: 14px; color: {{t.muted}}">Фиг. 6.3. Армировката е там, където е опънът.</figcaption>
+</figure>
+<p style="margin: 0">Бетонът издържа на натиск, но се пука при опън. Затова при проста греда армировката е <b>долу</b>, а при конзолен балкон – <b>горе</b>. Дупките за кабели се пробиват по средата на височината – там σ ≈ 0. А профилите IPE имат широки пояси далеч от оста, където напрежението е най-голямо.</p>
+
+<h2 id="s6" style="margin: 18px 0 0; font-family: Manrope, sans-serif; font-size: {{fsH}}; line-height: 1.3; font-weight: 800; color: {{t.head}}"><span style="color: {{t.accent}}">6 ·</span> Провери се</h2>
+<div style="display: flex; flex-direction: column; gap: 12px; font-family: Manrope, sans-serif; font-size: 16px">
+<sc-for list="{{quiz}}" as="qz" hint-placeholder-count="3">
+<div style="padding: 18px 20px; border-radius: 12px; border: 1px solid {{t.line}}; display: flex; flex-direction: column; gap: 12px">
+<span style="font-weight: 700; line-height: 1.55">{{qz.q}}</span>
+<button type="button" onClick="{{qz.toggle}}" aria-expanded="{{qz.expanded}}" style="align-self: flex-start; min-height: 40px; padding: 0 14px; border-radius: 8px; border: 1px solid {{t.line}}; background: transparent; color: {{t.text}}; font-family: Manrope, sans-serif; font-weight: 700">{{qz.btn}}</button>
+<sc-if value="{{qz.open}}" hint-placeholder-val="{{ false }}">
+<span style="padding: 12px 14px; border-radius: 8px; background: {{t.box}}; color: {{t.boxText}}; line-height: 1.6">{{qz.a}}</span>
+</sc-if>
+</div>
+</sc-for>
+</div>
+
+<h2 id="s7" style="margin: 18px 0 0; font-family: Manrope, sans-serif; font-size: {{fsH}}; line-height: 1.3; font-weight: 800; color: {{t.head}}"><span style="color: {{t.muted}}">7 ·</span> Запомни</h2>
+<div style="padding: 20px 24px; border-radius: 12px; border: 2px solid {{t.line}}; font-family: Manrope, sans-serif; font-size: 17px; line-height: 1.7">σ = M·y/I: нула на неутралната ос (през центъра на тежестта), максимум в крайните нишки. σ<sub>max</sub> = M/W ≤ R; W = I/y<sub>max</sub>; за правоъгълник W = b·h²/6.</div>
+
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding-top: 24px; margin-top: 8px; border-top: 1px solid {{t.line}}; font-family: Manrope, sans-serif; font-size: 15px">
+<a href="#s1" style="min-height: 44px; display: inline-flex; align-items: center; font-weight: 800; color: {{t.accent}}">← Глава 5 · Инерционни моменти</a>
+<a href="BeamLab.dc.html" style="min-height: 44px; display: inline-flex; align-items: center; padding: 0 16px; border-radius: 10px; background: {{t.head}}; color: {{t.paper}}; text-decoration: none; font-weight: 800">Пробвай в BeamLab</a>
+<a href="#s1" style="min-height: 44px; display: inline-flex; align-items: center; font-weight: 800; color: {{t.accent}}">Глава 7 · Провисване →</a>
+</div>
+</div>
+</article>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":4600}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { intro: true, mode: "easy", theme: "light", size: 1, open: [false, false, false], dl: "" };
+  }
+  async download(url, filename) {
+    this.setState({ dl: "busy" });
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const c = window.claude;
+      const dl = c && c.use ? await c.use("downloads") : null;
+      if (dl) {
+        await dl.save({ filename: filename, data: blob });
+        this.setState({ dl: "ok" });
+      } else {
+        const w = window.open(URL.createObjectURL(blob), "_blank");
+        this.setState({ dl: w ? "opened" : "blocked" });
+      }
+    } catch (e) {
+      this.setState({ dl: e && e.code === "declined" ? "declined" : "blocked" });
+    }
+  }
+  renderVals() {
+    const T = {
+      light: { page: "#EEF1F5", bar: "#FFFFFF", paper: "#FFFFFF", text: "#1A2230", head: "#0E1625", muted: "#5A6577", line: "#DCE2EA", chip: "#EEF1F5", box: "#EAF1FF", boxText: "#17305E", formula: "#F6F8FB", accent: "#2457C5" },
+      sepia: { page: "#EADFCB", bar: "#F6EEDF", paper: "#FBF6EC", text: "#3A2E20", head: "#2A1F12", muted: "#6B5842", line: "#DCCDB2", chip: "#EADFCB", box: "#F1E4CC", boxText: "#4A3415", formula: "#F6EEDF", accent: "#8A4B0F" },
+      dark: { page: "#0A0F1C", bar: "#0D1526", paper: "#101A2E", text: "#E6ECF5", head: "#F2F6FC", muted: "#A9B6CA", line: "#24324F", chip: "#15213A", box: "#15213A", boxText: "#CFE0FF", formula: "#0D1526", accent: "#9CC3FF" }
+    };
+    const t = T[this.state.theme];
+    const sizes = [17, 19, 21, 23];
+    const fs = sizes[this.state.size];
+    const easy = this.state.mode === "easy";
+    const themes = [["light", "#FFFFFF", "#1A2230", "Светла тема"], ["sepia", "#FBF6EC", "#3A2E20", "Сепия"], ["dark", "#101A2E", "#E6ECF5", "Тъмна тема"]].map(([k, sw, fg, aria]) => ({
+      pick: () => this.setState({ theme: k }), swatch: sw, fg: fg, aria: aria, ring: this.state.theme === k ? "#2457C5" : "transparent"
+    }));
+    const Q = [
+      ["Греда 12 × 24 cm (височина 24) е огъната с M = 15 kN·m. Колко е σmax?", "W = 12·24²/6 = 1152 cm³; σ = 15·10⁶ / 1152·10³ = 13,0 MPa."],
+      ["Защо дупките в гредите се пробиват по средата на височината?", "Там е неутралната ос и σ ≈ 0 – отнетият материал почти не намалява носимоспособността."],
+      ["При сечение „Т“ кой съпротивителен момент е меродавен – по-големият или по-малкият?", "По-малкият – за по-далечния ръб, защото там напрежението е най-голямо."]
+    ];
+    const quiz = Q.map(([q, a], i) => ({
+      q: q, a: a, open: this.state.open[i], expanded: this.state.open[i] ? "true" : "false",
+      btn: this.state.open[i] ? "Скрий отговора" : "Покажи отговора",
+      toggle: () => { const o = this.state.open.slice(); o[i] = !o[i]; this.setState({ open: o }); }
+    }));
+    const msg = {
+      busy: "Подготвям файла…",
+      ok: "Готово – PDF файлът е изтеглен.",
+      opened: "PDF файлът е отворен в нов раздел – оттам може да се запази.",
+      declined: "Изтеглянето е отказано.",
+      blocked: "В прототипа браузърът спря изтеглянето. В истинския сайт файлът се тегли с воден знак с имейла на студента."
+    }[this.state.dl] || "";
+    return {
+      introOn: this.state.intro, hideIntro: () => this.setState({ intro: false }),
+      pages: Array.from({ length: 13 }, (_, i) => ({ z: (i * 2 - 14) + "px", c: i === 0 ? "#1F3A70" : (i % 2 ? "#F3F3EF" : "#E3E3DC") })),
+      t: t, fs: fs + "px", fsH: (fs + 7) + "px",
+      readTime: easy ? 12 : 18, modeName: easy ? "Леко" : "Подробно",
+      isEasy: easy, isDetailed: !easy,
+      setEasy: () => this.setState({ mode: "easy" }), setDetailed: () => this.setState({ mode: "detailed" }),
+      easyPressed: easy ? "true" : "false", detPressed: easy ? "false" : "true",
+      easyBg: easy ? "#2457C5" : "transparent", easyFg: easy ? "#FFFFFF" : t.text,
+      detBg: easy ? "transparent" : "#C2570C", detFg: easy ? t.text : "#FFFFFF",
+      themes: themes,
+      smaller: () => this.setState({ size: Math.max(0, this.state.size - 1) }),
+      bigger: () => this.setState({ size: Math.min(3, this.state.size + 1) }),
+      quiz: quiz,
+      dlChapter: () => this.download("/_blob/5cacfdbcb6eb1e2c52a4353cdc9a0289", "StructLab_Glava6_Ogavane.pdf"),
+      dlBook: () => this.download("/_blob/3176c006a5e75c8d27b9de01d53089d4", "StructLab_Uchebnik_SM.pdf"),
+      hasStatus: msg !== "", status: msg
+    };
+  }
+}
+</script>
+</body>
+</html>

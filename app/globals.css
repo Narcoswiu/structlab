@@ -1,0 +1,239 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design tokens (еталон: docs/prototype).
+ * Всички цветове минават през --sl-* променливите. В Етап 6 четецът сменя
+ * темата (светла / сепия / тъмна), като презаписва същите променливи в свой
+ * контейнер, напр. [data-reader-theme="sepia"] { --sl-bg: ...; }.
+ */
+:root {
+  --sl-bg: #0a0f1c;
+  --sl-surface: #101a2e;
+  --sl-surface-2: #15213a;
+  --sl-surface-hi: #13203a;
+  --sl-line: #1f2c47;
+  --sl-line-soft: #1a2540;
+  --sl-line-strong: #2b3b5e;
+  --sl-text: #eaf0f8;
+  --sl-text-muted: #b6c2d6;
+  --sl-text-dim: #8c9ab3;
+  --sl-blue: #6ea8ff;
+  --sl-blue-soft: #9cc3ff;
+  --sl-blue-pale: #d3e4ff;
+  --sl-orange: #ffa45c;
+  --sl-success: #5ee0a8;
+
+  --sl-success-bg: #123528;
+  --sl-success-fg: #7cebb9;
+  --sl-soon-bg: #241f3d;
+  --sl-soon-fg: #c9bdfe;
+  --sl-warn-bg: #2a1e12;
+  --sl-warn-fg: #ffc58f;
+  --sl-intro-line: #2e4a80;
+  --sl-intro-icon: #1a2c52;
+  --sl-chat-user: #24427a;
+  --sl-chat-text: #dce4f0;
+  --sl-chat-dash: #3a4c70;
+  --sl-beam-a: #2c4f8e;
+  --sl-beam-b: #29497f;
+
+  /* светлите карета „Леко / Подробно“ на началната страница */
+  --sl-paper: #f5f7fa;
+  --sl-paper-2: #ecf0f5;
+  --sl-ink: #141c2b;
+  --sl-easy-bg: #dce8ff;
+  --sl-easy-fg: #1d3f80;
+  --sl-detailed-bg: #ffe3cc;
+  --sl-detailed-fg: #8a3c00;
+
+  /* shadcn/ui чете тези имена */
+  --background: var(--sl-bg);
+  --foreground: var(--sl-text);
+  --card: var(--sl-surface);
+  --card-foreground: var(--sl-text);
+  --popover: var(--sl-surface);
+  --popover-foreground: var(--sl-text);
+  --primary: var(--sl-blue);
+  --primary-foreground: var(--sl-bg);
+  --secondary: var(--sl-surface-2);
+  --secondary-foreground: var(--sl-text);
+  --muted: var(--sl-surface-2);
+  --muted-foreground: var(--sl-text-muted);
+  --accent: var(--sl-surface-2);
+  --accent-foreground: var(--sl-text);
+  --destructive: #ff7a7a;
+  --border: var(--sl-line);
+  --input: var(--sl-line-strong);
+  --ring: var(--sl-blue);
+  --radius: 0.75rem;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-surface: var(--sl-surface);
+  --color-surface-2: var(--sl-surface-2);
+  --color-surface-hi: var(--sl-surface-hi);
+  --color-line: var(--sl-line);
+  --color-line-soft: var(--sl-line-soft);
+  --color-line-strong: var(--sl-line-strong);
+  --color-dim: var(--sl-text-dim);
+  --color-link: var(--sl-blue-soft);
+  --color-link-hover: var(--sl-blue-pale);
+  --color-warm: var(--sl-orange);
+  --color-success: var(--sl-success);
+  --color-success-bg: var(--sl-success-bg);
+  --color-success-fg: var(--sl-success-fg);
+  --color-soon-bg: var(--sl-soon-bg);
+  --color-soon-fg: var(--sl-soon-fg);
+  --color-warn-bg: var(--sl-warn-bg);
+  --color-warn-fg: var(--sl-warn-fg);
+  --color-intro-line: var(--sl-intro-line);
+  --color-intro-icon: var(--sl-intro-icon);
+  --color-chat-user: var(--sl-chat-user);
+  --color-chat-text: var(--sl-chat-text);
+  --color-chat-dash: var(--sl-chat-dash);
+  --color-paper: var(--sl-paper);
+  --color-paper-2: var(--sl-paper-2);
+  --color-ink: var(--sl-ink);
+  --color-easy-bg: var(--sl-easy-bg);
+  --color-easy-fg: var(--sl-easy-fg);
+  --color-detailed-bg: var(--sl-detailed-bg);
+  --color-detailed-fg: var(--sl-detailed-fg);
+
+  --font-sans: var(--font-manrope), "Segoe UI", sans-serif;
+  --font-display: var(--font-unbounded), sans-serif;
+  --font-reading: var(--font-literata), Georgia, serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+  --font-heading: var(--font-manrope), "Segoe UI", sans-serif;
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  :focus-visible {
+    outline: 2px solid var(--sl-blue);
+    outline-offset: 2px;
+  }
+}
+
+/* 3D ефекти – само CSS трансформации, както в прототипа. */
+@layer components {
+  .t3d {
+    transition:
+      transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+      box-shadow 0.35s;
+  }
+  .lift {
+    transition:
+      transform 0.35s,
+      box-shadow 0.35s;
+  }
+  @media (hover: hover) {
+    .t3d:hover {
+      transform: perspective(1000px) rotateX(4deg) rotateY(-6deg)
+        translateY(-6px);
+      box-shadow:
+        0 28px 50px -18px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(110, 168, 255, 0.28);
+    }
+    .lift:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 24px 48px -20px rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  .float3d {
+    animation: float3d 8s ease-in-out infinite;
+    transform-style: preserve-3d;
+  }
+  .spin3d {
+    /* началната поза – остава видима в 3D и при изключени анимации */
+    transform: rotateX(-18deg) rotateY(-38deg);
+    animation: spin3d 9s ease-in-out infinite;
+    transform-style: preserve-3d;
+  }
+
+  .grid-floor {
+    background-image:
+      linear-gradient(rgba(110, 168, 255, 0.22) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(110, 168, 255, 0.22) 1px, transparent 1px);
+    background-size: 52px 52px;
+    transform: perspective(520px) rotateX(66deg);
+    transform-origin: bottom center;
+  }
+}
+
+@keyframes float3d {
+  0%,
+  100% {
+    transform: perspective(1200px) rotateX(7deg) rotateY(-11deg) translateY(0);
+  }
+  50% {
+    transform: perspective(1200px) rotateX(3deg) rotateY(-5deg)
+      translateY(-10px);
+  }
+}
+
+@keyframes spin3d {
+  0%,
+  100% {
+    transform: rotateX(-18deg) rotateY(-38deg);
+  }
+  50% {
+    transform: rotateX(-12deg) rotateY(38deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .float3d,
+  .spin3d {
+    animation: none;
+  }
+  .t3d,
+  .lift {
+    transition: none;
+  }
+  .t3d:hover,
+  .lift:hover {
+    transform: none;
+  }
+}

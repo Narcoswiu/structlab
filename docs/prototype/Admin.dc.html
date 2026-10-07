@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<title>StructLab – админ табло</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;600&amp;family=Literata:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0F1C}
+a{color:#9CC3FF}a:hover{color:#D3E4FF}
+
+.t3d{transition:transform .35s cubic-bezier(.2,.7,.2,1),box-shadow .35s}
+.t3d:hover{transform:perspective(1000px) rotateX(4deg) rotateY(-6deg) translateY(-6px);box-shadow:0 28px 50px -18px rgba(0,0,0,.6),0 0 0 1px rgba(110,168,255,.28)}
+.lift{transition:transform .35s,box-shadow .35s}
+.lift:hover{transform:translateY(-4px);box-shadow:0 24px 48px -20px rgba(0,0,0,.6)}
+.float3d{animation:float3d 8s ease-in-out infinite;transform-style:preserve-3d}
+@keyframes float3d{0%,100%{transform:perspective(1200px) rotateX(7deg) rotateY(-11deg) translateY(0)}50%{transform:perspective(1200px) rotateX(3deg) rotateY(-5deg) translateY(-10px)}}
+.spin3d{animation:spin3d 9s ease-in-out infinite;transform-style:preserve-3d}
+@keyframes spin3d{0%,100%{transform:rotateX(-18deg) rotateY(-38deg)}50%{transform:rotateX(-12deg) rotateY(38deg)}}
+.intro3d{animation:intro3d .7s cubic-bezier(.2,.7,.2,1) both;transform-origin:top center}
+@keyframes intro3d{from{opacity:0;transform:perspective(900px) rotateX(-14deg) translateY(-10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.float3d,.spin3d,.intro3d{animation:none}.t3d,.lift{transition:none}.t3d:hover,.lift:hover{transform:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #0A0F1C; color: #EAF0F8; font-family: Manrope, 'Segoe UI', sans-serif">
+<aside style="flex: 1 1 220px; min-width: 0; padding: 24px 16px; box-sizing: border-box; background: #0D1526; border-right: 1px solid #1A2540; display: flex; flex-direction: column; gap: 28px">
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; padding: 0 8px; text-decoration: none; color: #EAF0F8">
+<span style="width: 36px; height: 36px; border-radius: 10px; background: #15213A; border: 1px solid #2B3B5E; display: inline-flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 36 36" fill="none" stroke="#6EA8FF" stroke-width="3" aria-hidden="true"><path d="M6 7h24M6 29h24M18 7v22"></path></svg></span>
+<span style="font-family: Unbounded, sans-serif; font-weight: 700; font-size: 17px">StructLab</span>
+</a>
+<nav aria-label="Основна навигация" style="display: flex; flex-direction: column; gap: 4px">
+<a href="Welcome.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: transparent; color: #B6C2D6; text-decoration: none; font-weight: 600; font-size: 15px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8C9AB3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"></path></svg>Въведение</a>
+<a href="Library.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: transparent; color: #B6C2D6; text-decoration: none; font-weight: 600; font-size: 15px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8C9AB3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>Табло</a>
+<a href="Reader.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: transparent; color: #B6C2D6; text-decoration: none; font-weight: 600; font-size: 15px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8C9AB3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"></path><path d="M4 19V5"></path></svg>Четец</a>
+<a href="BeamLab.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: transparent; color: #B6C2D6; text-decoration: none; font-weight: 600; font-size: 15px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8C9AB3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-5-9V3"></path></svg>Лаборатории</a>
+<a href="Reader.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: transparent; color: #B6C2D6; text-decoration: none; font-weight: 600; font-size: 15px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8C9AB3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"></path></svg>AI асистент</a>
+<a href="Library.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: transparent; color: #B6C2D6; text-decoration: none; font-weight: 600; font-size: 15px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8C9AB3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"></path></svg>Повторение</a>
+<a href="Admin.dc.html" style="display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 10px; background: #15213A; color: #EAF0F8; text-decoration: none; font-weight: 800; font-size: 15px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6EA8FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path></svg>Админ</a>
+</nav>
+<div style="margin-top: auto; padding: 16px; border-radius: 14px; background: #101A2E; border: 1px solid #1F2C47; display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 13px; color: #8C9AB3; font-weight: 600">План: Семестър</span>
+<div style="height: 6px; border-radius: 999px; background: #1F2C47; overflow: hidden"><div style="height: 6px; width: 38%; background: #6EA8FF"></div></div>
+<span style="font-size: 13px; color: #B6C2D6">Остават [N] дни</span>
+</div>
+</aside>
+<main style="flex: 999 1 560px; min-width: 0; padding: 0 32px 64px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px">
+<header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 24px 0; border-bottom: 1px solid #1A2540">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<h1 style="margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.3px">Админ табло</h1>
+<span style="font-size: 14px; color: #8C9AB3; font-weight: 600">Активност на студентите · Строително инженерство</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<span style="padding: 6px 12px; border-radius: 999px; background: #3A2A12; color: #FFC58F; font-size: 13px; font-weight: 800">примерни данни</span><a href="#users" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 10px; background: #6EA8FF; color: #0A0F1C; text-decoration: none; font-weight: 800">+ Покани студент</a>
+<label style="display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 10px; background: #101A2E; border: 1px solid #1F2C47; color: #8C9AB3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8C9AB3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input type="search" aria-label="Търсене" placeholder="Търси тема, формула…" style="border: none; outline: none; background: transparent; color: #EAF0F8; font-family: Manrope, sans-serif; font-size: 14px; width: 180px"></label>
+<button type="button" aria-label="Профил" style="width: 44px; height: 44px; border-radius: 50%; border: 1px solid #2B3B5E; background: #15213A; color: #EAF0F8; font-weight: 800; font-family: Manrope, sans-serif">НТ</button>
+</div>
+</header>
+<sc-if value="{{introOn}}" hint-placeholder-val="{{ true }}">
+<section aria-label="Въведение към страницата" class="intro3d" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center; padding: 22px 24px; border-radius: 16px; background: #13203A; border: 1px solid #2E4A80">
+<span style="width: 52px; height: 52px; border-radius: 14px; background: #1A2C52; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 52px"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9CC3FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path></svg></span>
+<div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 800; letter-spacing: 1.2px; color: #9CC3FF">КАКВО Е ТАЗИ СТРАНИЦА</span>
+<span style="font-size: 18px; font-weight: 800">Админ – вижда го само собственикът</span>
+<span style="color: #B6C2D6; line-height: 1.6; font-size: 15px">Тук каниш студенти, следиш кой какво чете и колко време учи и настройваш автоматичните имейл напомняния.</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<a href="Welcome.dc.html" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #2E4A80; color: #EAF0F8; text-decoration: none; font-weight: 700">Пълна обиколка</a>
+<button type="button" onClick="{{hideIntro}}" style="min-height: 44px; padding: 0 18px; border-radius: 10px; border: none; background: #6EA8FF; color: #0A0F1C; font-family: Manrope, sans-serif; font-weight: 800">Разбрах</button>
+</div>
+</section>
+</sc-if>
+
+<section style="display: flex; flex-wrap: wrap; gap: 16px"><div class="t3d" style="flex: 1 1 220px; min-width: 0; padding: 20px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; display: flex; align-items: center; gap: 14px"><span style="width: 44px; height: 44px; border-radius: 12px; background: #15213A; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 44px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6EA8FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg></span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: #8C9AB3; font-weight: 600">Активни тази седмица</span><span style="font-size: 26px; font-weight: 800; color: #EAF0F8">18 / 24</span></div></div><div class="t3d" style="flex: 1 1 220px; min-width: 0; padding: 20px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; display: flex; align-items: center; gap: 14px"><span style="width: 44px; height: 44px; border-radius: 12px; background: #15213A; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 44px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6EA8FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"></path><path d="M4 19V5"></path></svg></span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: #8C9AB3; font-weight: 600">Средно време за учене</span><span style="font-size: 26px; font-weight: 800; color: #EAF0F8">2 ч 40 мин</span></div></div><div class="t3d" style="flex: 1 1 220px; min-width: 0; padding: 20px; border-radius: 16px; background: #101A2E; border: 1px solid #5C3A1A; display: flex; align-items: center; gap: 14px"><span style="width: 44px; height: 44px; border-radius: 12px; background: #15213A; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 44px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFA45C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"></path></svg></span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: #8C9AB3; font-weight: 600">Неактивни ≥ 5 дни</span><span style="font-size: 26px; font-weight: 800; color: #FFC58F">4</span></div></div><div class="t3d" style="flex: 1 1 220px; min-width: 0; padding: 20px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; display: flex; align-items: center; gap: 14px"><span style="width: 44px; height: 44px; border-radius: 12px; background: #15213A; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 44px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5EE0A8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"></path></svg></span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; color: #8C9AB3; font-weight: 600">Напомняния (7 дни)</span><span style="font-size: 26px; font-weight: 800; color: #EAF0F8">9</span></div></div></section>
+
+<section class="lift" style="padding: 24px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px"><span style="font-weight: 800">Минути учене на ден</span><span style="font-size: 13px; color: #8C9AB3">последните 14 дни</span></div>
+<div style="display: flex; align-items: flex-end; gap: 10px; height: 170px; border-bottom: 1px solid #1F2C47; padding-bottom: 2px">
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="14">
+<div style="flex: 1 1 0; height: {{b.h}}; border-radius: 6px 6px 0 0; background: {{b.color}}"></div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 10px">
+<sc-for list="{{bars}}" as="b" hint-placeholder-count="14">
+<span style="flex: 1 1 0; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C9AB3">{{b.d}}</span>
+</sc-for>
+</div>
+</section>
+
+<div id="users" style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section style="flex: 999 1 620px; min-width: 0; padding: 24px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+<span style="font-weight: 800">Потребители</span>
+<div style="overflow-x: auto">
+<table style="width: 100%; border-collapse: collapse; font-size: 14px; min-width: 640px">
+<thead><tr style="text-align: left; color: #8C9AB3">
+<th style="padding: 10px; font-weight: 700">Студент</th><th style="padding: 10px; font-weight: 700">Последно</th><th style="padding: 10px; font-weight: 700">Прогрес</th><th style="padding: 10px; font-weight: 700">Време / седм.</th><th style="padding: 10px; font-weight: 700">Статус</th><th style="padding: 10px"></th>
+</tr></thead>
+<tbody>
+<sc-for list="{{users}}" as="u" hint-placeholder-count="6">
+<tr style="border-top: 1px solid #1F2C47; background: {{u.rowBg}}">
+<td style="padding: 12px 10px; font-weight: 800">{{u.name}}</td>
+<td style="padding: 12px 10px; color: #B6C2D6">{{u.last}}</td>
+<td style="padding: 12px 10px"><div style="display: flex; align-items: center; gap: 8px"><div style="width: 80px; height: 6px; border-radius: 999px; background: #1F2C47; overflow: hidden"><div style="height: 6px; width: {{u.progress}}; background: #6EA8FF"></div></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px">{{u.progress}}</span></div></td>
+<td style="padding: 12px 10px; font-family: 'JetBrains Mono', monospace; font-size: 13px">{{u.time}}</td>
+<td style="padding: 12px 10px"><span style="padding: 4px 10px; border-radius: 999px; background: {{u.pillBg}}; color: {{u.pillFg}}; font-size: 12px; font-weight: 800">{{u.status}}</span></td>
+<td style="padding: 8px 10px; text-align: right"><button type="button" onClick="{{u.pick}}" style="min-height: 38px; padding: 0 12px; border-radius: 10px; border: 1px solid #2B3B5E; background: #15213A; color: #EAF0F8; font-family: Manrope, sans-serif; font-weight: 700">Детайли</button></td>
+</tr>
+</sc-for>
+</tbody>
+</table>
+</div>
+</section>
+
+<aside style="flex: 1 1 320px; min-width: 0; padding: 24px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+<span style="font-size: 12px; font-weight: 800; letter-spacing: 1.2px; color: #9CC3FF">ВРЕМЕВА ЛИНИЯ</span>
+<span style="font-size: 20px; font-weight: 800">{{selName}}</span>
+<div style="display: flex; flex-direction: column; gap: 14px; border-left: 2px solid #1F2C47; padding-left: 16px; margin-left: 4px">
+<sc-for list="{{timeline}}" as="t" hint-placeholder-count="5">
+<div style="display: flex; flex-direction: column; gap: 2px"><span style="display: flex; align-items: center; gap: 8px; font-size: 15px"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{t.color}}; flex: 0 0 8px"></span>{{t.what}}</span><span style="font-size: 12px; color: #8C9AB3; padding-left: 16px">{{t.when}}</span></div>
+</sc-for>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 8px; padding-top: 6px">
+<button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: none; background: #FFA45C; color: #0A0F1C; font-family: Manrope, sans-serif; font-weight: 800">Изпрати напомняне</button>
+<button type="button" style="min-height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid #2B3B5E; background: transparent; color: #EAF0F8; font-family: Manrope, sans-serif; font-weight: 700">Удължи достъпа</button>
+</div>
+</aside>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+<section style="flex: 1 1 420px; min-width: 0; padding: 24px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+<span style="font-weight: 800; padding-bottom: 8px">Имейл напомняния</span>
+<sc-for list="{{rules}}" as="r" hint-placeholder-count="4">
+<label style="display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 60px; padding: 8px 0; border-top: 1px solid #1F2C47">
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 700">{{r.title}}</span><span style="font-size: 13px; color: #8C9AB3">{{r.desc}}</span></span>
+<input type="checkbox" checked="{{r.on}}" onChange="{{r.toggle}}" style="width: 22px; height: 22px; accent-color: #6EA8FF; flex: 0 0 22px">
+</label>
+</sc-for>
+<span style="font-size: 12px; color: #8C9AB3; padding-top: 8px">Най-много 1 напомняне на 3 дни · без 21:00–08:00 · линк за отписване във всеки имейл</span>
+</section>
+<section style="flex: 1 1 420px; min-width: 0; padding: 24px; border-radius: 16px; background: #101A2E; border: 1px solid #1F2C47; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px">
+<span style="font-weight: 800; padding-bottom: 8px">Докъде стигат в четенето</span>
+<sc-for list="{{content}}" as="c" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 0; border-top: 1px solid #1F2C47">
+<div style="display: flex; justify-content: space-between; gap: 10px; font-size: 14px"><span style="font-weight: 600">{{c.title}}</span><span style="font-family: 'JetBrains Mono', monospace; color: #B6C2D6">{{c.done}}</span></div>
+<div style="height: 6px; border-radius: 999px; background: #1F2C47; overflow: hidden"><div style="height: 6px; width: {{c.w}}; background: {{c.color}}"></div></div>
+</div>
+</sc-for>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { intro: true, sel: 0, rules: [true, true, true, true] };
+  }
+  renderVals() {
+    const mins = [35, 52, 18, 64, 70, 41, 12, 48, 77, 60, 30, 85, 66, 54];
+    const bars = mins.map((m, i) => ({ h: Math.round(m * 1.8) + "px", d: String(i + 1), color: i === 13 ? "#FFA45C" : "#6EA8FF" }));
+    const data = [
+      ["Студент 01", "днес", "62%", "4 ч 10 мин", "активен"],
+      ["Студент 02", "вчера", "48%", "2 ч 35 мин", "активен"],
+      ["Студент 03", "преди 6 дни", "21%", "0 мин", "неактивен"],
+      ["Студент 04", "днес", "75%", "5 ч 02 мин", "активен"],
+      ["Студент 05", "преди 9 дни", "9%", "0 мин", "неактивен"],
+      ["Студент 06", "преди 2 дни", "37%", "1 ч 20 мин", "активен"]
+    ];
+    const users = data.map((r, i) => ({
+      name: r[0], last: r[1], progress: r[2], time: r[3], status: r[4],
+      pillBg: r[4] === "активен" ? "#123528" : "#3A2A12", pillFg: r[4] === "активен" ? "#7CEBB9" : "#FFC58F",
+      rowBg: i === this.state.sel ? "#15213A" : "transparent",
+      pick: () => this.setState({ sel: i })
+    }));
+    const timelines = [
+      [["Глава 6 · Леко · 18 мин", "днес 10:42", "#6EA8FF"], ["BeamLab · 7 мин", "днес 10:20", "#5EE0A8"], ["Тест „Инерционни моменти“ · 4 от 5", "вчера 21:05", "#FFA45C"], ["PDF: Решен пример – конзола", "вчера 20:40", "#C9BDFE"], ["Вход", "вчера 20:31", "#8C9AB3"]],
+      [["Глава 5 · Подробно · 25 мин", "вчера 18:10", "#6EA8FF"], ["Тест „Щайнер“ · 3 от 5", "вчера 18:40", "#FFA45C"], ["Вход", "вчера 18:02", "#8C9AB3"]],
+      [["Напомняне: „Продължи с Глава 4“", "преди 1 ден", "#FFC58F"], ["Глава 4 · Леко · 6 мин", "преди 6 дни", "#6EA8FF"], ["Вход", "преди 6 дни", "#8C9AB3"]],
+      [["Глава 7 · Подробно · 31 мин", "днес 09:15", "#6EA8FF"], ["BeamLab · 12 мин", "днес 08:50", "#5EE0A8"], ["Тест „Огъване“ · 5 от 5", "вчера 22:00", "#FFA45C"]],
+      [["Напомняне: „9 дни без активност“", "днес 08:00", "#FFC58F"], ["Глава 1 · Леко · 4 мин", "преди 9 дни", "#6EA8FF"]],
+      [["Глава 3 · Леко · 14 мин", "преди 2 дни", "#6EA8FF"], ["PDF: Шпаргалка с формули", "преди 2 дни", "#C9BDFE"]]
+    ];
+    const timeline = timelines[this.state.sel].map((t) => ({ what: t[0], when: t[1], color: t[2] }));
+    const ruleDefs = [
+      ["Неактивност", "Няма активност 5 дни → „Продължи откъдето спря“"],
+      ["Задено четене", "2 дни преди срока и в деня, ако не е прочетено"],
+      ["Повторение", "Има въпроси за повторение днес (до 1 имейл на ден)"],
+      ["Седмичен отчет до мен", "Понеделник 08:00: активност, неактивни, плащания"]
+    ];
+    const rules = ruleDefs.map((r, i) => ({
+      title: r[0], desc: r[1], on: this.state.rules[i],
+      toggle: () => { const next = this.state.rules.slice(); next[i] = !next[i]; this.setState({ rules: next }); }
+    }));
+    const content = [["Глава 3 · Разрезни усилия", 82, "#5EE0A8"], ["Глава 5 · Инерционни моменти", 64, "#6EA8FF"], ["Глава 6 · Огъване", 41, "#6EA8FF"], ["Глава 9 · Изкълчване", 12, "#FFA45C"]]
+      .map((c) => ({ title: c[0], done: c[1] + "% до края", w: c[1] + "%", color: c[2] }));
+    return { introOn: this.state.intro, hideIntro: () => this.setState({ intro: false }), bars: bars, users: users, selName: data[this.state.sel][0], timeline: timeline, rules: rules, content: content };
+  }
+}
+</script>
+</body>
+</html>
