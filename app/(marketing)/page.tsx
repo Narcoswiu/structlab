@@ -9,7 +9,7 @@ import { Specialties } from "@/components/home/Specialties";
 import { WhyIBeam } from "@/components/home/WhyIBeam";
 import { Container } from "@/components/layout/Container";
 
-// Начална страница – подредбата следва docs/prototype/Main.dc.html.
+// Начална страница – подредбата следва прототипа на дизайна.
 export default function HomePage() {
   return (
     <>
