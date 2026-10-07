@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { LayoutGrid } from "lucide-react";
+import { dismissIntro } from "@/app/(app)/actions";
 import { Container } from "@/components/layout/Container";
 import { Logo } from "@/components/layout/Logo";
 import { PageIntro } from "@/components/PageIntro";
@@ -7,10 +8,11 @@ import { IBeam3D } from "@/components/three-d/IBeam3D";
 import { TiltCard } from "@/components/three-d/TiltCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { requireAdmin } from "@/lib/auth";
 import { formatQuantity } from "@/lib/format";
+import { getDismissedIntros } from "@/lib/user-settings";
 
-// Витрина на дизайн системата – само за разработка.
-// TODO(Етап 4): достъпна само за роля admin.
+// Витрина на дизайн системата – достъпна само за роля admin.
 export const metadata: Metadata = {
   title: "Дизайн система",
   robots: { index: false, follow: false },
@@ -45,7 +47,10 @@ function Block({
   );
 }
 
-export default function DesignPage() {
+export default async function DesignPage() {
+  await requireAdmin();
+  const dismissed = await getDismissedIntros();
+
   return (
     <Container className="flex flex-col gap-12 pb-20">
       <div className="py-[22px]">
@@ -56,10 +61,12 @@ export default function DesignPage() {
         id="design"
         title="Дизайн система – всички градивни елементи"
         icon={<LayoutGrid aria-hidden="true" className="size-6" />}
+        dismissed={dismissed.has("design")}
+        onDismiss={dismissIntro}
       >
         Тук са цветовете, шрифтовете, бутоните и 3D ефектите на StructLab. Това
         каре ще стои на всеки вътрешен екран. Натисни „Разбрах“ и то няма да се
-        появи повече в този браузър.
+        появи повече за твоя акаунт.
       </PageIntro>
 
       <h1 className="font-display text-[clamp(26px,6vw,44px)] leading-[1.1] font-bold">

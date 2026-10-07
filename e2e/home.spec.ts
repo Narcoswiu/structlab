@@ -46,19 +46,6 @@ test("анимациите спират при prefers-reduced-motion", async ({
   }
 });
 
-test("„Разбрах“ скрива карето и след презареждане", async ({ page }) => {
-  await page.goto("/design");
-  const intro = page.getByRole("region", { name: "Въведение към страницата" });
-  await expect(intro).toBeVisible();
-  await page.getByRole("button", { name: "Разбрах" }).click();
-  await expect(intro).toBeHidden();
-  await page.reload();
-  await expect(
-    page.getByRole("heading", { level: 1, name: "Дизайн система" }),
-  ).toBeVisible();
-  await expect(intro).toBeHidden();
-});
-
 test("бутоните в героя са поне 44 px високи", async ({ page }) => {
   await page.goto("/");
   for (const name of ["Вход", "Пробвай демото", "Отвори лабораторията"]) {

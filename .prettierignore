@@ -5,3 +5,9 @@ docs/prototype
 components/ui
 test-results
 playwright-report
+lib/supabase/database.types.ts
+supabase/.temp
+docs
+CLAUDE.md
+AGENTS.md
+content

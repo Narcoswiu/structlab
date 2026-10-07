@@ -1,20 +1,24 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { PageIntro } from "@/components/PageIntro";
 
-function renderIntro(id = "test-screen") {
-  return render(
-    <PageIntro id={id} title="Табло – твоят начален екран">
+function renderIntro(dismissed = false) {
+  const onDismiss = vi.fn(async () => {});
+  render(
+    <PageIntro
+      id="dashboard"
+      title="Табло – твоят начален екран"
+      dismissed={dismissed}
+      onDismiss={onDismiss}
+    >
       Оттук продължаваш откъдето си спрял.
     </PageIntro>,
   );
+  return onDismiss;
 }
 
-afterEach(() => {
-  cleanup();
-  window.localStorage.clear();
-});
+afterEach(cleanup);
 
 describe("PageIntro", () => {
   it("показва заглавието, текста и линк към обиколката", () => {
@@ -26,22 +30,15 @@ describe("PageIntro", () => {
     ).toHaveAttribute("href", "/welcome");
   });
 
-  it("се скрива след „Разбрах“ и остава скрито при ново отваряне", async () => {
-    const { unmount } = renderIntro();
-    await userEvent.click(screen.getByRole("button", { name: "Разбрах" }));
-    expect(screen.queryByText("КАКВО Е ТАЗИ СТРАНИЦА")).not.toBeInTheDocument();
-
-    unmount();
-    renderIntro();
+  it("не се показва, ако потребителят вече го е скрил", () => {
+    renderIntro(true);
     expect(screen.queryByText("КАКВО Е ТАЗИ СТРАНИЦА")).not.toBeInTheDocument();
   });
 
-  it("помни избора отделно за всеки екран", async () => {
-    const first = renderIntro("screen-a");
+  it("„Разбрах“ го скрива веднага и записва избора за този екран", async () => {
+    const onDismiss = renderIntro();
     await userEvent.click(screen.getByRole("button", { name: "Разбрах" }));
-    first.unmount();
-
-    renderIntro("screen-b");
-    expect(screen.getByText("КАКВО Е ТАЗИ СТРАНИЦА")).toBeInTheDocument();
+    expect(screen.queryByText("КАКВО Е ТАЗИ СТРАНИЦА")).not.toBeInTheDocument();
+    expect(onDismiss).toHaveBeenCalledExactlyOnceWith("dashboard");
   });
 });

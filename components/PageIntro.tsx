@@ -1,40 +1,9 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button, buttonClass } from "@/components/ui/button";
-
-const STORAGE_PREFIX = "structlab:intro-dismissed:";
-const CHANGE_EVENT = "structlab:intro-change";
-
-// До Етап 4 няма потребители, затова „Разбрах“ се помни в браузъра.
-// После се мести в user_settings.intro_dismissed.
-function subscribe(onChange: () => void) {
-  window.addEventListener("storage", onChange);
-  window.addEventListener(CHANGE_EVENT, onChange);
-  return () => {
-    window.removeEventListener("storage", onChange);
-    window.removeEventListener(CHANGE_EVENT, onChange);
-  };
-}
-
-function isDismissed(id: string): boolean {
-  try {
-    return window.localStorage.getItem(STORAGE_PREFIX + id) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function dismiss(id: string) {
-  try {
-    window.localStorage.setItem(STORAGE_PREFIX + id, "1");
-  } catch {
-    // частен режим на браузъра: карето се скрива само до презареждане
-  }
-  window.dispatchEvent(new Event(CHANGE_EVENT));
-}
 
 type PageIntroProps = {
   /** уникално име на екрана, напр. "dashboard" */
@@ -42,19 +11,31 @@ type PageIntroProps = {
   title: string;
   children: React.ReactNode;
   icon?: React.ReactNode;
+  /** дали потребителят вече го е скрил (идва от user_settings в базата) */
+  dismissed: boolean;
+  /** записва избора в базата */
+  onDismiss: (id: string) => Promise<void>;
 };
 
-export function PageIntro({ id, title, children, icon }: PageIntroProps) {
+export function PageIntro({
+  id,
+  title,
+  children,
+  icon,
+  dismissed,
+  onDismiss,
+}: PageIntroProps) {
   const reduceMotion = useReducedMotion();
-  // На сървъра не знаем избора на потребителя, затова там карето е скрито
-  // и се появява чак в браузъра – така няма „премигване“.
-  const hidden = useSyncExternalStore(
-    subscribe,
-    () => isDismissed(id),
-    () => true,
-  );
+  const [hidden, setHidden] = useState(dismissed);
+  const [, startTransition] = useTransition();
 
   if (hidden) return null;
+
+  function handleDismiss() {
+    // Скриваме веднага; записът в базата върви на заден план.
+    setHidden(true);
+    startTransition(() => onDismiss(id));
+  }
 
   return (
     <motion.section
@@ -89,7 +70,7 @@ export function PageIntro({ id, title, children, icon }: PageIntroProps) {
         >
           Пълна обиколка
         </Link>
-        <Button onClick={() => dismiss(id)}>Разбрах</Button>
+        <Button onClick={handleDismiss}>Разбрах</Button>
       </div>
     </motion.section>
   );
