@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   centroid,
+  findOverlap,
   rotatedMoments,
   sectionProperties,
   steinerTable,
@@ -276,5 +277,41 @@ describe("останалите числа от Глава 2", () => {
     const edge = sectionProperties([{ b: 5, h: 20, x: 0, y: 0 }]).Ix;
     const flat = sectionProperties([{ b: 20, h: 5, x: 0, y: 0 }]).Ix;
     expect(edge / flat).toBeCloseTo(16, 9);
+  });
+});
+
+describe("застъпване на правоъгълници", () => {
+  it("допрени по страна или по ъгъл не се застъпват", () => {
+    expect(
+      findOverlap([
+        { b: 2, h: 10, x: 5, y: 0 },
+        { b: 12, h: 2, x: 0, y: 10 },
+      ]),
+    ).toBeNull();
+    expect(
+      findOverlap([
+        { b: 2, h: 2, x: 0, y: 0 },
+        { b: 2, h: 2, x: 2, y: 2 },
+      ]),
+    ).toBeNull();
+  });
+
+  it("намира двата правоъгълника с обща площ", () => {
+    expect(
+      findOverlap([
+        { b: 4, h: 4, x: 0, y: 0 },
+        { b: 1, h: 1, x: 10, y: 10 },
+        { b: 4, h: 4, x: 3, y: 3 },
+      ]),
+    ).toEqual([0, 2]);
+  });
+
+  it("отворът не се брои за застъпване – той нарочно е върху плътна част", () => {
+    expect(
+      findOverlap([
+        { b: 10, h: 16, x: 0, y: 0 },
+        { b: 6, h: 12, x: 2, y: 2, hole: true },
+      ]),
+    ).toBeNull();
   });
 });

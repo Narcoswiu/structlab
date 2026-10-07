@@ -16,10 +16,10 @@ const labs = [
     available: true,
   },
   {
-    href: null,
+    href: "/labs/section",
     title: "Сечения",
     text: "Сечение от правоъгълници: център на тежестта, инерционни моменти, главни оси и таблица на Щайнер.",
-    available: false,
+    available: true,
   },
 ] as const;
 

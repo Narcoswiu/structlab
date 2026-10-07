@@ -176,3 +176,25 @@ export function rotatedMoments(
     Iuv: half * s2 + props.Ixy * c2,
   };
 }
+
+/**
+ * Застъпват ли се два плътни правоъгълника (с обща площ, не само с обща страна).
+ * При застъпване площта се брои два пъти и резултатите са грешни.
+ */
+export function findOverlap(rects: Rect[]): [number, number] | null {
+  const solid = rects
+    .map((rect, index) => ({ rect, index }))
+    .filter((item) => !item.rect.hole);
+  const eps = 1e-9;
+  for (let i = 0; i < solid.length; i++) {
+    for (let j = i + 1; j < solid.length; j++) {
+      const a = solid[i]!.rect;
+      const b = solid[j]!.rect;
+      const overlapX = Math.min(a.x + a.b, b.x + b.b) - Math.max(a.x, b.x);
+      const overlapY = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+      if (overlapX > eps && overlapY > eps)
+        return [solid[i]!.index, solid[j]!.index];
+    }
+  }
+  return null;
+}

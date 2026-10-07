@@ -26,7 +26,10 @@ test("от менюто се стига до лабораторията; при�
   await expect(
     page.getByRole("heading", { level: 1, name: "Лаборатории" }),
   ).toBeVisible();
-  await page.getByRole("link", { name: "Отвори лабораторията →" }).click();
+  await page
+    .getByRole("link", { name: "Отвори лабораторията →" })
+    .first()
+    .click();
   await expect(page).toHaveURL(/\/labs\/beam$/);
 
   await expect(result(page).locator("svg")).toBeVisible();
@@ -176,4 +179,124 @@ test("потребител без активен план вижда обясн�
     page.getByRole("heading", { name: "Нямаш активен достъп" }),
   ).toBeVisible();
   await expect(page.getByLabel("Дължина L, m")).toHaveCount(0);
+});
+
+test.describe("лаборатория за сечения", () => {
+  test("примерът по подразбиране е контролният от учебника: сечение „Т“", async ({
+    page,
+  }) => {
+    await signIn(page, E2E_READER.email, E2E_READER.password);
+    await page.goto("/labs");
+    await page
+      .getByRole("link", { name: "Отвори лабораторията →" })
+      .nth(1)
+      .click();
+    await expect(page).toHaveURL(/\/labs\/section$/);
+
+    await expect(result(page).locator("svg")).toBeVisible();
+    await expect(result(page)).toContainText("44 cm²");
+    await expect(result(page)).toContainText("y = 8,27 cm");
+    await expect(result(page)).toContainText("567,39 cm⁴");
+    await expect(result(page)).toContainText("294,67 cm⁴");
+    await expect(result(page)).toContainText(
+      "I_xy = 0: осите x и y са главни.",
+    );
+  });
+
+  test("сечение „Г“: главни оси и ъгъл; таблицата на Щайнер показва преносните членове", async ({
+    page,
+  }) => {
+    await signIn(page, E2E_READER.email, E2E_READER.password);
+    await page.goto("/labs/section");
+    await page.getByRole("button", { name: "Сечение „Г“" }).click();
+    await expect(result(page)).toContainText("290,67 cm⁴");
+    await expect(result(page)).toContainText("162,67 cm⁴");
+    await expect(result(page)).toContainText("−120 cm⁴");
+    await expect(result(page)).toContainText("362,67 cm⁴");
+    await expect(result(page)).toContainText("90,67 cm⁴");
+    await expect(result(page)).toContainText("30,96°");
+    await expect(result(page)).toContainText("главните оси 1 и 2 са завъртени");
+
+    await page
+      .getByRole("button", { name: "Покажи таблицата на Щайнер" })
+      .click();
+    const table = page.getByRole("region", { name: "Таблица на Щайнер" });
+    await expect(table.getByRole("row")).toHaveCount(3);
+    // вертикалното рамо: A = 20, d_x = −1,5, d_y = 1,5, A·d_x·d_y = −45
+    await expect(table.getByRole("row").nth(1)).toContainText("166,67");
+    await expect(table.getByRole("row").nth(1)).toContainText("−45");
+    await expect(table.getByRole("row").nth(2)).toContainText("−75");
+  });
+
+  test("промяна на размерите преизчислява; отвор се изважда", async ({
+    page,
+  }) => {
+    await signIn(page, E2E_READER.email, E2E_READER.password);
+    await page.goto("/labs/section");
+
+    // само един правоъгълник 6×12: I_x = 864, I_y = 216
+    await page.getByRole("button", { name: "Премахни правоъгълник 2" }).click();
+    await page.getByLabel("b1 (ширина), cm").fill("6");
+    await page.getByLabel("h1 (височина), cm").fill("12");
+    await expect(result(page)).toContainText("72 cm²");
+    await expect(result(page)).toContainText("864 cm⁴");
+    await expect(result(page)).toContainText("216 cm⁴");
+    await expect(result(page)).toContainText("144 cm³");
+
+    // кухото сечение от учебника: I_x = 2549,33
+    await page.getByRole("button", { name: "Кухо сечение" }).click();
+    await expect(result(page)).toContainText("88 cm²");
+    await expect(result(page)).toContainText("2549,33 cm⁴");
+    // махаме отметката „отвор“ → двата правоъгълника вече се застъпват
+    await page.getByRole("checkbox").nth(1).uncheck();
+    await expect(result(page).getByRole("alert")).toContainText("се застъпват");
+  });
+
+  test("невалидни данни дават ясно съобщение", async ({ page }) => {
+    await signIn(page, E2E_READER.email, E2E_READER.password);
+    await page.goto("/labs/section");
+    await page.getByRole("button", { name: "Премахни правоъгълник 2" }).click();
+    await page.getByRole("button", { name: "Премахни правоъгълник 1" }).click();
+    await expect(result(page).getByRole("alert")).toHaveText(
+      "Добави поне един правоъгълник.",
+    );
+
+    await page.getByRole("button", { name: "Правоъгълник" }).click();
+    await expect(result(page).locator("svg")).toBeVisible();
+    await page.getByRole("checkbox").check();
+    await expect(result(page).getByRole("alert")).toContainText(
+      "Плътната площ трябва да е по-голяма",
+    );
+    await page.getByLabel("b1 (ширина), cm").fill("0");
+    await expect(page.getByLabel("b1 (ширина), cm")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
+  });
+
+  test("достъпност и телефон", async ({ page }) => {
+    await signIn(page, E2E_READER.email, E2E_READER.password);
+    await page.goto("/labs/section");
+    await page.getByRole("button", { name: "Сечение „Г“" }).click();
+    await page
+      .getByRole("button", { name: "Покажи таблицата на Щайнер" })
+      .click();
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.waitForTimeout(800);
+    const results = await new AxeBuilder({ page })
+      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+      .analyze();
+    expect(
+      results.violations.map((v) => ({
+        rule: v.id,
+        example: v.nodes[0]?.target.join(" "),
+      })),
+    ).toEqual([]);
+    const overflow = await page.evaluate(
+      () =>
+        document.documentElement.scrollWidth -
+        document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
 });

@@ -732,14 +732,12 @@ describe("публични форми: чакащ списък, контакт, 
       const read = await anon.from(table).select("*").limit(1);
       expect(read.error).not.toBeNull();
     }
-    const write = await anon
-      .from("waitlist")
-      .insert({
-        email: "x@rls.test",
-        university: "У",
-        specialty: "С",
-        year: 1,
-      });
+    const write = await anon.from("waitlist").insert({
+      email: "x@rls.test",
+      university: "У",
+      specialty: "С",
+      year: 1,
+    });
     expect(write.error).not.toBeNull();
   });
 
