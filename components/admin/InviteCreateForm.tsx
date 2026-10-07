@@ -44,7 +44,7 @@ export function InviteCreateForm({
           required
           rows={3}
           placeholder="по един на ред"
-          defaultValue={state.values?.emails}
+          defaultValue={state.values?.emails ?? ""}
           className={`${inputClass} py-3 font-mono text-sm`}
         />
       </div>
@@ -53,7 +53,7 @@ export function InviteCreateForm({
           <Field
             label="Име (по избор)"
             name="fullName"
-            defaultValue={state.values?.fullName}
+            defaultValue={state.values?.fullName ?? ""}
             hint="Ползва се в поздрава, ако поканата е една."
           />
         </div>

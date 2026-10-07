@@ -17,7 +17,7 @@ export function LoginForm({ next }: { next: string }) {
         name="email"
         type="email"
         autoComplete="email"
-        defaultValue={state.values?.email}
+        defaultValue={state.values?.email ?? ""}
         required
       />
       <Field

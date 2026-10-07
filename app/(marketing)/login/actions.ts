@@ -19,14 +19,19 @@ export async function signIn(
   _prev: FormState,
   formData: FormData,
 ): Promise<FormState> {
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase();
   const parsed = signInSchema.safeParse({
-    email: String(formData.get("email") ?? "")
-      .trim()
-      .toLowerCase(),
+    email,
     password: String(formData.get("password") ?? ""),
   });
   // Едно и също съобщение за всяка грешка: не издаваме дали имейлът съществува.
-  const invalid: FormState = { error: "Грешен имейл или парола." };
+  // Връщаме имейла, за да не се налага да се пише отново.
+  const invalid: FormState = {
+    error: "Грешен имейл или парола.",
+    values: { email },
+  };
   if (!parsed.success) return invalid;
 
   const supabase = await createClient();

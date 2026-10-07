@@ -38,6 +38,17 @@ test("грешна парола не издава дали имейлът същ
   await expect(page.getByText("Грешен имейл или парола.")).toBeVisible();
 });
 
+test("след грешна парола имейлът остава и вторият опит влиза", async ({
+  page,
+}) => {
+  await signIn(page, E2E_ADMIN.email, "wrong-password-123");
+  await expect(page.getByText("Грешен имейл или парола.")).toBeVisible();
+  await expect(page.getByLabel("Имейл")).toHaveValue(E2E_ADMIN.email);
+  await page.getByLabel("Парола").fill(E2E_ADMIN.password);
+  await page.getByRole("button", { name: "Вход" }).click();
+  await page.waitForURL(/\/dashboard$/);
+});
+
 test("невалиден линк за покана показва обяснение, не форма", async ({
   page,
 }) => {
@@ -55,6 +66,12 @@ test("admin създава покана и получава линк за коп
   await expect(
     page.getByRole("heading", { level: 1, name: "Админ" }),
   ).toBeVisible();
+
+  // грешен адрес: формата връща грешка, но въведеното остава
+  await page.getByLabel("Имейли").fill("ne-e-imeil");
+  await page.getByRole("button", { name: "Създай покани" }).click();
+  await expect(page.getByText("Невалидни адреси: ne-e-imeil")).toBeVisible();
+  await expect(page.getByLabel("Имейли")).toHaveValue("ne-e-imeil");
 
   await page.getByLabel("Имейли").fill(student.email.toUpperCase());
   await page
