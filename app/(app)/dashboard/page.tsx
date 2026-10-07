@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LayoutGrid } from "lucide-react";
 import { dismissIntro } from "@/app/(app)/actions";
+import { NoAccess } from "@/components/app/NoAccess";
 import { PageIntro } from "@/components/PageIntro";
 import { TiltCard } from "@/components/three-d/TiltCard";
 import { Badge } from "@/components/ui/badge";
@@ -116,13 +117,7 @@ export default async function DashboardPage() {
           </div>
         </section>
       ) : (
-        <section className="rounded-2xl bg-warn-bg p-6 text-warn-fg">
-          <h2 className="text-lg font-extrabold">Нямаш активен достъп</h2>
-          <p className="mt-1 leading-[1.6]">
-            Срокът на плана ти е изтекъл или достъпът е спрян. Пиши ни през
-            бутона „Обратна връзка“, ако смяташ, че е грешка.
-          </p>
-        </section>
+        <NoAccess />
       )}
     </>
   );

@@ -558,3 +558,12 @@
   margin-top: 0;
   font-size: 1.1em;
 }
+
+/* Лаборатории: фигурите ползват същите променливи като в четеца. */
+.lab {
+  --fig-ink: var(--sl-text);
+  --fig-muted: var(--sl-text-dim);
+  --fig-load: var(--sl-orange);
+  --fig-accent: var(--sl-blue);
+  --fig-fill: rgba(110, 168, 255, 0.16);
+}

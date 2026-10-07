@@ -17,6 +17,9 @@ export function AppHeader({ user }: { user: CurrentUser }) {
         <Link href="/dashboard" className={navLinkClass}>
           Табло
         </Link>
+        <Link href="/labs" className={navLinkClass}>
+          Лаборатории
+        </Link>
         <Link href="/account" className={navLinkClass}>
           Профил
         </Link>
