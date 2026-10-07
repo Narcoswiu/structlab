@@ -1,0 +1,228 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Container } from "@/components/layout/Container";
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import { getContactEmail } from "@/lib/email/send";
+
+export const metadata: Metadata = {
+  title: "Политика за поверителност",
+  description:
+    "Какви лични данни събира StructLab, защо, къде се пазят и какви права имаш.",
+};
+
+// Тази страница описва само това, което сайтът реално прави в момента.
+// При всяка нова функция, която събира данни, текстът се обновява ПРЕДИ пускането ѝ.
+const LAST_UPDATED = "8 октомври 2026 г.";
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="flex flex-col gap-3">
+      <h2 className="text-xl font-extrabold text-foreground">{title}</h2>
+      {children}
+    </section>
+  );
+}
+
+const listClass = "flex list-disc flex-col gap-2 pl-5";
+
+export default function PrivacyPage() {
+  const contactEmail = getContactEmail();
+
+  return (
+    <Container>
+      <SiteHeader />
+      <article className="flex max-w-[720px] flex-col gap-8 py-10 text-[17px] leading-[1.7] text-muted-foreground lg:py-16">
+        <header className="flex flex-col gap-3">
+          <h1 className="font-display text-[clamp(26px,6vw,40px)] leading-[1.1] font-bold text-foreground">
+            Политика за поверителност
+          </h1>
+          <p className="text-sm text-dim">Последна промяна: {LAST_UPDATED}</p>
+          <p>
+            StructLab е учебна платформа в бета версия. Тук е описано кои твои
+            данни пазим, защо ги пазим и какво можеш да направиш с тях. Събираме
+            само това, без което акаунтът ти не може да работи.
+          </p>
+        </header>
+
+        <Section title="Кой отговаря за данните">
+          <p>
+            Администратор на личните данни е собственикът на StructLab.
+            {contactEmail ? (
+              <>
+                {" "}
+                За всичко, свързано с данните ти, пиши на{" "}
+                <a
+                  href={`mailto:${contactEmail}`}
+                  className="font-bold break-all text-link hover:text-link-hover"
+                >
+                  {contactEmail}
+                </a>
+                .
+              </>
+            ) : (
+              " За всичко, свързано с данните ти, пиши ни през бутона „Обратна връзка“ в платформата."
+            )}
+          </p>
+        </Section>
+
+        <Section title="Какви данни пазим">
+          <ul className={listClass}>
+            <li>
+              <strong className="text-foreground">Имейл адрес и име</strong> –
+              въвеждаш ги при приемане на поканата. С имейла влизаш в акаунта
+              си.
+            </li>
+            <li>
+              <strong className="text-foreground">Парола</strong> – пази се само
+              като необратим хеш. Никой, включително ние, не може да я прочете.
+            </li>
+            <li>
+              <strong className="text-foreground">Данни за достъпа</strong> –
+              кой план имаш, от кога и до кога, кога си приел поканата и кога си
+              приел условията.
+            </li>
+            <li>
+              <strong className="text-foreground">Настройки</strong> – например
+              кои обяснителни карета си скрил с „Разбрах“.
+            </li>
+            <li>
+              <strong className="text-foreground">Обратна връзка</strong> –
+              текстът, който ни изпратиш, и страницата, от която е изпратен.
+            </li>
+            <li>
+              <strong className="text-foreground">Технически данни</strong> –
+              при всяко отваряне на страница хостингът записва IP адрес, вид на
+              браузъра и час. Използват се за сигурност и отстраняване на
+              проблеми.
+            </li>
+          </ul>
+          <p>
+            Не искаме и не пазим ЕГН, адрес, телефон, данни за плащане или
+            факултетен номер.
+          </p>
+        </Section>
+
+        <Section title="Проследяване на ученето">
+          <p>
+            Към датата на тази политика платформата{" "}
+            <strong className="text-foreground">не записва</strong> кои уроци
+            отваряш и колко време четеш. Когато учебникът бъде пуснат, ще
+            записваме тези данни, за да ти показваме напредъка и докъде си
+            стигнал. Преди това тази страница ще бъде обновена и ще те уведомим.
+          </p>
+        </Section>
+
+        <Section title="Защо обработваме данните">
+          <ul className={listClass}>
+            <li>
+              За да ти дадем достъп до платформата, за който си поканен
+              (изпълнение на договор).
+            </li>
+            <li>
+              За да пазим акаунтите и сайта от злоупотреба (легитимен интерес).
+            </li>
+            <li>
+              За да ти пратим имейл, който сам си поискал – покана, линк за вход
+              или за нова парола.
+            </li>
+          </ul>
+          <p>
+            Не изпращаме реклама, не продаваме данни и не ги даваме на рекламни
+            мрежи.
+          </p>
+        </Section>
+
+        <Section title="Бисквитки">
+          <p>
+            Използваме само бисквитките, които пазят входа ти в акаунта. Без тях
+            не можеш да останеш влязъл. Няма бисквитки за реклама и няма външни
+            инструменти за статистика, затова не показваме банер за съгласие.
+          </p>
+        </Section>
+
+        <Section title="Кой друг обработва данните">
+          <ul className={listClass}>
+            <li>
+              <strong className="text-foreground">Supabase</strong> – базата
+              данни и входът в акаунта. Данните се пазят в Европейския съюз
+              (Франкфурт, Германия).
+            </li>
+            <li>
+              <strong className="text-foreground">Vercel</strong> – хостинг на
+              сайта. Компанията е в САЩ и техническите данни от посещенията
+              могат да се обработват и там, при стандартните договорни клаузи на
+              ЕС.
+            </li>
+            <li>
+              <strong className="text-foreground">Google (Gmail)</strong> – през
+              него тръгват имейлите с покани и линкове за вход. Вижда адреса ти
+              и съдържанието на тези писма.
+            </li>
+          </ul>
+        </Section>
+
+        <Section title="Колко дълго пазим данните">
+          <ul className={listClass}>
+            <li>Данните на акаунта – докато акаунтът съществува.</li>
+            <li>
+              Неприета покана – докато не бъде приета или изтрита; линкът в нея
+              спира да работи след 14 дни.
+            </li>
+            <li>
+              Записите за поискани линкове за вход – до 24 часа, и то само като
+              хеш на адреса.
+            </li>
+          </ul>
+        </Section>
+
+        <Section title="Твоите права">
+          <p>По Общия регламент за защита на данните (GDPR) можеш да:</p>
+          <ul className={listClass}>
+            <li>поискаш копие на данните, които пазим за теб;</li>
+            <li>поискаш да поправим неточни данни;</li>
+            <li>поискаш да изтрием акаунта ти и данните в него;</li>
+            <li>възразиш срещу обработване или да поискаш да го ограничим;</li>
+            <li>получиш данните си във вид, удобен за пренасяне.</li>
+          </ul>
+          <p>
+            Пиши ни и ще отговорим до един месец. В момента изтриването и
+            копието на данните се правят ръчно по твое искане – в платформата
+            още няма бутон за това.
+          </p>
+          <p>
+            Ако смяташ, че нарушаваме правата ти, можеш да подадеш жалба до
+            Комисията за защита на личните данни (
+            <a
+              href="https://www.cpdp.bg"
+              rel="noopener noreferrer"
+              className="font-bold text-link hover:text-link-hover"
+            >
+              cpdp.bg
+            </a>
+            ).
+          </p>
+        </Section>
+
+        <Section title="Промени">
+          <p>
+            Ако променим какви данни събираме или защо, ще обновим тази страница
+            и датата най-горе, а при съществена промяна ще ти пишем по имейл.
+          </p>
+        </Section>
+
+        <Link
+          href="/"
+          className="inline-flex min-h-11 items-center self-start font-bold text-link hover:text-link-hover"
+        >
+          ← Към началото
+        </Link>
+      </article>
+    </Container>
+  );
+}

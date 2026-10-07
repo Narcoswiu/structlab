@@ -29,6 +29,7 @@ for (const path of [
   "/login",
   "/forgot-password",
   "/welcome",
+  "/privacy",
   "/invite/abc",
 ]) {
   test(`публична страница ${path}`, async ({ page }) => {
