@@ -440,3 +440,123 @@ describe("login_link_requests – само за сървъра", () => {
     await service.from("login_link_requests").delete().eq("email_hash", hash);
   });
 });
+
+describe("chapters – учебникът се вижда само с активен достъп", () => {
+  let publishedId: string;
+  let draftId: string;
+
+  beforeAll(async () => {
+    const suffix = crypto.randomUUID().slice(0, 8);
+    const insert = await service
+      .from("chapters")
+      .insert([
+        {
+          module_id: moduleId,
+          slug: `rls-published-${suffix}`,
+          number: 9000 + Math.floor(Math.random() * 400),
+          title: "Публикувана",
+          is_published: true,
+        },
+        {
+          module_id: moduleId,
+          slug: `rls-draft-${suffix}`,
+          number: 9500 + Math.floor(Math.random() * 400),
+          title: "Чернова",
+          is_published: false,
+        },
+      ])
+      .select("id, is_published");
+    if (insert.error) throw insert.error;
+    publishedId = insert.data.find((row) => row.is_published)!.id;
+    draftId = insert.data.find((row) => !row.is_published)!.id;
+    const extra = await Promise.all([
+      service.from("chapter_bodies").insert([
+        { chapter_id: publishedId, mode: "easy", body: "## Загадка\nтекст" },
+        { chapter_id: draftId, mode: "easy", body: "## Загадка\nчернова" },
+      ]),
+      service.from("chapter_figures").insert([
+        { chapter_id: publishedId, name: "fig", svg: "<svg></svg>" },
+        { chapter_id: draftId, name: "fig", svg: "<svg></svg>" },
+      ]),
+    ]);
+    for (const result of extra) if (result.error) throw result.error;
+  });
+
+  afterAll(async () => {
+    await service.from("chapters").delete().in("id", [publishedId, draftId]);
+  });
+
+  const visible = async (client: Db) => {
+    const ids = [publishedId, draftId];
+    const [chapters, bodies, figures] = await Promise.all([
+      client.from("chapters").select("id").in("id", ids),
+      client.from("chapter_bodies").select("chapter_id").in("chapter_id", ids),
+      client.from("chapter_figures").select("chapter_id").in("chapter_id", ids),
+    ]);
+    return {
+      chapters: (chapters.data ?? []).map((row) => row.id).sort(),
+      bodies: (bodies.data ?? []).map((row) => row.chapter_id).sort(),
+      figures: (figures.data ?? []).map((row) => row.chapter_id).sort(),
+    };
+  };
+
+  it("без вход няма достъп до главите, текстовете и фигурите", async () => {
+    for (const table of [
+      "chapters",
+      "chapter_bodies",
+      "chapter_figures",
+    ] as const) {
+      const { data, error } = await anon.from(table).select("*").limit(1);
+      expect(error).not.toBeNull();
+      expect(data).toBeNull();
+    }
+  });
+
+  it("студент с активен план вижда публикуваната глава, но не и черновата", async () => {
+    expect(await visible(active.client)).toEqual({
+      chapters: [publishedId],
+      bodies: [publishedId],
+      figures: [publishedId],
+    });
+  });
+
+  it("студент с изтекъл или спрян достъп не вижда нищо", async () => {
+    const nothing = { chapters: [], bodies: [], figures: [] };
+    expect(await visible(expired.client)).toEqual(nothing);
+    expect(await visible(revoked.client)).toEqual(nothing);
+  });
+
+  it("admin вижда и черновите", async () => {
+    const all = [publishedId, draftId].sort();
+    expect(await visible(admin.client)).toEqual({
+      chapters: all,
+      bodies: all,
+      figures: all,
+    });
+  });
+
+  it("никой влязъл потребител – дори admin – не може да пише съдържание през клиента", async () => {
+    for (const client of [active.client, admin.client]) {
+      const body = await client
+        .from("chapter_bodies")
+        .update({ body: "подменен" })
+        .eq("chapter_id", publishedId);
+      expect(body.error).not.toBeNull();
+      const chapter = await client
+        .from("chapters")
+        .update({ is_published: true })
+        .eq("id", draftId);
+      expect(chapter.error).not.toBeNull();
+      const figure = await client
+        .from("chapter_figures")
+        .insert({ chapter_id: publishedId, name: "x", svg: "<svg></svg>" });
+      expect(figure.error).not.toBeNull();
+    }
+    const check = await service
+      .from("chapter_bodies")
+      .select("body")
+      .eq("chapter_id", publishedId)
+      .single();
+    expect(check.data?.body).toBe("## Загадка\nтекст");
+  });
+});

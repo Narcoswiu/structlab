@@ -54,6 +54,18 @@ test("вътрешни страници: табло, профил, админ, �
     await expectNoViolations(page);
   }
 
+  // четецът – и в трите теми, защото контрастът е различен във всяка
+  await page.goto(
+    "/learn/saprotivlenie-na-materialite/razrezni-usiliya?mode=detailed",
+  );
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  for (const theme of ["Тъмна", "Светла", "Сепия", "Тъмна"]) {
+    const saved = page.waitForResponse((r) => r.request().method() === "POST");
+    await page.getByRole("button", { name: `Тема: ${theme}` }).click();
+    await saved;
+    await expectNoViolations(page);
+  }
+
   await page.goto("/dashboard");
   await page.getByRole("button", { name: "Обратна връзка" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();

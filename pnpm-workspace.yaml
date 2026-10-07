@@ -1,3 +1,7 @@
 allowBuilds:
   sharp: false
   unrs-resolver: false
+# Една версия на KaTeX за целия проект: формулите се изчертават и стилизират
+# от един и същ пакет (и без уязвимостта в 0.16).
+overrides:
+  katex: 0.19.0

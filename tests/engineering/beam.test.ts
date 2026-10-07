@@ -196,8 +196,6 @@ describe("невалидни данни", () => {
       loads: [{ type: "force", x: 4, value: 1 }],
     };
     expect(() => solveReactions(beam)).toThrow();
-    expect(() =>
-      internalForces({ ...beam, loads: [] }, 3.5),
-    ).toThrow();
+    expect(() => internalForces({ ...beam, loads: [] }, 3.5)).toThrow();
   });
 });

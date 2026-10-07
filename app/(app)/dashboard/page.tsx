@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LayoutGrid } from "lucide-react";
 import { dismissIntro } from "@/app/(app)/actions";
 import { PageIntro } from "@/components/PageIntro";
@@ -19,8 +20,9 @@ export default async function DashboardPage() {
   const [modulesResult, enrollmentsResult, dismissed] = await Promise.all([
     supabase
       .from("modules")
-      .select("id, title, description")
-      .order("sort_order"),
+      .select("id, slug, title, description, chapters(slug, number, title)")
+      .order("sort_order")
+      .order("number", { referencedTable: "chapters" }),
     supabase
       .from("enrollments")
       .select("expires_at, access_plans(name, is_lifetime)")
@@ -44,8 +46,8 @@ export default async function DashboardPage() {
         dismissed={dismissed.has("dashboard")}
         onDismiss={dismissIntro}
       >
-        Оттук ще продължаваш откъдето си спрял и ще виждаш модулите, до които
-        имаш достъп. Учебникът и лабораториите се добавят в следващите седмици.
+        Оттук отваряш главите на учебника в модулите, до които имаш достъп. Нови
+        глави и лабораториите се добавят постепенно.
       </PageIntro>
 
       <div className="flex flex-col gap-2">
@@ -88,9 +90,27 @@ export default async function DashboardPage() {
                 <p className="leading-[1.6] text-muted-foreground">
                   {item.description}
                 </p>
-                <p className="mt-auto text-sm text-dim">
-                  Първите глави се подготвят.
-                </p>
+                {item.chapters.length > 0 ? (
+                  <ol className="mt-1 flex flex-col">
+                    {item.chapters.map((chapter) => (
+                      <li key={chapter.slug} className="border-t border-line">
+                        <Link
+                          href={`/learn/${item.slug}/${chapter.slug}`}
+                          className="flex min-h-11 items-center gap-3 py-2 font-bold text-link hover:text-link-hover"
+                        >
+                          <span className="font-mono text-sm text-dim">
+                            {String(chapter.number).padStart(2, "0")}
+                          </span>
+                          {chapter.title}
+                        </Link>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="mt-auto text-sm text-dim">
+                    Първите глави се подготвят.
+                  </p>
+                )}
               </TiltCard>
             ))}
           </div>

@@ -18,7 +18,7 @@ export default defineConfig({
       name: "phone",
       use: { ...devices["Pixel 7"] },
       // пълният път „покана → вход“ се проверява веднъж, на десктоп
-      testIgnore: "**/auth.spec.ts",
+      testIgnore: ["**/auth.spec.ts", "**/reader.spec.ts"],
     },
   ],
   webServer: {

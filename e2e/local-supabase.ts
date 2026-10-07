@@ -27,3 +27,9 @@ export const E2E_ADMIN = {
   email: "admin-e2e@structlab.test",
   password: "e2e-admin-password-1",
 };
+
+/** Студент с активен план – за тестовете на четеца. */
+export const E2E_READER = {
+  email: "reader-e2e@structlab.test",
+  password: "e2e-reader-password-1",
+};

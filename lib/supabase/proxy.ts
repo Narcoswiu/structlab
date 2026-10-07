@@ -2,7 +2,13 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { publicEnv } from "@/lib/env";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/account", "/admin", "/design"];
+const PROTECTED_PREFIXES = [
+  "/dashboard",
+  "/account",
+  "/admin",
+  "/design",
+  "/learn",
+];
 
 /**
  * Опреснява сесията при всяка заявка и връща към /login, ако няма вход.

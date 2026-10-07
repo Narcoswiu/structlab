@@ -37,6 +37,66 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"chapter_bodies": {
+                  Row: {
+                    "body": string,"chapter_id": string,"mode": Database["public"]['Enums']["content_mode"],"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body": string,"chapter_id": string,"mode": Database["public"]['Enums']["content_mode"],"updated_at"?: string
+                  }
+                  Update: {
+                    "body"?: string,"chapter_id"?: string,"mode"?: Database["public"]['Enums']["content_mode"],"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "chapter_bodies_chapter_id_fkey"
+      columns: ["chapter_id"]
+isOneToOne: false
+      referencedRelation: "chapters"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"chapter_figures": {
+                  Row: {
+                    "chapter_id": string,"name": string,"svg": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "chapter_id": string,"name": string,"svg": string
+                  }
+                  Update: {
+                    "chapter_id"?: string,"name"?: string,"svg"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "chapter_figures_chapter_id_fkey"
+      columns: ["chapter_id"]
+isOneToOne: false
+      referencedRelation: "chapters"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"chapters": {
+                  Row: {
+                    "created_at": string,"id": string,"is_published": boolean,"module_id": string,"number": number,"slug": string,"sources": NonNullable<Json>,"summary": string,"title": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"is_published"?: boolean,"module_id": string,"number": number,"slug": string,"sources"?: NonNullable<Json>,"summary"?: string,"title": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"is_published"?: boolean,"module_id"?: string,"number"?: number,"slug"?: string,"sources"?: NonNullable<Json>,"summary"?: string,"title"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "chapters_module_id_fkey"
+      columns: ["module_id"]
+isOneToOne: false
+      referencedRelation: "modules"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"enrollments": {
                   Row: {
                     "created_at": string,"expires_at": string,"id": string,"plan_id": string,"revoked_at": string | null,"source": Database["public"]['Enums']["enrollment_source"],"starts_at": string,"user_id": string
@@ -179,7 +239,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "has_module_access":
+            "can_read_chapter":
+{ Args: { "target_chapter": string }; Returns: boolean
+                           },
+"has_module_access":
 { Args: { "target_module": string }; Returns: boolean
                            },
 "is_admin":
@@ -187,7 +250,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "enrollment_source": "stripe"|"manual"|"invite"|"beta","user_role": "admin"|"student"
+            "content_mode": "easy"|"detailed","enrollment_source": "stripe"|"manual"|"invite"|"beta","user_role": "admin"|"student"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -307,7 +370,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "enrollment_source": ["stripe", "manual", "invite", "beta"],"user_role": ["admin", "student"]
+            "content_mode": ["easy", "detailed"],"enrollment_source": ["stripe", "manual", "invite", "beta"],"user_role": ["admin", "student"]
           }
         }
 } as const
