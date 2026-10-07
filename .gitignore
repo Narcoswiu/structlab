@@ -11,10 +11,3 @@ playwright-report/
 .DS_Store
 *.tsbuildinfo
 next-env.d.ts
-
-# вътрешни работни документи – само локално
-CLAUDE.md
-AGENTS.md
-docs/ROADMAP.md
-docs/SPEC.md
-docs/prototype/
