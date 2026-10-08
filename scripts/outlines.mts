@@ -32,6 +32,8 @@ export const WITHOUT_OUTLINE = new Set([
   "Философия",
   "Избираема дисциплина",
   "Дипломна работа",
+  // има готови глави – планът не се показва
+  "Съпротивление на материалите",
 ]);
 
 const text = (value: unknown, max: number): string | null =>

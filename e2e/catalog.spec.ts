@@ -87,16 +87,39 @@ test("дисциплина с готови глави води към модул
   });
   // броят расте с всяка нова глава – проверяваме само че е показан
   await expect(link).toContainText(/\d+ ГЛАВИ/);
-  // дисциплина с модул, но още без глави, не е връзка
-  await expect(plan(page).getByText("ПОДГОТВЯ СЕ").first()).toBeVisible();
-  await expect(
-    plan(page).getByRole("link", { name: /Строителни машини/ }),
-  ).toHaveCount(0);
-  // дисциплина без модул е обикновен текст
-  await expect(plan(page).getByText("Мостове")).toBeVisible();
-  await expect(plan(page).getByRole("link", { name: "Мостове" })).toHaveCount(
+  // дисциплина с модул, но още без глави, води към плана си
+  const machines = plan(page).getByRole("link", { name: /Строителни машини/ });
+  await expect(machines).toContainText("ПОДГОТВЯ СЕ");
+  await expect(machines).toHaveAttribute("href", "/plan/stroitelni-mashini");
+  // дисциплина без модул също има план
+  const bridges = plan(page).getByRole("link", { name: /^Мостове/ });
+  await expect(bridges).toContainText("ПЛАН");
+  // дисциплина без план остава обикновен текст
+  await expect(plan(page).getByText("Чужд език")).toBeVisible();
+  await expect(plan(page).getByRole("link", { name: /Чужд език/ })).toHaveCount(
     0,
   );
+
+  // страницата с плана: какво ще има и откъде е
+  await bridges.click();
+  await expect(page).toHaveURL(/\/plan\/mostove$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Мостове");
+  await expect(page.getByText("ПЛАН · УРОЦИТЕ СЕ ПОДГОТВЯТ")).toBeVisible();
+  const chapters = page
+    .getByRole("region", { name: "Какво ще има" })
+    .getByRole("listitem");
+  expect(await chapters.count()).toBeGreaterThanOrEqual(5);
+  await expect(
+    page.getByText("StructLab не е свързана с университета"),
+  ).toBeVisible();
+  const overflow = await page.evaluate(
+    () =>
+      document.documentElement.scrollWidth -
+      document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+  expect((await page.goto("/plan/nyama-takava"))?.status()).toBe(404);
+  await page.goto("/dashboard");
 
   await link.click();
   await expect(page).toHaveURL(/\/learn\/saprotivlenie-na-materialite$/);
