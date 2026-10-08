@@ -25,6 +25,10 @@ import {
   type BendingStressFigureSpec,
 } from "../lib/content/bending-figure.ts";
 import { renderSectionFigure } from "../lib/content/section-figure.ts";
+import {
+  renderShearStressFigure,
+  type ShearStressFigureSpec,
+} from "../lib/content/shear-figure.ts";
 import { findSvgProblem } from "../lib/content/svg.ts";
 import {
   verifyChapterBody,
@@ -40,11 +44,13 @@ type FigureSpec =
   | { title: string; section: Rect[]; principal?: boolean }
   | ({ kind: "bar" } & BarFigureSpec)
   | ({ kind: "rigid-beam" } & RigidBeamFigureSpec)
-  | ({ kind: "bending-stress" } & BendingStressFigureSpec);
+  | ({ kind: "bending-stress" } & BendingStressFigureSpec)
+  | ({ kind: "shear-stress" } & ShearStressFigureSpec);
 
 function renderFigure(spec: FigureSpec): string {
   if ("kind" in spec) {
     if (spec.kind === "bending-stress") return renderBendingStressFigure(spec);
+    if (spec.kind === "shear-stress") return renderShearStressFigure(spec);
     return spec.kind === "bar"
       ? renderBarFigure(spec)
       : renderRigidBeamFigure(spec);
