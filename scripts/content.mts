@@ -107,7 +107,14 @@ export function loadChapters(): LoadedChapter[] {
     if (!existsSync(chaptersDir)) continue;
     for (const name of readdirSync(chaptersDir).sort()) {
       const dir = path.join(chaptersDir, name);
-      if (!existsSync(path.join(dir, "meta.json"))) continue;
+      // недовършена глава (липсва някой от трите файла) се пропуска
+      if (
+        !["meta.json", "easy.md", "detailed.md"].every((file) =>
+          existsSync(path.join(dir, file)),
+        )
+      ) {
+        continue;
+      }
       const meta = JSON.parse(
         readFileSync(path.join(dir, "meta.json"), "utf8"),
       ) as Meta;
@@ -360,11 +367,31 @@ export function localSupabase(): { url: string; secretKey: string } {
 // Изпълнява се само когато файлът е пуснат директно, не когато е внесен от тест.
 if (process.argv[1] && path.resolve(process.argv[1]) === import.meta.filename) {
   const [command, flag] = process.argv.slice(2);
-  const chapters = loadChapters();
+  // --only=1,2,3 ограничава работата до тези номера на глави
+  const only = process.argv
+    .find((arg) => arg.startsWith("--only="))
+    ?.slice("--only=".length)
+    .split(",")
+    .map(Number);
+  let chapters = loadChapters().filter(
+    (chapter) => !only || only.includes(chapter.meta.number),
+  );
   const ok = report(chapters);
   if (!ok) {
-    console.error("\nИма грешки – нищо не е качено.");
-    process.exit(1);
+    // В локалната (тестова) база качваме изправните глави и пропускаме
+    // недовършените; в истинската база грешка спира всичко.
+    if (command === "push" && flag === "--local") {
+      const broken = chapters.filter((chapter) =>
+        chapter.problems.some((problem) => problem.level === "error"),
+      );
+      console.error(
+        `\nПропускам ${broken.length} глави с грешки: ${broken.map((chapter) => chapter.meta.slug).join(", ")}`,
+      );
+      chapters = chapters.filter((chapter) => !broken.includes(chapter));
+    } else {
+      console.error("\nИма грешки – нищо не е качено.");
+      process.exit(1);
+    }
   }
   if (command === "push") {
     const target =
