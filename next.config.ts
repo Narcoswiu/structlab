@@ -33,6 +33,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Помощникът чете речника на термините от диска – файлът трябва да пътува
+  // заедно със сървърната функция.
+  outputFileTracingIncludes: {
+    "/api/assistant": ["./content/glossary.yml"],
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

@@ -38,9 +38,9 @@ const features: Feature[] = [
   {
     icon: MessageCircle,
     tone: "blue",
-    title: "AI асистент по учебника",
-    text: "Обяснява по-просто, води с въпроси и проверява снимка на ръкописното ти решение.",
-    available: false,
+    title: "Помощник по учебника",
+    text: "Питаш с твои думи и виждаш къде в учебника пише за това – с главата и секцията. AI обясненията идват по-късно.",
+    available: true,
   },
   {
     icon: ClipboardList,

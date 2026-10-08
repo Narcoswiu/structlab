@@ -41,6 +41,11 @@ export default defineConfig({
       CRON_SECRET: "e2e-cron-secret-0123456789",
       SMTP_HOST: "",
       EMAIL_FROM: "",
+      // без ключ за AI услуга: помощникът търси само в уроците и нищо не
+      // излиза извън сайта
+      AI_API_KEY: "",
+      ANTHROPIC_API_KEY: "",
+      AI_PROVIDER: "",
     },
   },
 });

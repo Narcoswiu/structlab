@@ -37,6 +37,20 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"ai_usage": {
+                  Row: {
+                    "day": string,"requests": number,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "day": string,"requests"?: number,"user_id": string
+                  }
+                  Update: {
+                    "day"?: string,"requests"?: number,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"chapter_bodies": {
                   Row: {
                     "body": string,"chapter_id": string,"mode": Database["public"]['Enums']["content_mode"],"updated_at": string
@@ -474,6 +488,11 @@ isOneToOne: false
                            },
 "can_read_chapter":
 { Args: { "target_chapter": string }; Returns: boolean
+                           },
+"consume_ai_request":
+{ Args: { "p_limit": number,"p_user": string }; Returns: {
+              "allowed": boolean,"used": number
+            }[]
                            },
 "has_module_access":
 { Args: { "target_module": string }; Returns: boolean

@@ -628,3 +628,98 @@
   max-width: none;
   margin-top: 0;
 }
+
+/* Помощникът по учебника: текст от главите и от асистента в тесния панел. */
+.assistant-prose {
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.assistant-prose > * + * {
+  margin-top: 0.7em;
+}
+.assistant-prose strong {
+  color: var(--sl-text);
+  font-weight: 700;
+}
+.assistant-prose h1,
+.assistant-prose h2,
+.assistant-prose h3,
+.assistant-prose h4 {
+  color: var(--sl-text);
+  font-size: 1em;
+  font-weight: 800;
+}
+.assistant-prose a {
+  color: var(--sl-blue-soft);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.assistant-prose ul,
+.assistant-prose ol {
+  padding-left: 1.3em;
+}
+.assistant-prose ul {
+  list-style: disc;
+}
+.assistant-prose ol {
+  list-style: decimal;
+}
+.assistant-prose li + li {
+  margin-top: 0.3em;
+}
+.assistant-prose code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+.assistant-prose .katex {
+  color: var(--sl-text);
+}
+.assistant-prose .katex-display {
+  margin: 0.8em 0;
+  padding: 4px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.assistant-prose .table-scroll {
+  overflow-x: auto;
+}
+.assistant-prose table {
+  border-collapse: collapse;
+  font-size: 0.93em;
+}
+.assistant-prose th,
+.assistant-prose td {
+  padding: 4px 8px;
+  border: 1px solid var(--sl-line-strong);
+  text-align: left;
+}
+.assistant-prose .callout {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border-left: 3px solid var(--sl-blue);
+  background: var(--sl-intro-icon);
+}
+.assistant-prose .callout::before {
+  content: attr(data-label);
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.72em;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--sl-text);
+}
+.assistant-prose .callout > * + * {
+  margin-top: 0.6em;
+}
+.assistant-prose .callout-real,
+.assistant-prose .callout-note {
+  background: var(--sl-warn-bg);
+  border-left-color: var(--sl-orange);
+}
+.assistant-prose .callout-remember {
+  background: var(--sl-success-bg);
+  border-left-color: var(--sl-success);
+}

@@ -179,11 +179,11 @@ test("обиколката минава през 7 стъпки и отбеля�
     step.getByRole("link", { name: "Прочети демо глава" }),
   ).toHaveAttribute("href", "/demo/uchebnik");
 
-  await page.getByRole("button", { name: /AI асистент/ }).click();
+  await page.getByRole("button", { name: /Помощник по учебника/ }).click();
   await expect(step.getByRole("heading", { level: 2 })).toHaveText(
-    "AI асистент",
+    "Помощник по учебника",
   );
-  await expect(step.getByText("СКОРО", { exact: true })).toBeVisible();
+  await expect(step.getByText("НАЛИЧНО", { exact: true })).toBeVisible();
 
   await page.getByRole("button", { name: /Админ/ }).click();
   await expect(page.getByRole("button", { name: "Напред →" })).toBeDisabled();
