@@ -5,6 +5,7 @@ import type { TaskCheckState } from "@/app/(app)/tasks/actions";
 import { NoAccess } from "@/components/app/NoAccess";
 import { TaskAnswerForm } from "@/components/tasks/TaskAnswerForm";
 import { TaskFigure } from "@/components/tasks/TaskFigure";
+import { buttonClass } from "@/components/ui/button";
 import { hasActiveAccess } from "@/lib/access";
 import { requireUser } from "@/lib/auth";
 import { formatNumber } from "@/lib/format";
@@ -75,14 +76,14 @@ export default async function TaskPage(props: PageProps<"/tasks/[slug]">) {
         <p className="font-mono text-sm text-dim">
           Задание {index + 1} · вариант {variant.a}-{variant.b}-{variant.c}
         </p>
-        <h1 className="font-display text-[clamp(22px,4.5vw,32px)] leading-[1.15] font-bold">
+        <h1 className="font-display text-[clamp(22px,4.5vw,32px)] leading-[1.15] font-bold text-balance">
           {task.title}
         </h1>
       </div>
 
       <section
         aria-label="Условие"
-        className="flex flex-col gap-5 rounded-2xl border border-line bg-surface p-5 sm:p-6"
+        className="sl-card flex flex-col gap-5"
       >
         <div className="flex max-w-[68ch] flex-col gap-3 leading-[1.65]">
           {task.statement.map((paragraph) => (
@@ -120,7 +121,7 @@ export default async function TaskPage(props: PageProps<"/tasks/[slug]">) {
 
       <section
         aria-label="Отговори"
-        className="flex flex-col gap-4 rounded-2xl border border-line-strong bg-surface p-5 sm:p-6"
+        className="sl-card sl-card-strong flex flex-col gap-4"
       >
         <h2 className="text-xl font-extrabold">Твоите отговори</h2>
         <TaskAnswerForm
@@ -139,7 +140,15 @@ export default async function TaskPage(props: PageProps<"/tasks/[slug]">) {
       {next ? (
         <Link
           href={`/tasks/${next.slug}`}
-          className="inline-flex min-h-11 items-center self-start font-extrabold text-link hover:text-link-hover"
+          className={
+            // след решено задание следващото е основното действие на екрана
+            state?.solvedAt
+              ? buttonClass({
+                  className:
+                    "h-auto max-w-full self-start py-2.5 text-left whitespace-normal",
+                })
+              : "inline-flex min-h-11 items-center self-start font-extrabold text-link hover:text-link-hover"
+          }
         >
           Следващо задание: {next.title} →
         </Link>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ClipboardList } from "lucide-react";
+import { ChevronRight, ClipboardList } from "lucide-react";
 import { dismissIntro } from "@/app/(app)/actions";
 import { NoAccess } from "@/components/app/NoAccess";
 import { PageIntro } from "@/components/PageIntro";
@@ -11,6 +11,7 @@ import { requireUser } from "@/lib/auth";
 import { TASK_LIST, buildTask } from "@/lib/personal-tasks";
 import { getTaskStates, getVariant } from "@/lib/tasks";
 import { getDismissedIntros } from "@/lib/user-settings";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Лични задания" };
 
@@ -41,7 +42,7 @@ export default async function TasksPage() {
       </PageIntro>
 
       <div className="flex flex-col gap-2">
-        <h1 className="font-display text-[clamp(24px,5vw,36px)] leading-[1.15] font-bold">
+        <h1 className="sl-page-title">
           Лични задания
         </h1>
         {allowed && variant ? (
@@ -53,6 +54,18 @@ export default async function TasksPage() {
             · решени {solved} от {TASK_LIST.length}
           </p>
         ) : null}
+        {allowed && variant ? (
+          <span
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={TASK_LIST.length}
+            aria-valuenow={solved}
+            aria-label={`Решени задания: ${solved} от ${TASK_LIST.length}`}
+            className="sl-meter mt-1 max-w-56"
+          >
+            <span style={{ width: `${(solved / TASK_LIST.length) * 100}%` }} />
+          </span>
+        ) : null}
       </div>
 
       {!allowed ? (
@@ -60,7 +73,7 @@ export default async function TasksPage() {
       ) : !variant ? (
         <section
           aria-label="Въведи факултетен номер"
-          className="flex flex-col gap-4 rounded-2xl border border-intro-line bg-surface-hi p-5 sm:p-6"
+          className="sl-card flex flex-col gap-4 border-intro-line bg-surface-hi"
         >
           <div className="flex flex-col gap-1">
             <h2 className="text-xl font-extrabold">
@@ -86,13 +99,21 @@ export default async function TasksPage() {
                 <li key={item.slug}>
                   <Link
                     href={`/tasks/${item.slug}`}
-                    className="flex min-h-11 flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-line bg-surface p-5 no-underline hover:border-primary"
+                    className="sl-card sl-card-link grid min-h-11 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2.5 no-underline sm:flex"
                   >
-                    <span className="font-mono text-sm text-dim">
+                    {/* на телефон етикетът е под заглавието, за да не го притиска */}
+                    <span
+                      className={cn(
+                        "inline-flex size-10 flex-none items-center justify-center rounded-full font-mono text-sm",
+                        state?.solvedAt
+                          ? "bg-success-bg text-success-fg"
+                          : "bg-surface-2 text-muted-foreground",
+                      )}
+                    >
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <span className="flex min-w-0 flex-1 flex-col gap-1">
-                      <span className="text-lg font-extrabold text-foreground">
+                      <span className="text-lg leading-snug font-extrabold text-foreground">
                         {item.title}
                       </span>
                       <span className="text-sm text-dim">
@@ -102,24 +123,30 @@ export default async function TasksPage() {
                           : ""}
                       </span>
                     </span>
-                    {state?.solvedAt ? (
-                      <Badge variant="success">РЕШЕНО</Badge>
-                    ) : state ? (
-                      <Badge variant="tag">ЗАПОЧНАТО</Badge>
-                    ) : (
-                      <Badge variant="soon">НОВО</Badge>
-                    )}
+                    <span className="col-start-2 flex items-center gap-3">
+                      {state?.solvedAt ? (
+                        <Badge variant="success">РЕШЕНО</Badge>
+                      ) : state ? (
+                        <Badge variant="tag">ЗАПОЧНАТО</Badge>
+                      ) : (
+                        <Badge variant="soon">НОВО</Badge>
+                      )}
+                      <ChevronRight
+                        aria-hidden="true"
+                        className="hidden size-5 text-dim sm:block"
+                      />
+                    </span>
                   </Link>
                 </li>
               );
             })}
           </ol>
 
-          <details className="rounded-2xl border border-line bg-surface p-5">
+          <details className="sl-card py-3 sm:py-3">
             <summary className="flex min-h-11 cursor-pointer items-center font-bold text-link">
               Сбъркал си номера? Смени го
             </summary>
-            <div className="mt-3 flex flex-col gap-3">
+            <div className="mt-2 mb-2 flex flex-col gap-3">
               <p className="max-w-[640px] text-sm text-warn-fg">
                 Ако новият номер дава друг вариант, числата във всички задания
                 се сменят и досегашните ти отговори се изтриват.
