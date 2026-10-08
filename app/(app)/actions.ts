@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import type { FormState } from "@/lib/form-state";
+import { recordQuizAnswer } from "@/lib/review";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -143,4 +144,39 @@ export async function acceptTrackingNotice(): Promise<void> {
     .eq("user_id", user.id)
     .is("tracking_notice_accepted_at", null);
   revalidatePath("/", "layout");
+}
+
+const quizAnswerSchema = z.object({
+  questionId: z.uuid(),
+  knew: z.boolean(),
+});
+
+export type QuizAnswerOutcome =
+  | { status: "ok"; box: number; dueOn: string | null; knew: boolean }
+  | { status: "limited" | "error" | "not-found" };
+
+/** „Знаех го“ / „Не го знаех“: записва отговора и насрочва повторението. */
+export async function answerQuiz(
+  questionId: string,
+  knew: boolean,
+): Promise<QuizAnswerOutcome> {
+  const parsed = quizAnswerSchema.safeParse({ questionId, knew });
+  if (!parsed.success) return { status: "error" };
+  const user = await requireUser();
+
+  // Въпросът се търси от името на потребителя: RLS го връща само ако той има
+  // достъп до главата.
+  const supabase = await createClient();
+  const { data: question } = await supabase
+    .from("quiz_questions")
+    .select("id")
+    .eq("id", parsed.data.questionId)
+    .maybeSingle();
+  if (!question) return { status: "not-found" };
+
+  const result = await recordQuizAnswer(user.id, question.id, parsed.data.knew);
+  if (result.status !== "ok") return result;
+  revalidatePath("/dashboard");
+  revalidatePath("/review");
+  return { ...result, knew: parsed.data.knew };
 }

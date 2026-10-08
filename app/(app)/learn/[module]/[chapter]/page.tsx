@@ -10,6 +10,8 @@ import {
 } from "@/components/reader/ReaderShell";
 import { ReadingTracker } from "@/components/tracking/ReadingTracker";
 import { requireUser } from "@/lib/auth";
+import { extractQuizzes } from "@/lib/content/quiz";
+import { getChapterQuizState } from "@/lib/review";
 import { getTrackingAcceptedAt } from "@/lib/tracking";
 import { createClient } from "@/lib/supabase/server";
 
@@ -97,6 +99,14 @@ export default async function ChapterPage(
   const figures = Object.fromEntries(
     (figuresResult.data ?? []).map((figure) => [figure.name, figure.svg]),
   );
+  // въпросите от базата, подредени както са в текста (по отпечатъка им)
+  const quizState = await getChapterQuizState(user.id, chapter.id, mode);
+  const quizzes = extractQuizzes(bodyResult.data.body).map((item) => {
+    const state = quizState.get(item.key);
+    return state
+      ? { questionId: state.id, box: state.box, dueOn: state.dueOn }
+      : undefined;
+  });
   const sources = parseSources(chapter.sources);
   const trackingAccepted = Boolean(await getTrackingAcceptedAt(user.id));
   const theme: ReaderTheme =
@@ -131,7 +141,11 @@ export default async function ChapterPage(
       {trackingAccepted ? (
         <ReadingTracker module={moduleSlug} chapter={chapterSlug} mode={mode} />
       ) : null}
-      <ChapterBody markdown={bodyResult.data.body} figures={figures} />
+      <ChapterBody
+        markdown={bodyResult.data.body}
+        figures={figures}
+        quizzes={quizzes}
+      />
       {sources.length > 0 ? (
         <section className="reader-sources" aria-label="Източници">
           <h2>Източници</h2>

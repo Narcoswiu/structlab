@@ -5,11 +5,17 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { remarkChapter } from "@/lib/content/remark-chapter";
 import { isSafeSvg } from "@/lib/content/svg";
+import { QuizGrade, type QuizGradeState } from "./QuizGrade";
 
 type ChapterBodyProps = {
   markdown: string;
   /** име на фигура → SVG */
   figures: Record<string, string>;
+  /**
+   * Въпросите от базата по реда им в текста. Когато са подадени, под всеки
+   * отговор се появяват бутоните „Знаех го“ / „Не го знаех“.
+   */
+  quizzes?: (QuizGradeState | undefined)[];
 };
 
 const FIGURE_PREFIX = "figure:";
@@ -18,7 +24,7 @@ const FIGURE_PREFIX = "figure:";
  * Превръща текста на главата (Markdown) в HTML на сървъра. Суров HTML в текста
  * не се изпълнява; единственото вградено HTML са фигурите, след проверка.
  */
-export function ChapterBody({ markdown, figures }: ChapterBodyProps) {
+export function ChapterBody({ markdown, figures, quizzes }: ChapterBodyProps) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm, remarkMath, remarkDirective, remarkChapter]}
@@ -60,6 +66,17 @@ export function ChapterBody({ markdown, figures }: ChapterBodyProps) {
             >
               {children}
             </a>
+          );
+        },
+        details({ children, className, ...props }) {
+          const index = (props as { "data-quiz"?: string })["data-quiz"];
+          const quiz =
+            index === undefined ? undefined : quizzes?.[Number(index)];
+          return (
+            <details className={className}>
+              {children}
+              {quiz ? <QuizGrade {...quiz} /> : null}
+            </details>
           );
         },
         table({ children }) {

@@ -13,6 +13,8 @@ import { buttonClass } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth";
 import { getPlan, listSpecialties } from "@/lib/catalog";
 import { getMyProgress } from "@/lib/progress";
+import { getReviewSummary } from "@/lib/review";
+import { describeDue, questionsLabel, sofiaToday } from "@/lib/review-format";
 import { daysUntil, formatDate } from "@/lib/format-date";
 import { createClient } from "@/lib/supabase/server";
 import { getDismissedIntros } from "@/lib/user-settings";
@@ -41,6 +43,7 @@ export default async function DashboardPage() {
     getDismissedIntros(),
   ]);
   const myProgress = await getMyProgress(user.id);
+  const review = await getReviewSummary(user.id);
   const specialties = await listSpecialties();
   const specialty = specialties.find((item) => item.id === user.specialtyId);
   const plan = specialty ? await getPlan(specialty.id, specialty.years) : null;
@@ -115,6 +118,36 @@ export default async function DashboardPage() {
           <Link href={myProgress.resume.href} className={buttonClass()}>
             Продължи
           </Link>
+        </section>
+      ) : null}
+
+      {hasAccess && review.learning + review.mastered > 0 ? (
+        <section
+          aria-label="Днес за повторение"
+          className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line-strong bg-surface p-5 sm:p-6"
+        >
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <span className="text-xs font-extrabold tracking-[1.2px] text-success uppercase">
+              Днес за повторение
+            </span>
+            <span className="text-xl font-extrabold">
+              {review.due > 0
+                ? questionsLabel(review.due)
+                : "Няма въпроси за днес"}
+            </span>
+            <span className="text-sm text-dim">
+              {review.due > 0
+                ? "Няколко минути сега пестят часове преди изпита."
+                : review.nextDueOn
+                  ? `Следващото повторение е ${describeDue(review.nextDueOn, sofiaToday())}.`
+                  : "Всички отговорени въпроси са научени."}
+            </span>
+          </div>
+          {review.due > 0 ? (
+            <Link href="/review" className={buttonClass()}>
+              Започни
+            </Link>
+          ) : null}
         </section>
       ) : null}
 

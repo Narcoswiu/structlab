@@ -567,3 +567,64 @@
   --fig-accent: var(--sl-blue);
   --fig-fill: rgba(110, 168, 255, 0.16);
 }
+
+/* Самооценка под отговора на въпрос и екранът „Повторение“. */
+.reader-prose details.answer > .quiz-grade {
+  margin-top: 4px;
+  padding: 12px 14px 14px;
+  border-top: 1px dashed var(--rd-line);
+  font-family: var(--font-sans);
+  font-size: 0.85em;
+}
+.quiz-grade-ask {
+  font-weight: 800;
+  color: var(--rd-heading);
+}
+.quiz-grade-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.quiz-grade-buttons button {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 1px solid var(--rd-line);
+  background: var(--rd-surface);
+  color: var(--rd-heading);
+  font-weight: 800;
+  cursor: pointer;
+}
+.quiz-grade-buttons button:hover {
+  border-color: var(--rd-accent);
+}
+.quiz-grade-buttons button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.quiz-grade-buttons .quiz-grade-yes {
+  border-color: transparent;
+  background: var(--rd-accent);
+  color: var(--rd-on-accent);
+}
+.quiz-grade-note {
+  margin-top: 10px;
+  color: var(--rd-muted);
+  line-height: 1.5;
+}
+.quiz-grade-note[data-state="error"] {
+  color: var(--fig-load);
+}
+
+/* Картата в „Повторение“ взема цветовете на четеца, без да заема целия екран. */
+.reader.review-card {
+  --rd-font: 18px;
+  margin-inline: 0;
+  padding: 0;
+  background: transparent;
+}
+.review-card .reader-prose {
+  max-width: none;
+  margin-top: 0;
+}
