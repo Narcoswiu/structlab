@@ -12,3 +12,6 @@ CLAUDE.md
 AGENTS.md
 content
 app/shadcn-base.css
+tsconfig.json
+.claude/
+lib/outlines.generated.json

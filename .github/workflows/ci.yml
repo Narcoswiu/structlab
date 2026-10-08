@@ -1,0 +1,56 @@
+# Проверки при всяко качване: форматиране, lint, типове, тестове, сглобяване
+# и достъп до базата (RLS) срещу локална база в контейнер.
+name: Проверки
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fast:
+    name: Код и тестове
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check:fast
+      - name: Сглобяване
+        run: pnpm build
+        env:
+          # измислени стойности – сглобяването само проверява, че кодът се компилира
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-publishable-key-0000000000000000
+          SUPABASE_SECRET_KEY: ci-secret-key-00000000000000000000
+
+  database:
+    name: Достъп до базата (RLS)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Локална база
+        run: pnpm db:start
+      - name: Каталог в локалната база
+        run: pnpm catalog:push:local
+      - run: pnpm test:rls
