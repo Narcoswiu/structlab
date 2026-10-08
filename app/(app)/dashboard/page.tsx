@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LayoutGrid } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  ClipboardList,
+  LayoutGrid,
+  Repeat,
+} from "lucide-react";
 import { dismissIntro } from "@/app/(app)/actions";
+import { ActionCard } from "@/components/app/ActionCard";
 import { NoAccess } from "@/components/app/NoAccess";
 import { ProgressBar } from "@/components/app/ProgressBar";
 import { SpecialtyPicker } from "@/components/app/SpecialtyPicker";
@@ -56,6 +63,8 @@ export default async function DashboardPage() {
   const hasAccess = (modulesResult.data ?? []).length > 0;
   const enrollment = enrollmentsResult.data?.[0];
   const firstName = user.fullName.split(" ")[0];
+  const resume = hasAccess ? myProgress.resume : null;
+  const showReview = review.learning + review.mastered > 0;
 
   return (
     <>
@@ -72,7 +81,7 @@ export default async function DashboardPage() {
       </PageIntro>
 
       <div className="flex flex-col gap-2">
-        <h1 className="font-display text-[clamp(24px,5vw,36px)] leading-[1.15] font-bold">
+        <h1 className="sl-page-title">
           {firstName ? `Здравей, ${firstName}!` : "Здравей!"}
         </h1>
         {enrollment ? (
@@ -97,88 +106,114 @@ export default async function DashboardPage() {
         ) : null}
       </div>
 
-      {hasAccess && myProgress.resume ? (
-        <section
-          aria-label="Продължи откъдето спря"
-          className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-primary bg-surface-hi p-5 sm:p-6"
-        >
-          <div className="flex min-w-0 flex-col gap-1.5">
-            <span className="text-xs font-extrabold tracking-[1.2px] text-link uppercase">
-              Продължи откъдето спря
-            </span>
-            <span className="text-xl font-extrabold">
-              {myProgress.resume.chapterTitle}
-            </span>
-            <span className="text-sm text-dim">
-              {myProgress.resume.moduleTitle}
-              {myProgress.resume.sectionTitle
-                ? ` · стигна до „${myProgress.resume.sectionTitle}“`
-                : ""}
-            </span>
-            <ProgressBar progress={myProgress.resume.progress} />
-          </div>
-          <Link href={myProgress.resume.href} className={buttonClass()}>
-            Продължи
-          </Link>
-        </section>
-      ) : null}
-
-      {hasAccess && review.learning + review.mastered > 0 ? (
-        <section
-          aria-label="Днес за повторение"
-          className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line-strong bg-surface p-5 sm:p-6"
-        >
-          <div className="flex min-w-0 flex-col gap-1.5">
-            <span className="text-xs font-extrabold tracking-[1.2px] text-success uppercase">
-              Днес за повторение
-            </span>
-            <span className="text-xl font-extrabold">
-              {review.due > 0
-                ? questionsLabel(review.due)
-                : "Няма въпроси за днес"}
-            </span>
-            <span className="text-sm text-dim">
-              {review.due > 0
-                ? "Няколко минути сега пестят часове преди изпита."
-                : review.nextDueOn
-                  ? `Следващото повторение е ${describeDue(review.nextDueOn, sofiaToday())}.`
-                  : "Всички отговорени въпроси са научени."}
-            </span>
-          </div>
-          {review.due > 0 ? (
-            <Link href="/review" className={buttonClass()}>
-              Започни
-            </Link>
-          ) : null}
-        </section>
-      ) : null}
-
       {hasAccess ? (
-        <section
-          aria-label="Лични задания"
-          className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line-strong bg-surface p-5 sm:p-6"
-        >
-          <div className="flex min-w-0 flex-col gap-1.5">
-            <span className="text-xs font-extrabold tracking-[1.2px] text-warm uppercase">
-              Лични задания
-            </span>
-            <span className="text-xl font-extrabold">
-              {tasks.started > 0
+        <div className="grid gap-4 md:grid-cols-2">
+          {resume ? (
+            <ActionCard
+              label="Продължи откъдето спря"
+              tone="blue"
+              icon={<BookOpen className="size-5" />}
+              primary
+              className="md:col-span-2"
+              title={resume.chapterTitle}
+              description={
+                <>
+                  {resume.moduleTitle}
+                  {resume.sectionTitle
+                    ? ` · стигна до „${resume.sectionTitle}“`
+                    : ""}
+                </>
+              }
+              action={
+                <Link
+                  href={resume.href}
+                  className={buttonClass({ size: "lg" })}
+                >
+                  Продължи
+                  <ArrowRight aria-hidden="true" className="size-5" />
+                </Link>
+              }
+            >
+              <ProgressBar progress={resume.progress} wide />
+            </ActionCard>
+          ) : null}
+
+          {showReview ? (
+            <ActionCard
+              label="Днес за повторение"
+              tone="success"
+              icon={<Repeat className="size-5" />}
+              primary={!resume && review.due > 0}
+              title={
+                review.due > 0
+                  ? questionsLabel(review.due)
+                  : "Няма въпроси за днес"
+              }
+              description={
+                review.due > 0
+                  ? "Няколко минути сега пестят часове преди изпита."
+                  : review.nextDueOn
+                    ? `Следващото повторение е ${describeDue(review.nextDueOn, sofiaToday())}.`
+                    : "Всички отговорени въпроси са научени."
+              }
+              action={
+                review.due > 0 ? (
+                  <Link
+                    href="/review"
+                    className={buttonClass({
+                      variant: resume ? "outline" : "default",
+                    })}
+                  >
+                    Започни
+                  </Link>
+                ) : null
+              }
+            />
+          ) : null}
+
+          <ActionCard
+            label="Лични задания"
+            tone="warm"
+            icon={<ClipboardList className="size-5" />}
+            wide={!showReview}
+            className={showReview ? undefined : "md:col-span-2"}
+            title={
+              tasks.started > 0
                 ? `Решени ${tasks.solved} от ${tasks.total}`
-                : `${tasks.total} задачи с твоите числа`}
-            </span>
-            <span className="text-sm text-dim">
-              {tasks.started > 0
+                : `${tasks.total} задачи с твоите числа`
+            }
+            description={
+              tasks.started > 0
                 ? tasks.solved === tasks.total
                   ? "Всички задания са решени."
                   : "Продължи оттам, докъдето си стигнал."
-                : "Числата се смятат от факултетния ти номер, а отговорите се проверяват веднага."}
-            </span>
-          </div>
-          <Link href="/tasks" className={buttonClass({ variant: "outline" })}>
-            {tasks.started > 0 ? "Към заданията" : "Започни"}
-          </Link>
-        </section>
+                : "Числата се смятат от факултетния ти номер, а отговорите се проверяват веднага."
+            }
+            action={
+              <Link
+                href="/tasks"
+                className={buttonClass({ variant: "outline" })}
+              >
+                {tasks.started > 0 ? "Към заданията" : "Започни"}
+              </Link>
+            }
+          >
+            {tasks.started > 0 ? (
+              <span
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={tasks.total}
+                aria-valuenow={tasks.solved}
+                aria-label={`Решени задания: ${tasks.solved} от ${tasks.total}`}
+                className="sl-meter mt-1 max-w-56"
+              >
+                <span
+                  style={{ width: `${(tasks.solved / tasks.total) * 100}%` }}
+                />
+              </span>
+            ) : null}
+          </ActionCard>
+        </div>
       ) : null}
 
       {hasAccess ? (
@@ -187,7 +222,7 @@ export default async function DashboardPage() {
         ) : (
           <section
             aria-label="Избор на специалност"
-            className="flex flex-col gap-4 rounded-2xl border border-intro-line bg-surface-hi p-5 sm:p-6"
+            className="sl-card flex flex-col gap-4 border-intro-line bg-surface-hi"
           >
             <div className="flex flex-col gap-1">
               <h2 className="text-xl font-extrabold">Коя специалност учиш?</h2>

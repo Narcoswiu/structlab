@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 type PageIntroProps = {
   /** уникално име на екрана, напр. "dashboard" */
@@ -43,23 +44,32 @@ export function PageIntro({
       animate={{ opacity: 1, rotateX: 0, y: 0 }}
       transition={{ duration: 0.7, ease: [0.2, 0.7, 0.2, 1] }}
       style={{ transformPerspective: 900, transformOrigin: "top center" }}
-      className="flex flex-wrap items-center gap-5 rounded-2xl border border-intro-line bg-surface-hi px-6 py-[22px]"
+      // На телефон иконката стои до заглавието, а не на свой ред – карето е
+      // по-ниско, без да губи съдържание.
+      className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-2.5 rounded-2xl border border-intro-line bg-surface-hi p-4 sm:flex sm:flex-wrap sm:gap-5 sm:px-6 sm:py-[22px]"
     >
       {icon ? (
-        <span className="inline-flex size-[52px] flex-none items-center justify-center rounded-[14px] bg-intro-icon text-link">
+        <span className="inline-flex size-10 flex-none items-center justify-center rounded-xl bg-intro-icon text-link sm:size-[52px] sm:rounded-[14px]">
           {icon}
         </span>
       ) : null}
-      <div className="flex min-w-0 flex-[1_1_360px] flex-col gap-1.5">
-        <span className="text-xs font-extrabold tracking-[1.2px] text-link">
-          КАКВО Е ТАЗИ СТРАНИЦА
+      <div className="contents sm:flex sm:min-w-0 sm:flex-[1_1_360px] sm:flex-col sm:gap-1.5">
+        <span
+          className={cn(
+            "flex min-w-0 flex-col gap-0.5 sm:contents",
+            !icon && "col-span-2",
+          )}
+        >
+          <span className="sl-kicker text-link">КАКВО Е ТАЗИ СТРАНИЦА</span>
+          <span className="text-base leading-snug font-extrabold sm:text-lg">
+            {title}
+          </span>
         </span>
-        <span className="text-lg font-extrabold">{title}</span>
-        <span className="text-[15px] leading-[1.6] text-muted-foreground">
+        <span className="col-span-2 text-sm leading-[1.55] text-muted-foreground sm:text-[15px] sm:leading-[1.6]">
           {children}
         </span>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="col-span-2 flex flex-wrap gap-2">
         <Button onClick={handleDismiss}>Разбрах</Button>
       </div>
     </motion.section>

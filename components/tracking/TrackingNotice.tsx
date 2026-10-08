@@ -17,18 +17,18 @@ export function TrackingNotice() {
   return (
     <section
       aria-label="Известие за проследяване на ученето"
-      className="flex flex-col gap-3 rounded-2xl border border-intro-line bg-surface-hi p-5 sm:p-6"
+      className="flex flex-col gap-2.5 rounded-2xl border border-intro-line bg-surface-hi p-4 sm:gap-3 sm:p-6"
     >
-      <h2 className="text-lg font-extrabold">
+      <h2 className="text-base leading-snug font-extrabold sm:text-lg">
         Ново: платформата ще помни докъде си стигнал
       </h2>
-      <p className="max-w-[720px] leading-[1.6] text-muted-foreground">
+      <p className="max-w-[720px] text-sm leading-[1.55] text-muted-foreground sm:text-base sm:leading-[1.6]">
         За да ти показваме прогреса и да те връщаме там, където си спрял, ще
         записваме кои глави и секции отваряш, колко време четеш и кои
         лаборатории ползваш. Числата, които въвеждаш в лабораториите, не се
         пазят. Данните се пазят до 12 месеца и ги вижда само администраторът.
       </p>
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         <Button
           disabled={pending}
           onClick={() =>
