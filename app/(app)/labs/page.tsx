@@ -30,7 +30,7 @@ export default async function LabsPage() {
   return (
     <>
       <div className="flex flex-col gap-2">
-        <h1 className="font-display text-[clamp(24px,5vw,36px)] leading-[1.15] font-bold">
+        <h1 className="sl-page-title">
           Лаборатории
         </h1>
         <p className="max-w-[640px] text-muted-foreground">

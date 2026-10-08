@@ -47,6 +47,33 @@ export function ReaderShell({
   const [pending, startTransition] = useTransition();
   const articleRef = useRef<HTMLElement>(null);
   const currentSection = useRef<string>("");
+  const progressRef = useRef<HTMLSpanElement>(null);
+
+  // Тънката лента най-горе: каква част от главата е превъртяна.
+  useEffect(() => {
+    let frame = 0;
+    function update() {
+      frame = 0;
+      const article = articleRef.current;
+      const bar = progressRef.current;
+      if (!article || !bar) return;
+      const box = article.getBoundingClientRect();
+      const distance = box.height - window.innerHeight;
+      const done = distance > 0 ? Math.min(1, Math.max(0, -box.top / distance)) : 0;
+      bar.style.transform = `scaleX(${done})`;
+    }
+    function schedule() {
+      if (!frame) frame = requestAnimationFrame(update);
+    }
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, [mode, fontSize]);
 
   // Помним коя секция се чете, за да се върнем на нея след смяна на режима.
   useEffect(() => {
@@ -85,9 +112,16 @@ export function ReaderShell({
   }
 
   return (
-    <div className="reader" data-theme={theme} data-size={fontSize}>
+    <div className="reader reader-shell" data-theme={theme} data-size={fontSize}>
+      <div aria-hidden="true" className="reader-progress">
+        <span ref={progressRef} />
+      </div>
       <div className="reader-toolbar">
-        <div role="group" aria-label="Режим на четене" className="flex gap-1.5">
+        <div
+          role="group"
+          aria-label="Режим на четене"
+          className="reader-segment reader-segment-wide"
+        >
           {(
             [
               ["easy", "Леко"],
@@ -102,15 +136,15 @@ export function ReaderShell({
               onClick={() => changeMode(id)}
               className={cn(
                 controlButton,
-                mode === id &&
-                  "border-transparent bg-(--rd-accent) text-(--rd-on-accent)",
+                "px-4",
+                mode === id && "bg-(--rd-accent) text-(--rd-on-accent)",
               )}
             >
               {label}
             </button>
           ))}
         </div>
-        <div role="group" aria-label="Тема" className="flex gap-1.5">
+        <div role="group" aria-label="Тема" className="reader-segment">
           {themes.map((item) => (
             <button
               key={item.id}
@@ -121,13 +155,12 @@ export function ReaderShell({
               className={cn(
                 controlButton,
                 "px-0",
-                theme === item.id &&
-                  "border-(--rd-accent) outline-2 outline-(--rd-accent)",
+                theme === item.id && "!border-(--rd-accent) bg-(--rd-bg)",
               )}
             >
               <span
                 aria-hidden="true"
-                className="size-5 rounded-full border border-(--rd-line)"
+                className="size-5 rounded-full border border-(--rd-muted)"
                 style={{ background: item.swatch }}
               />
             </button>
@@ -136,7 +169,7 @@ export function ReaderShell({
         <div
           role="group"
           aria-label="Размер на шрифта"
-          className="flex gap-1.5"
+          className="reader-segment"
         >
           <button
             type="button"

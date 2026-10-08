@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { Check } from "lucide-react";
 import { answerQuiz } from "@/app/(app)/actions";
 import {
   MASTERED_BOX,
@@ -75,7 +76,9 @@ export function QuizGrade(props: QuizGradeState) {
         className="quiz-grade-note"
         role="status"
         data-state={failed ? "error" : "ok"}
+        data-saved={message && !failed ? "true" : undefined}
       >
+        {message && !failed ? <Check aria-hidden="true" /> : null}
         {message ??
           describeCurrent(props) ??
           "Отговорът ти се записва, за да ти покажем въпроса пак точно когато започваш да го забравяш."}

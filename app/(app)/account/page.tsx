@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { UserRound } from "lucide-react";
 import { ChangePasswordForm } from "@/components/auth/ChangePasswordForm";
 import { SpecialtyPicker } from "@/components/app/SpecialtyPicker";
 import { buttonClass } from "@/components/ui/button";
@@ -11,16 +12,26 @@ export default async function AccountPage() {
   const user = await requireUser();
   return (
     <>
-      <h1 className="font-display text-[clamp(24px,5vw,36px)] leading-[1.15] font-bold">
+      <h1 className="sl-page-title">
         Профил
       </h1>
-      <section className="flex flex-col gap-1 rounded-2xl border border-line bg-surface p-6">
-        <span className="text-sm text-dim">Име</span>
-        <span className="font-bold">{user.fullName || "—"}</span>
-        <span className="mt-3 text-sm text-dim">Имейл</span>
-        <span className="font-bold break-all">{user.email}</span>
+      <section className="sl-card flex flex-wrap items-center gap-x-10 gap-y-4">
+        <span
+          aria-hidden="true"
+          className="inline-flex size-12 flex-none items-center justify-center rounded-full bg-intro-icon text-link"
+        >
+          <UserRound className="size-6" />
+        </span>
+        <span className="flex min-w-0 flex-col gap-1">
+          <span className="text-sm text-dim">Име</span>
+          <span className="font-bold">{user.fullName || "—"}</span>
+        </span>
+        <span className="flex min-w-0 flex-col gap-1">
+          <span className="text-sm text-dim">Имейл</span>
+          <span className="font-bold break-all">{user.email}</span>
+        </span>
       </section>
-      <section className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-6">
+      <section className="sl-card flex flex-col gap-4">
         <h2 className="text-xl font-extrabold">Специалност</h2>
         <p className="text-muted-foreground">
           По нея се подрежда таблото ти. Можеш да я смениш по всяко време.
@@ -30,7 +41,7 @@ export default async function AccountPage() {
           currentId={user.specialtyId}
         />
       </section>
-      <section className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-6">
+      <section className="sl-card flex flex-col gap-4">
         <h2 className="text-xl font-extrabold">Смяна на паролата</h2>
         <ChangePasswordForm />
       </section>

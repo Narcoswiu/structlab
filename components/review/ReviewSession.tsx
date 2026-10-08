@@ -1,10 +1,19 @@
 "use client";
 
-import { useState, useTransition, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import Link from "next/link";
+import { Check, LoaderCircle, RotateCcw } from "lucide-react";
 import { answerQuiz } from "@/app/(app)/actions";
 import { Button, buttonClass } from "@/components/ui/button";
 import { describeOutcome, sofiaToday } from "@/lib/review-format";
+import { cn } from "@/lib/utils";
 
 export type ReviewCard = {
   questionId: string;
@@ -26,6 +35,9 @@ type ReviewSessionProps = {
 /**
  * Показва въпросите за днес един по един: въпрос → „Покажи отговора“ →
  * „Знаех го“ / „Не го знаех“ → следващият.
+ *
+ * С клавиатура: Enter показва отговора, после 1 = „Знаех го“, 2 = „Не го
+ * знаех“. Клавишите работят само докато фокусът е в самата карта.
  */
 export function ReviewSession(props: ReviewSessionProps) {
   // Порцията се фиксира при отваряне на страницата. След всеки отговор
@@ -35,18 +47,44 @@ export function ReviewSession(props: ReviewSessionProps) {
   const [{ cards, remaining }] = useState(props);
   const [index, setIndex] = useState(0);
   const [revealed, setRevealed] = useState(false);
-  const [knewCount, setKnewCount] = useState(0);
+  // отговорите дотук, по реда на въпросите: true = „Знаех го“
+  const [results, setResults] = useState<boolean[]>([]);
+  const [choice, setChoice] = useState<boolean | null>(null);
   const [lastNote, setLastNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
+  const revealRef = useRef<HTMLButtonElement>(null);
+  const answerRef = useRef<HTMLDivElement>(null);
+  const doneRef = useRef<HTMLHeadingElement>(null);
+  // фокусът се мести само след действие на потребителя, не при отваряне
+  const acted = useRef(false);
+
   const card = cards[index];
+  const finished = cards.length > 0 && !card;
+  const knewCount = results.filter(Boolean).length;
+
+  // След всяка стъпка фокусът отива там, където е следващото действие.
+  useEffect(() => {
+    if (!acted.current) return;
+    if (finished) doneRef.current?.focus();
+    else if (revealed) answerRef.current?.focus();
+    else revealRef.current?.focus();
+  }, [index, revealed, finished]);
+
+  function reveal() {
+    acted.current = true;
+    setRevealed(true);
+  }
 
   function grade(knew: boolean) {
-    if (!card) return;
+    if (!card || pending) return;
+    acted.current = true;
     setError(null);
+    setChoice(knew);
     startTransition(async () => {
       const outcome = await answerQuiz(card.questionId, knew);
+      setChoice(null);
       if (outcome.status !== "ok") {
         setError(
           outcome.status === "limited"
@@ -55,11 +93,17 @@ export function ReviewSession(props: ReviewSessionProps) {
         );
         return;
       }
-      if (knew) setKnewCount((count) => count + 1);
+      setResults((current) => [...current, knew]);
       setLastNote(describeOutcome(outcome, sofiaToday()));
       setRevealed(false);
       setIndex((current) => current + 1);
     });
+  }
+
+  function handleKeys(event: KeyboardEvent<HTMLElement>) {
+    if (!revealed || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === "1") grade(true);
+    else if (event.key === "2") grade(false);
   }
 
   if (cards.length === 0) return props.empty;
@@ -68,22 +112,46 @@ export function ReviewSession(props: ReviewSessionProps) {
     return (
       <section
         aria-label="Край на повторението"
-        className="flex flex-col items-start gap-4 rounded-2xl border border-primary bg-surface-hi p-6"
+        className="sl-card sl-card-primary sl-rise flex flex-col items-start gap-4"
       >
-        <h2 className="text-2xl font-extrabold">Готово!</h2>
+        <span
+          aria-hidden="true"
+          className="sl-pop inline-flex size-14 items-center justify-center rounded-full bg-success-bg text-success-fg"
+        >
+          <Check className="size-7" strokeWidth={3} />
+        </span>
+        <h2
+          ref={doneRef}
+          tabIndex={-1}
+          className="text-2xl font-extrabold outline-none"
+        >
+          Готово!
+        </h2>
         <p className="text-muted-foreground" role="status">
           Знаеше {knewCount} от {cards.length}.{" "}
           {remaining > 0
             ? `За днес остават още ${remaining}.`
             : "За днес няма повече въпроси."}
         </p>
+        {/* по една чертичка на въпрос: зелена = знаел, оранжева = за повторение */}
+        <span aria-hidden="true" className="flex flex-wrap gap-1.5">
+          {results.map((knew, position) => (
+            <span
+              key={position}
+              className={cn(
+                "h-2 w-7 rounded-full",
+                knew ? "bg-success" : "bg-warm",
+              )}
+            />
+          ))}
+        </span>
         {remaining > 0 ? (
           // пълно презареждане, за да дойде следващата порция от сървъра
-          <a href="/review" className={buttonClass()}>
+          <a href="/review" className={buttonClass({ size: "lg" })}>
             Следващите въпроси
           </a>
         ) : (
-          <Link href="/dashboard" className={buttonClass()}>
+          <Link href="/dashboard" className={buttonClass({ size: "lg" })}>
             Към таблото
           </Link>
         )}
@@ -92,8 +160,13 @@ export function ReviewSession(props: ReviewSessionProps) {
   }
 
   return (
-    <section aria-label="Въпрос за повторение" className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+    // клавишите 1 и 2 се слушат тук, а не в целия прозорец
+    <section
+      aria-label="Въпрос за повторение"
+      className="flex flex-col gap-3"
+      onKeyDown={handleKeys}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-x-4">
         <p className="font-mono text-sm text-dim">
           Въпрос {index + 1} от {cards.length}
         </p>
@@ -110,46 +183,88 @@ export function ReviewSession(props: ReviewSessionProps) {
         aria-valuemax={cards.length}
         aria-valuenow={index}
         aria-label={`Отговорени въпроси: ${index} от ${cards.length}`}
-        className="h-1.5 overflow-hidden rounded-full bg-surface-2"
+        className="sl-meter"
       >
-        <div
-          className="h-full rounded-full bg-success"
-          style={{ width: `${(index / cards.length) * 100}%` }}
-        />
+        <div style={{ width: `${(index / cards.length) * 100}%` }} />
       </div>
 
-      <div className="flex flex-col gap-5 rounded-2xl border border-line-strong bg-surface p-5 sm:p-7">
+      <div
+        key={card.questionId}
+        className="sl-card sl-card-strong sl-rise mt-1 flex flex-col gap-5 sm:p-7"
+      >
         <div className="reader review-card">
           <div className="reader-prose">{card.question}</div>
         </div>
 
         {revealed ? (
           <>
-            <div className="reader review-card border-t border-line pt-5">
-              <p className="mb-2 text-xs font-extrabold tracking-[1.2px] text-link uppercase">
-                Отговор
-              </p>
-              <div className="reader-prose">{card.answer}</div>
+            {/* рамката е отвън: .review-card нулира отстъпите на четеца */}
+            <div
+              ref={answerRef}
+              tabIndex={-1}
+              className="sl-rise border-t border-line pt-5 outline-none"
+            >
+              <p className="sl-kicker mb-2 text-link">Отговор</p>
+              <div className="reader review-card">
+                <div className="reader-prose">{card.answer}</div>
+              </div>
             </div>
             <div className="flex flex-col gap-3">
               <p className="font-extrabold">Знаеше ли отговора?</p>
-              <div className="flex flex-wrap gap-3">
-                <Button disabled={pending} onClick={() => grade(true)}>
+              <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap">
+                <Button
+                  variant="success"
+                  size="lg"
+                  className="sl-press gap-2 px-3 sm:gap-2.5 sm:px-[26px]"
+                  disabled={pending}
+                  onClick={() => grade(true)}
+                >
+                  {choice === true ? (
+                    <LoaderCircle
+                      aria-hidden="true"
+                      className="sl-spin size-5"
+                    />
+                  ) : (
+                    <Check aria-hidden="true" className="size-5" />
+                  )}
                   Знаех го
+                  <span aria-hidden="true" className="sl-kbd">
+                    1
+                  </span>
                 </Button>
                 <Button
                   variant="outline"
+                  size="lg"
+                  className="sl-press gap-2 px-3 sm:gap-2.5 sm:px-[26px]"
                   disabled={pending}
                   onClick={() => grade(false)}
                 >
+                  {choice === false ? (
+                    <LoaderCircle
+                      aria-hidden="true"
+                      className="sl-spin size-5"
+                    />
+                  ) : (
+                    <RotateCcw aria-hidden="true" className="size-5" />
+                  )}
                   Не го знаех
+                  <span aria-hidden="true" className="sl-kbd">
+                    2
+                  </span>
                 </Button>
               </div>
             </div>
           </>
         ) : (
           <div>
-            <Button onClick={() => setRevealed(true)}>Покажи отговора</Button>
+            <Button
+              ref={revealRef}
+              size="lg"
+              className="sl-press w-full sm:w-auto"
+              onClick={reveal}
+            >
+              Покажи отговора
+            </Button>
           </div>
         )}
       </div>

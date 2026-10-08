@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Repeat } from "lucide-react";
+import { CalendarCheck, Repeat } from "lucide-react";
 import "katex/dist/katex.min.css";
 import { dismissIntro } from "@/app/(app)/actions";
 import { PageIntro } from "@/components/PageIntro";
@@ -47,7 +47,7 @@ export default async function ReviewPage() {
       </PageIntro>
 
       <div className="flex flex-col gap-2">
-        <h1 className="font-display text-[clamp(24px,5vw,36px)] leading-[1.15] font-bold">
+        <h1 className="sl-page-title">
           Повторение
         </h1>
         <p className="text-muted-foreground">
@@ -78,16 +78,23 @@ export default async function ReviewPage() {
         empty={
           <section
             aria-label="Няма въпроси за днес"
-            className="flex flex-col items-start gap-4 rounded-2xl border border-line-strong bg-surface p-6"
+            className="sl-card sl-card-strong flex flex-col items-start gap-4"
           >
+            <span
+              aria-hidden="true"
+              className="sl-chip-icon"
+              data-tone="success"
+            >
+              <CalendarCheck className="size-5" />
+            </span>
             {started ? (
-              <p className="text-muted-foreground">
+              <p className="max-w-[60ch] leading-[1.6] text-muted-foreground">
                 {summary.nextDueOn
                   ? `Следващото повторение е ${describeDue(summary.nextDueOn, sofiaToday())}.`
                   : "Всички въпроси, на които си отговорил, са научени."}
               </p>
             ) : (
-              <p className="text-muted-foreground">
+              <p className="max-w-[60ch] leading-[1.6] text-muted-foreground">
                 Отвори глава, стигни до „Провери се“, виж отговора на въпрос и
                 отбележи дали си го знаел. Оттам нататък въпросът сам ще се
                 връща тук.
@@ -101,19 +108,16 @@ export default async function ReviewPage() {
       />
 
       {started ? (
-        <dl
-          aria-label="Обобщение"
-          className="flex flex-wrap gap-x-10 gap-y-3 text-sm text-dim"
-        >
-          <div>
-            <dt>Още се повтарят</dt>
-            <dd className="font-mono text-xl text-foreground">
+        <dl aria-label="Обобщение" className="grid max-w-md grid-cols-2 gap-3">
+          <div className="flex flex-col gap-1 rounded-xl bg-surface p-4">
+            <dt className="text-sm text-dim">Още се повтарят</dt>
+            <dd className="font-mono text-2xl text-foreground">
               {summary.learning}
             </dd>
           </div>
-          <div>
-            <dt>Научени</dt>
-            <dd className="font-mono text-xl text-foreground">
+          <div className="flex flex-col gap-1 rounded-xl bg-surface p-4">
+            <dt className="text-sm text-dim">Научени</dt>
+            <dd className="font-mono text-2xl text-success">
               {summary.mastered}
             </dd>
           </div>
