@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ChangePasswordForm } from "@/components/auth/ChangePasswordForm";
 import { SpecialtyPicker } from "@/components/app/SpecialtyPicker";
+import { buttonClass } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth";
 import { listSpecialties } from "@/lib/catalog";
 
@@ -32,6 +33,27 @@ export default async function AccountPage() {
       <section className="flex flex-col gap-4 rounded-2xl border border-line bg-surface p-6">
         <h2 className="text-xl font-extrabold">Смяна на паролата</h2>
         <ChangePasswordForm />
+      </section>
+      <section
+        aria-labelledby="my-data-title"
+        className="flex flex-col items-start gap-4 rounded-2xl border border-line bg-surface p-6"
+      >
+        <h2 id="my-data-title" className="text-xl font-extrabold">
+          Моите данни
+        </h2>
+        <p className="text-muted-foreground">
+          Можеш да изтеглиш копие на данните в акаунта си: профил, настройки,
+          достъп, напредък, активност, повторение, лични задания и обратната
+          връзка, която си ни пратил. Файлът съдържа само твои данни.
+        </p>
+        {/* обикновен линк, не <Link>: адресът връща файл, а не страница */}
+        <a
+          href="/account/export"
+          download
+          className={buttonClass({ variant: "outline" })}
+        >
+          Изтегли моите данни (JSON)
+        </a>
       </section>
     </>
   );
