@@ -19,6 +19,11 @@ export type BeamFigureOptions = {
   parts?: ("scheme" | "Q" | "M")[];
   /** кратък надпис за екранни четци */
   title: string;
+  /**
+   * Само буквите на опорите, без стойностите на реакциите – за задачи, в
+   * които реакциите са това, което се търси.
+   */
+  hideReactions?: boolean;
 };
 
 const W = 640;
@@ -67,7 +72,10 @@ export function renderBeamFigure(beam: Beam, options: BeamFigureOptions): string
         out.push(
           `<line x1="${n(x)}" y1="${axis - 70}" x2="${n(x)}" y2="${axis - 12}" stroke="${LOAD}" stroke-width="3"/>`,
           `<polygon points="${n(x)},${axis - 4} ${n(x - 7)},${axis - 18} ${n(x + 7)},${axis - 18}" fill="${LOAD}"/>`,
-          text(x + 10, axis - 58, `F = ${figureNumber(load.value)} kN`, LOAD, "start"),
+          // близо до десния край надписът минава вляво от стрелката, за да не се отреже
+          x > RIGHT - 70
+            ? text(x - 10, axis - 58, `F = ${figureNumber(load.value)} kN`, LOAD, "end")
+            : text(x + 10, axis - 58, `F = ${figureNumber(load.value)} kN`, LOAD, "start"),
         );
       } else if (load.type === "distributed") {
         const x1 = sx(load.x1);
@@ -115,8 +123,8 @@ export function renderBeamFigure(beam: Beam, options: BeamFigureOptions): string
         `<circle cx="${n(b - 6)}" cy="${axis + 34}" r="3" fill="none" stroke="${MUTED}" stroke-width="1.5"/>`,
         `<circle cx="${n(b + 6)}" cy="${axis + 34}" r="3" fill="none" stroke="${MUTED}" stroke-width="1.5"/>`,
         `<line x1="${n(b - 17)}" y1="${axis + 40}" x2="${n(b + 17)}" y2="${axis + 40}" stroke="${MUTED}" stroke-width="2"/>`,
-        text(a, axis + 58, `A = ${figureNumber(reactions.forces[0]!.value)} kN`, MUTED),
-        text(b, axis + 58, `B = ${figureNumber(reactions.forces[1]!.value)} kN`, MUTED),
+        text(a, axis + 58, options.hideReactions ? "A" : `A = ${figureNumber(reactions.forces[0]!.value)} kN`, MUTED),
+        text(b, axis + 58, options.hideReactions ? "B" : `B = ${figureNumber(reactions.forces[1]!.value)} kN`, MUTED),
       );
     } else {
       const left = beam.supports.fixedAt === "left";
@@ -134,7 +142,9 @@ export function renderBeamFigure(beam: Beam, options: BeamFigureOptions): string
         text(
           left ? x + 4 : x - 4,
           axis + 58,
-          `A = ${figureNumber(reactions.forces[0]!.value)} kN;  M<tspan baseline-shift="sub" font-size="10">A</tspan> = ${figureNumber(reactions.moment!.value)} kN·m`,
+          options.hideReactions
+            ? "A"
+            : `A = ${figureNumber(reactions.forces[0]!.value)} kN;  M<tspan baseline-shift="sub" font-size="10">A</tspan> = ${figureNumber(reactions.moment!.value)} kN·m`,
           MUTED,
           left ? "start" : "end",
         ),
