@@ -46,8 +46,8 @@ const features: Feature[] = [
     icon: ClipboardList,
     tone: "warm",
     title: "Лични задания",
-    text: "Вариантът се смята от факултетния номер, а отговорите се проверяват стъпка по стъпка.",
-    available: false,
+    text: "Вариантът се смята от факултетния номер, а отговорите се проверяват един по един.",
+    available: true,
   },
   {
     icon: RefreshCw,

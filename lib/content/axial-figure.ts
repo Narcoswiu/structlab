@@ -46,6 +46,8 @@ export type BarFigureSpec = {
   forces: number[];
   /** запънат и в десния край (статически неопределим) */
   fixedBoth?: boolean;
+  /** само схемата, без диаграмата N – за задачи, в които N се търси */
+  schemeOnly?: boolean;
 };
 
 /** Стъпаловиден прът с товарите и диаграмата на нормалната сила N. */
@@ -89,6 +91,15 @@ export function renderBarFigure(spec: BarFigureSpec): string {
     );
   });
 
+  const title = spec.title.replace(/[<>&"]/g, "");
+  if (spec.schemeOnly) {
+    return (
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 ${axis + 64}" role="img" aria-label="${title}">` +
+      out.join("") +
+      `</svg>`
+    );
+  }
+
   // диаграма N
   const peak = Math.max(...result.N.map(Math.abs), 1e-9);
   const hasNegative = result.N.some((value) => value < -1e-9);
@@ -112,7 +123,6 @@ export function renderBarFigure(spec: BarFigureSpec): string {
   out.push(text(RIGHT + 14, zero + 5, "kN", MUTED, "start"));
   const height = Math.ceil(zero + (hasNegative ? amp + 30 : 20));
 
-  const title = spec.title.replace(/[<>&"]/g, "");
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 ${height}" role="img" aria-label="${title}">` +
     out.join("") +

@@ -9,6 +9,11 @@ export type SectionFigureOptions = {
   title: string;
   /** да се начертаят ли главните оси 1 и 2 и ъгълът α */
   principal?: boolean;
+  /**
+   * Само очертанието с размерите – без център на тежестта, оси и стойности.
+   * За задачи, в които те са това, което се търси.
+   */
+  outlineOnly?: boolean;
 };
 
 const INK = "var(--fig-ink)";
@@ -65,6 +70,18 @@ export function renderSectionFigure(
         "middle",
         12,
       ),
+    );
+  }
+
+  const title = options.title.replace(/[<>&"]/g, "");
+  if (options.outlineOnly) {
+    out.push(
+      text(px((minX + maxX) / 2), height - 14, "размери в cm", MUTED, "middle", 12),
+    );
+    return (
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${title}">` +
+      out.join("") +
+      `</svg>`
     );
   }
 
@@ -131,7 +148,6 @@ export function renderSectionFigure(
     ),
   );
 
-  const title = options.title.replace(/[<>&"]/g, "");
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${title}">` +
     out.join("") +

@@ -33,6 +33,15 @@ export default async function UserTimelinePage(
     .from("quiz_reviews")
     .select("due_on, attempts, correct")
     .eq("user_id", userId);
+  const { data: taskRows } = await supabase
+    .from("personal_tasks")
+    .select("solved_at, attempts")
+    .eq("user_id", userId);
+  const tasks = {
+    started: (taskRows ?? []).length,
+    solved: (taskRows ?? []).filter((row) => row.solved_at).length,
+    attempts: (taskRows ?? []).reduce((sum, row) => sum + row.attempts, 0),
+  };
   const today = sofiaToday();
   const quiz = (reviews ?? []).reduce(
     (sum, row) => ({
@@ -84,6 +93,12 @@ export default async function UserTimelinePage(
             </div>
           ))}
         </dl>
+      ) : null}
+      {tasks.started > 0 ? (
+        <p className="rounded-2xl border border-line bg-surface p-5 text-sm text-muted-foreground sm:p-6">
+          Лични задания: започнати {tasks.started}, решени {tasks.solved}, общо
+          проверки {tasks.attempts}.
+        </p>
       ) : null}
       {entries.length > 0 ? (
         <ol

@@ -14,6 +14,7 @@ import { requireUser } from "@/lib/auth";
 import { getPlan, listSpecialties } from "@/lib/catalog";
 import { getMyProgress } from "@/lib/progress";
 import { getReviewSummary } from "@/lib/review";
+import { getTasksSummary } from "@/lib/tasks";
 import { describeDue, questionsLabel, sofiaToday } from "@/lib/review-format";
 import { daysUntil, formatDate } from "@/lib/format-date";
 import { createClient } from "@/lib/supabase/server";
@@ -44,6 +45,7 @@ export default async function DashboardPage() {
   ]);
   const myProgress = await getMyProgress(user.id);
   const review = await getReviewSummary(user.id);
+  const tasks = await getTasksSummary(user.id);
   const specialties = await listSpecialties();
   const specialty = specialties.find((item) => item.id === user.specialtyId);
   const plan = specialty ? await getPlan(specialty.id, specialty.years) : null;
@@ -148,6 +150,34 @@ export default async function DashboardPage() {
               Започни
             </Link>
           ) : null}
+        </section>
+      ) : null}
+
+      {hasAccess ? (
+        <section
+          aria-label="Лични задания"
+          className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line-strong bg-surface p-5 sm:p-6"
+        >
+          <div className="flex min-w-0 flex-col gap-1.5">
+            <span className="text-xs font-extrabold tracking-[1.2px] text-warm uppercase">
+              Лични задания
+            </span>
+            <span className="text-xl font-extrabold">
+              {tasks.started > 0
+                ? `Решени ${tasks.solved} от ${tasks.total}`
+                : `${tasks.total} задачи с твоите числа`}
+            </span>
+            <span className="text-sm text-dim">
+              {tasks.started > 0
+                ? tasks.solved === tasks.total
+                  ? "Всички задания са решени."
+                  : "Продължи оттам, докъдето си стигнал."
+                : "Числата се смятат от факултетния ти номер, а отговорите се проверяват веднага."}
+            </span>
+          </div>
+          <Link href="/tasks" className={buttonClass({ variant: "outline" })}>
+            {tasks.started > 0 ? "Към заданията" : "Започни"}
+          </Link>
         </section>
       ) : null}
 

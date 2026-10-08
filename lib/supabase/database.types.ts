@@ -253,6 +253,20 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"personal_tasks": {
+                  Row: {
+                    "answers": NonNullable<Json>,"attempts": number,"first_checked_at": string,"last_checked_at": string,"results": NonNullable<Json>,"solved_at": string | null,"template": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "answers"?: NonNullable<Json>,"attempts"?: number,"first_checked_at"?: string,"last_checked_at"?: string,"results"?: NonNullable<Json>,"solved_at"?: string | null,"template": string,"user_id": string
+                  }
+                  Update: {
+                    "answers"?: NonNullable<Json>,"attempts"?: number,"first_checked_at"?: string,"last_checked_at"?: string,"results"?: NonNullable<Json>,"solved_at"?: string | null,"template"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"plan_courses": {
                   Row: {
                     "module_id": string,"plan_id": string
@@ -392,6 +406,20 @@ isOneToOne: false
       referencedRelation: "universities"
       referencedColumns: ["id"]
     }
+                  ]
+                },"task_variants": {
+                  Row: {
+                    "a": number,"b": number,"c": number,"created_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "a": number,"b": number,"c": number,"created_at"?: string,"user_id": string
+                  }
+                  Update: {
+                    "a"?: number,"b"?: number,"c"?: number,"created_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    
                   ]
                 },"universities": {
                   Row: {
