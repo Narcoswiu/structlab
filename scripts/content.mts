@@ -24,6 +24,10 @@ import {
   renderBendingStressFigure,
   type BendingStressFigureSpec,
 } from "../lib/content/bending-figure.ts";
+import {
+  renderBiaxialFigure,
+  type BiaxialFigureSpec,
+} from "../lib/content/biaxial-figure.ts";
 import { extractQuizzes, findQuizProblems } from "../lib/content/quiz.ts";
 import { renderSectionFigure } from "../lib/content/section-figure.ts";
 import {
@@ -46,12 +50,14 @@ type FigureSpec =
   | ({ kind: "bar" } & BarFigureSpec)
   | ({ kind: "rigid-beam" } & RigidBeamFigureSpec)
   | ({ kind: "bending-stress" } & BendingStressFigureSpec)
-  | ({ kind: "shear-stress" } & ShearStressFigureSpec);
+  | ({ kind: "shear-stress" } & ShearStressFigureSpec)
+  | ({ kind: "biaxial-stress" } & BiaxialFigureSpec);
 
 function renderFigure(spec: FigureSpec): string {
   if ("kind" in spec) {
     if (spec.kind === "bending-stress") return renderBendingStressFigure(spec);
     if (spec.kind === "shear-stress") return renderShearStressFigure(spec);
+    if (spec.kind === "biaxial-stress") return renderBiaxialFigure(spec);
     return spec.kind === "bar"
       ? renderBarFigure(spec)
       : renderRigidBeamFigure(spec);
