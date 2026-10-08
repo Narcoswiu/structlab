@@ -8,7 +8,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { parse as parseYaml } from "yaml";
 import {
   renderBeamFigure,
@@ -24,6 +24,7 @@ import {
   renderBendingStressFigure,
   type BendingStressFigureSpec,
 } from "../lib/content/bending-figure.ts";
+import { extractQuizzes, findQuizProblems } from "../lib/content/quiz.ts";
 import { renderSectionFigure } from "../lib/content/section-figure.ts";
 import { findSvgProblem } from "../lib/content/svg.ts";
 import {
@@ -138,6 +139,9 @@ export function loadChapters(): LoadedChapter[] {
             ...problem,
             message: `[${label}] ${problem.message}`,
           });
+        }
+        for (const message of findQuizProblems(text)) {
+          problems.push({ level: "error", message: `[${label}] ${message}` });
         }
       }
       problems.push(...verifySameSections(easy, detailed));
@@ -261,8 +265,65 @@ export async function pushChapters(
       if (inserted.error)
         throw new Error(`Фигурите не се записаха: ${inserted.error.message}`);
     }
-    console.log(`   качена: ${chapter.meta.number}. ${chapter.meta.title}`);
+    const quizCount = await pushQuizzes(supabase, row.id, chapter);
+    console.log(
+      `   качена: ${chapter.meta.number}. ${chapter.meta.title}` +
+        (quizCount === null
+          ? " (въпросите са пропуснати – таблицата липсва в тази база)"
+          : `, ${quizCount} въпроса`),
+    );
   }
+}
+
+/**
+ * Качва въпросите „Провери се“ на една глава. Въпрос със същия текст запазва
+ * своя id (и графика за повторение на потребителите); махнатите се изтриват.
+ * Връща null, ако базата още няма таблицата (миграцията не е приложена).
+ */
+async function pushQuizzes(
+  supabase: SupabaseClient,
+  chapterId: string,
+  chapter: LoadedChapter,
+): Promise<number | null> {
+  let count = 0;
+  for (const mode of ["easy", "detailed"] as const) {
+    const items = extractQuizzes(chapter[mode]);
+    const upserted = await supabase.from("quiz_questions").upsert(
+      items.map((item) => ({
+        chapter_id: chapterId,
+        mode,
+        key: item.key,
+        position: item.position,
+        question: item.question,
+        answer: item.answer,
+      })),
+      { onConflict: "chapter_id,mode,key" },
+    );
+    if (upserted.error) {
+      // PGRST205 / 42P01: таблицата не съществува
+      if (["PGRST205", "42P01"].includes(upserted.error.code)) return null;
+      throw new Error(`Въпросите не се записаха: ${upserted.error.message}`);
+    }
+    const existing = await supabase
+      .from("quiz_questions")
+      .select("id, key")
+      .eq("chapter_id", chapterId)
+      .eq("mode", mode);
+    if (existing.error) throw new Error(existing.error.message);
+    const keep = new Set(items.map((item) => item.key));
+    const stale = (existing.data as { id: string; key: string }[])
+      .filter((row) => !keep.has(row.key))
+      .map((row) => row.id);
+    if (stale.length > 0) {
+      const removed = await supabase
+        .from("quiz_questions")
+        .delete()
+        .in("id", stale);
+      if (removed.error) throw new Error(removed.error.message);
+    }
+    count += items.length;
+  }
+  return count;
 }
 
 export function localSupabase(): { url: string; secretKey: string } {

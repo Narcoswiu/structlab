@@ -319,6 +319,46 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"quiz_questions": {
+                  Row: {
+                    "answer": string,"chapter_id": string,"id": string,"key": string,"mode": Database["public"]['Enums']["content_mode"],"position": number,"question": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "answer": string,"chapter_id": string,"id"?: string,"key": string,"mode": Database["public"]['Enums']["content_mode"],"position": number,"question": string
+                  }
+                  Update: {
+                    "answer"?: string,"chapter_id"?: string,"id"?: string,"key"?: string,"mode"?: Database["public"]['Enums']["content_mode"],"position"?: number,"question"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "quiz_questions_chapter_id_fkey"
+      columns: ["chapter_id"]
+isOneToOne: false
+      referencedRelation: "chapters"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"quiz_reviews": {
+                  Row: {
+                    "attempts": number,"box": number,"correct": number,"due_on": string | null,"first_answered_at": string,"last_answered_at": string,"last_knew": boolean,"question_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "attempts"?: number,"box": number,"correct"?: number,"due_on"?: string | null,"first_answered_at"?: string,"last_answered_at"?: string,"last_knew": boolean,"question_id": string,"user_id": string
+                  }
+                  Update: {
+                    "attempts"?: number,"box"?: number,"correct"?: number,"due_on"?: string | null,"first_answered_at"?: string,"last_answered_at"?: string,"last_knew"?: boolean,"question_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "quiz_reviews_question_id_fkey"
+      columns: ["question_id"]
+isOneToOne: false
+      referencedRelation: "quiz_questions"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"request_throttle": {
                   Row: {
                     "created_at": string,"id": number,"key_hash": string,"kind": string
@@ -428,6 +468,14 @@ isOneToOne: false
                            },
 "record_event":
 { Args: { "p_chapter"?: string,"p_lab"?: string,"p_mode"?: Database["public"]['Enums']["content_mode"],"p_section"?: string,"p_type": Database["public"]['Enums']["event_type"],"p_user": string }; Returns: boolean
+                           },
+"record_quiz_answer":
+{ Args: { "p_knew": boolean,"p_question": string,"p_user": string }; Returns: {
+              "box": number,"due_on": string,"limited": boolean
+            }[]
+                           },
+"review_interval_days":
+{ Args: { "p_box": number }; Returns: number
                            }
           }
           Enums: {

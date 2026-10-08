@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { getUserTimeline } from "@/lib/admin-activity";
 import { requireAdmin } from "@/lib/auth";
+import { sofiaToday } from "@/lib/review-format";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Времева линия" };
 
@@ -25,6 +27,24 @@ export default async function UserTimelinePage(
   const { user, entries } = await getUserTimeline(userId);
   if (!user) notFound();
 
+  // повторението на въпросите (RLS: admin вижда редовете на всички)
+  const supabase = await createClient();
+  const { data: reviews } = await supabase
+    .from("quiz_reviews")
+    .select("due_on, attempts, correct")
+    .eq("user_id", userId);
+  const today = sofiaToday();
+  const quiz = (reviews ?? []).reduce(
+    (sum, row) => ({
+      questions: sum.questions + 1,
+      mastered: sum.mastered + (row.due_on === null ? 1 : 0),
+      due: sum.due + (row.due_on !== null && row.due_on <= today ? 1 : 0),
+      attempts: sum.attempts + row.attempts,
+      correct: sum.correct + row.correct,
+    }),
+    { questions: 0, mastered: 0, due: 0, attempts: 0, correct: 0 },
+  );
+
   return (
     <>
       <div className="flex flex-col gap-1">
@@ -42,6 +62,29 @@ export default async function UserTimelinePage(
           (без 15-секундните отчети за четене)
         </p>
       </div>
+      {quiz.questions > 0 ? (
+        <dl
+          aria-label="Въпроси за повторение"
+          className="flex flex-wrap gap-x-10 gap-y-3 rounded-2xl border border-line bg-surface p-5 text-sm text-dim sm:p-6"
+        >
+          {(
+            [
+              ["Отговорени въпроси", quiz.questions],
+              ["Научени", quiz.mastered],
+              ["Чакат повторение днес", quiz.due],
+              [
+                "Знаел е отговора",
+                `${Math.round((quiz.correct / quiz.attempts) * 100)} %`,
+              ],
+            ] as const
+          ).map(([label, value]) => (
+            <div key={label}>
+              <dt>{label}</dt>
+              <dd className="font-mono text-xl text-foreground">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      ) : null}
       {entries.length > 0 ? (
         <ol
           aria-label="Времева линия"

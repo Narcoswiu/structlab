@@ -53,8 +53,8 @@ const features: Feature[] = [
     icon: RefreshCw,
     tone: "warm",
     title: "Повторение през интервали",
-    text: "Въпросите се връщат точно когато започваш да ги забравяш – 5 минути на ден.",
-    available: false,
+    text: "Въпросите се връщат точно когато започваш да ги забравяш – няколко минути на ден.",
+    available: true,
   },
   {
     icon: ChartColumn,

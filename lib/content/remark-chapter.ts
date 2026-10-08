@@ -35,6 +35,9 @@ function textOf(node: unknown): string {
 export function remarkChapter() {
   return (tree: Root) => {
     let fallback = 0;
+    // поредният номер на въпроса в главата (от 0) – по него четецът намира
+    // кой въпрос от базата стои зад „Покажи отговора“
+    let quizIndex = -1;
     visit(tree, "heading", (node) => {
       if (node.depth !== 2) return;
       const id = sectionIdForTitle(textOf(node)) ?? `chast-${++fallback}`;
@@ -54,6 +57,7 @@ export function remarkChapter() {
       const directive = node as unknown as DirectiveNode;
 
       if (directive.type === "containerDirective" && directive.name in CALLOUTS) {
+        if (directive.name === "quiz") quizIndex += 1;
         directive.data = {
           hName: "aside",
           hProperties: {
@@ -64,7 +68,13 @@ export function remarkChapter() {
         return;
       }
       if (directive.type === "containerDirective" && directive.name === "answer") {
-        directive.data = { hName: "details", hProperties: { className: ["answer"] } };
+        directive.data = {
+          hName: "details",
+          hProperties: {
+            className: ["answer"],
+            ...(quizIndex >= 0 ? { "data-quiz": String(quizIndex) } : {}),
+          },
+        };
         directive.children.unshift({
           type: "paragraph",
           data: { hName: "summary" },
