@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import "katex/dist/katex.min.css";
 import { ChapterBody } from "@/components/reader/ChapterBody";
+import { ChapterSources } from "@/components/reader/ChapterSources";
 import {
   ReaderShell,
   type ReaderMode,
@@ -11,43 +12,14 @@ import {
 import { ReadingTracker } from "@/components/tracking/ReadingTracker";
 import { requireUser } from "@/lib/auth";
 import { extractQuizzes } from "@/lib/content/quiz";
+import {
+  loadChapter,
+  parseSources,
+  pickReaderMode,
+} from "@/lib/reader-chapter";
 import { getChapterQuizState } from "@/lib/review";
 import { getTrackingAcceptedAt } from "@/lib/tracking";
 import { createClient } from "@/lib/supabase/server";
-
-const slugPattern = /^[a-z0-9-]{1,80}$/;
-
-type Source = { title: string; url?: string };
-
-function parseSources(value: unknown): Source[] {
-  if (!Array.isArray(value)) return [];
-  return value.flatMap((item) => {
-    if (!item || typeof item !== "object") return [];
-    const { title, url } = item as { title?: unknown; url?: unknown };
-    if (typeof title !== "string") return [];
-    return [
-      {
-        title,
-        url:
-          typeof url === "string" && /^https:\/\//.test(url) ? url : undefined,
-      },
-    ];
-  });
-}
-
-/** Главата по адрес. RLS връща ред само ако потребителят има достъп. */
-async function loadChapter(moduleSlug: string, chapterSlug: string) {
-  if (!slugPattern.test(moduleSlug) || !slugPattern.test(chapterSlug))
-    return null;
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("chapters")
-    .select("id, number, title, summary, sources, modules!inner(slug, title)")
-    .eq("slug", chapterSlug)
-    .eq("modules.slug", moduleSlug)
-    .maybeSingle();
-  return data;
-}
 
 export async function generateMetadata(
   props: PageProps<"/learn/[module]/[chapter]">,
@@ -74,13 +46,10 @@ export default async function ChapterPage(
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const requested = searchParams.mode;
-  const mode: ReaderMode =
-    requested === "easy" || requested === "detailed"
-      ? requested
-      : settings?.reader_mode === "detailed"
-        ? "detailed"
-        : "easy";
+  const mode: ReaderMode = pickReaderMode(
+    searchParams.mode,
+    settings?.reader_mode,
+  );
 
   const [bodyResult, figuresResult] = await Promise.all([
     supabase
@@ -146,28 +115,7 @@ export default async function ChapterPage(
         figures={figures}
         quizzes={quizzes}
       />
-      {sources.length > 0 ? (
-        <section className="reader-sources" aria-label="Източници">
-          <h2>Източници</h2>
-          <ul>
-            {sources.map((source) => (
-              <li key={source.title}>
-                {source.url ? (
-                  <a
-                    href={source.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {source.title}
-                  </a>
-                ) : (
-                  source.title
-                )}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+      <ChapterSources sources={sources} />
     </ReaderShell>
   );
 }

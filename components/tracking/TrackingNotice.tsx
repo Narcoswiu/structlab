@@ -16,6 +16,7 @@ export function TrackingNotice() {
 
   return (
     <section
+      data-print-hide
       aria-label="Известие за проследяване на ученето"
       className="flex flex-col gap-3 rounded-2xl border border-intro-line bg-surface-hi p-5 sm:p-6"
     >

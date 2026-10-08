@@ -8,7 +8,10 @@ const navLinkClass =
 
 export function AppHeader({ user }: { user: CurrentUser }) {
   return (
-    <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 py-[18px]">
+    <header
+      data-print-hide
+      className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 py-[18px]"
+    >
       <Logo />
       <nav
         aria-label="Навигация"

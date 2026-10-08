@@ -15,7 +15,10 @@ export function FeedbackButton() {
   const [state, action] = useActionState(sendFeedback, emptyFormState);
 
   return (
-    <div className="fixed right-4 bottom-4 z-40 flex flex-col items-end gap-3">
+    <div
+      data-print-hide
+      className="fixed right-4 bottom-4 z-40 flex flex-col items-end gap-3"
+    >
       {open ? (
         <div
           role="dialog"
