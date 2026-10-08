@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import type { PlanItem, PlanYear, SpecialtyOption } from "@/lib/catalog";
+import { getOutlineByTitle } from "@/lib/outlines";
 
 const yearNames = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"];
 
@@ -17,6 +18,25 @@ function Discipline({ item }: { item: PlanItem }) {
             {item.module.chapterCount}{" "}
             {item.module.chapterCount === 1 ? "ГЛАВА" : "ГЛАВИ"}
           </Badge>
+        </Link>
+      </li>
+    );
+  }
+  // още няма уроци, но има план какво ще съдържа дисциплината
+  const outline = getOutlineByTitle(item.title);
+  if (outline) {
+    return (
+      <li>
+        <Link
+          href={`/plan/${outline.slug}`}
+          className="flex min-h-11 flex-wrap items-center gap-x-3 gap-y-1 py-1.5 text-muted-foreground hover:text-foreground"
+        >
+          {item.title}
+          {item.module ? (
+            <Badge variant="soon">ПОДГОТВЯ СЕ</Badge>
+          ) : (
+            <Badge variant="tag">ПЛАН</Badge>
+          )}
         </Link>
       </li>
     );

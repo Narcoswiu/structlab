@@ -21,6 +21,8 @@
     "content:verify": "node scripts/content.mts verify",
     "content:push:local": "node scripts/content.mts push --local",
     "content:push": "node --env-file=.env.local scripts/content.mts push",
+    "outlines:verify": "node scripts/outlines.mts verify",
+    "outlines:build": "node scripts/outlines.mts build",
     "catalog:verify": "node scripts/catalog.mts verify",
     "catalog:push:local": "node scripts/catalog.mts push --local",
     "catalog:push": "node --env-file=.env.local scripts/catalog.mts push"
