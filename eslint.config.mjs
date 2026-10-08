@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     "docs/prototype/**",
     "test-results/**",
     "playwright-report/**",
+    // локални работни копия на репото
+    ".claude/**",
   ]),
 ]);
 
