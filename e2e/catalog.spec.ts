@@ -85,7 +85,8 @@ test("дисциплина с готови глави води към модул
   const link = plan(page).getByRole("link", {
     name: /Съпротивление на материалите/,
   });
-  await expect(link).toContainText("3 ГЛАВИ");
+  // броят расте с всяка нова глава – проверяваме само че е показан
+  await expect(link).toContainText(/\d+ ГЛАВИ/);
   // дисциплина с модул, но още без глави, не е връзка
   await expect(plan(page).getByText("ПОДГОТВЯ СЕ").first()).toBeVisible();
   await expect(
@@ -102,7 +103,7 @@ test("дисциплина с готови глави води към модул
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Съпротивление на материалите",
   );
-  await expect(page.getByRole("listitem")).toHaveCount(3);
+  expect(await page.getByRole("listitem").count()).toBeGreaterThanOrEqual(3);
   await page
     .getByRole("link", { name: /Инерционни моменти на сечения/ })
     .click();
