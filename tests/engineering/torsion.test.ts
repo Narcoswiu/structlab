@@ -208,13 +208,13 @@ describe("пример П2: стъпаловиден прът, запънат в
     expect((result.tau[1]! * 10).toFixed(1)).toBe("61.1");
   });
 
-  it("φ_AB = 400·80/(8100·402,12) = 0,009824 rad; φ_BC = 150·60/(8100·61,36) = 0,018108 rad", () => {
+  it("φ_AB = 400·80/(8100·402,12) = 0,00982 rad; φ_BC = 150·60/(8100·61,36) = 0,01811 rad", () => {
     // 32 000/3 257 200 = 0,009824;  9000/497 010 = 0,018108
     expect(result.twist[0]!.toFixed(6)).toBe("0.009824");
     expect(result.twist[1]!.toFixed(6)).toBe("0.018108");
   });
 
-  it("φ_B = 0,56°; φ_C = 0,009824 + 0,018108 = 0,027933 rad = 1,60°", () => {
+  it("φ_B = 0,56°; φ_C = 0,00982 + 0,01811 = 0,02793 rad = 1,60°", () => {
     expect(result.rotation[0]).toBeCloseTo(result.twist[0]!, 15);
     expect(result.rotation[1]!.toFixed(6)).toBe("0.027933");
     expect(radToDeg(result.rotation[0]!).toFixed(2)).toBe("0.56");

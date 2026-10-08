@@ -195,7 +195,7 @@ test("всяка глава от таблото се отваря цяла – �
       // само връзките към глави: /learn/<модул>/<глава>
       .filter((href) => href.split("/").length === 4),
   );
-  expect(links.length).toBeGreaterThanOrEqual(4);
+  expect(links.length).toBeGreaterThanOrEqual(10);
 
   for (const href of links) {
     for (const mode of ["easy", "detailed"]) {

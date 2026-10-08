@@ -105,10 +105,11 @@
 - preferred: свободна дължина
   symbol: "μ·L"
   en: effective (buckling) length
-  also_ok: [изчислителна дължина]
+  also_ok: [изчислителна дължина, приведена дължина, изкълчвателна дължина]
 - preferred: гъвкавост
   symbol: "λ"
   en: slenderness
+  also_ok: [стройност]
 - preferred: критична сила
   symbol: "F_cr"
   en: critical (Euler) load
@@ -142,3 +143,56 @@
 - preferred: столица
   en: purlin
   note: "греда от покривна конструкция, успоредна на билото"
+- preferred: ъгъл на завъртане
+  symbol: "φ"
+  en: slope (angle of rotation)
+  note: "ъгълът, на който се завърта напречното сечение при огъване; φ = w′"
+- preferred: гранични условия
+  en: boundary conditions
+  note: "известните стойности на w и φ в опорите"
+- preferred: допустимо провисване
+  symbol: "f_доп"
+  en: allowable deflection
+- preferred: кривина
+  symbol: "1/ρ"
+  en: curvature
+- preferred: принцип на суперпозицията
+  en: principle of superposition
+- preferred: полярен съпротивителен момент
+  symbol: "W_p"
+  en: polar section modulus
+- preferred: ъгъл на усукване
+  symbol: "φ"
+  en: angle of twist
+- preferred: относителен ъгъл на усукване
+  symbol: "θ"
+  en: angle of twist per unit length
+  note: "θ = dφ/dx – завъртането на единица дължина"
+- preferred: коравина на усукване
+  symbol: "G·I_p"
+  en: torsional rigidity
+- preferred: нулева линия
+  en: zero-stress line
+  note: "геометричното място на точките с σ = 0; при N = 0 съвпада с неутралната ос"
+- preferred: ядро на сечението
+  en: core (kern) of the section
+- preferred: ексцентрицитет
+  symbol: "e"
+  en: eccentricity
+- preferred: нецентричен натиск
+  en: eccentric compression
+  note: "при опънна сила – нецентричен опън"
+- preferred: коефициент на дължината
+  symbol: "μ"
+  en: effective length factor
+  also_ok: [коефициент на привеждане на дължината]
+- preferred: критично напрежение
+  symbol: "σ_cr"
+  en: critical stress
+- preferred: гранична гъвкавост
+  symbol: "λ_гр"
+  en: limiting slenderness
+  note: "формулата на Ойлер важи при λ ≥ λ_гр"
+- preferred: граница на пропорционалност
+  symbol: "σ_p"
+  en: proportional limit

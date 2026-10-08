@@ -216,26 +216,7 @@ export default async function DashboardPage() {
         </div>
       ) : null}
 
-      {hasAccess ? (
-        specialty && plan ? (
-          <StudyPlan specialty={specialty} plan={plan} />
-        ) : (
-          <section
-            aria-label="Избор на специалност"
-            className="sl-card flex flex-col gap-4 border-intro-line bg-surface-hi"
-          >
-            <div className="flex flex-col gap-1">
-              <h2 className="text-xl font-extrabold">Коя специалност учиш?</h2>
-              <p className="text-muted-foreground">
-                Избери я и таблото ще се подреди по твоя учебен план – курс по
-                курс, семестър по семестър.
-              </p>
-            </div>
-            <SpecialtyPicker specialties={specialties} currentId={null} />
-          </section>
-        )
-      ) : null}
-
+      {/* първо главите, които могат да се четат сега; после целият учебен план */}
       {!hasAccess ? (
         <NoAccess />
       ) : modules.length > 0 ? (
@@ -284,6 +265,26 @@ export default async function DashboardPage() {
             ))}
           </div>
         </section>
+      ) : null}
+
+      {hasAccess ? (
+        specialty && plan ? (
+          <StudyPlan specialty={specialty} plan={plan} />
+        ) : (
+          <section
+            aria-label="Избор на специалност"
+            className="sl-card flex flex-col gap-4 border-intro-line bg-surface-hi"
+          >
+            <div className="flex flex-col gap-1">
+              <h2 className="text-xl font-extrabold">Коя специалност учиш?</h2>
+              <p className="text-muted-foreground">
+                Избери я и таблото ще се подреди по твоя учебен план – курс по
+                курс, семестър по семестър.
+              </p>
+            </div>
+            <SpecialtyPicker specialties={specialties} currentId={null} />
+          </section>
+        )
       ) : null}
     </>
   );

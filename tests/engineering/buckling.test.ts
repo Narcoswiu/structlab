@@ -313,7 +313,7 @@ describe("„Подробно“, пример 3: оразмеряване – F
     expect(allowed).toBeGreaterThanOrEqual(60);
   });
 
-  it("напрежение при работния товар: A = 21,24 cm²; 60/21,24 = 2,83 kN/cm² = 28,3 MPa", () => {
+  it("напрежение при работния товар: A = 21,237 cm²; 60/21,237 = 2,83 kN/cm² = 28,3 MPa", () => {
     expect(circleArea(5.2)).toBeCloseTo(21.24, 2);
     expect(60 / circleArea(5.2)).toBeCloseTo(2.825, 3);
   });
@@ -340,7 +340,7 @@ describe("„Подробно“, пример 4: плътен прът d = 6 cm
     expect(isEulerValid(lambda, limit)).toBe(true);
   });
 
-  it("тръба: i = 3,20 cm; λ = 124,9; F_cr = 207 261,7·289,81/160 000 = 375,4 kN; σ_cr = 132,8 MPa", () => {
+  it("тръба: i = 3,202 cm; λ = 124,9; F_cr = 207 261,7·289,81/160 000 = 375,4 kN; σ_cr = 132,8 MPa", () => {
     const i = radiusOfGyration(tube.I, tube.A);
     expect(i).toBeCloseTo(3.202, 3);
     const lambda = slenderness(400, 1, i);
