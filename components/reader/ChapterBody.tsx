@@ -16,6 +16,8 @@ type ChapterBodyProps = {
    * отговор се появяват бутоните „Знаех го“ / „Не го знаех“.
    */
   quizzes?: (QuizGradeState | undefined)[];
+  /** за печат: отговорите „Покажи отговора“ се показват отворени */
+  expandAnswers?: boolean;
 };
 
 const FIGURE_PREFIX = "figure:";
@@ -24,7 +26,12 @@ const FIGURE_PREFIX = "figure:";
  * Превръща текста на главата (Markdown) в HTML на сървъра. Суров HTML в текста
  * не се изпълнява; единственото вградено HTML са фигурите, след проверка.
  */
-export function ChapterBody({ markdown, figures, quizzes }: ChapterBodyProps) {
+export function ChapterBody({
+  markdown,
+  figures,
+  quizzes,
+  expandAnswers,
+}: ChapterBodyProps) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm, remarkMath, remarkDirective, remarkChapter]}
@@ -73,7 +80,7 @@ export function ChapterBody({ markdown, figures, quizzes }: ChapterBodyProps) {
           const quiz =
             index === undefined ? undefined : quizzes?.[Number(index)];
           return (
-            <details className={className}>
+            <details className={className} open={expandAnswers || undefined}>
               {children}
               {quiz ? <QuizGrade {...quiz} /> : null}
             </details>

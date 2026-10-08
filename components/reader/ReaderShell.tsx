@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Minus, Plus } from "lucide-react";
+import { FileDown, Minus, Plus } from "lucide-react";
 import { saveReaderSettings } from "@/app/(app)/learn/actions";
 import { trackEvent } from "@/components/tracking/trackEvent";
 import { cn } from "@/lib/utils";
@@ -156,6 +157,15 @@ export function ReaderShell({
             <Plus aria-hidden="true" className="size-4" />
           </button>
         </div>
+        {/* версия за печат на главата в текущия режим */}
+        <Link
+          href={`${basePath}/print?mode=${mode}`}
+          prefetch={false}
+          className={cn(controlButton, "gap-2 no-underline")}
+        >
+          <FileDown aria-hidden="true" className="size-4" />
+          Изтегли PDF
+        </Link>
       </div>
       <article ref={articleRef} className="reader-article">
         {header}

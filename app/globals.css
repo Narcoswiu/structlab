@@ -628,3 +628,190 @@
   max-width: none;
   margin-top: 0;
 }
+
+/* ------------------------------------------------------------------------
+ * Глава за печат („Изтегли PDF“). На екрана изглежда като четеца в светла
+ * тема; при печат остават само текстът, фигурите и личният воден знак.
+ * --------------------------------------------------------------------- */
+.print-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rd-line);
+  color: var(--rd-heading);
+}
+.print-button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  border-radius: 10px;
+  background: var(--rd-accent);
+  color: var(--rd-on-accent);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.print-hint {
+  flex-basis: 100%;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--rd-muted);
+}
+.print-note {
+  margin-bottom: 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  color: var(--rd-muted);
+}
+/* водният знак се вижда само на хартията */
+.print-watermark {
+  display: none;
+}
+
+@page {
+  size: A4;
+  margin: 18mm 16mm 20mm;
+}
+
+@media print {
+  /* рамката на приложението: навигация, известия, „Обратна връзка“ */
+  body:has(.print-doc) [data-print-hide],
+  .print-bar {
+    display: none !important;
+  }
+  /* без flex и фиксирана височина, за да се пренася текстът по листове */
+  html:has(.print-doc),
+  body:has(.print-doc),
+  body:has(.print-doc) > div,
+  body:has(.print-doc) main {
+    display: block;
+    height: auto;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #000;
+    color-scheme: light;
+  }
+
+  .reader.print-doc {
+    --rd-bg: #fff;
+    --rd-surface: transparent;
+    --rd-text: #000;
+    --rd-heading: #000;
+    --rd-muted: #333;
+    --rd-line: #8a8a8a;
+    --rd-accent: #000;
+    --rd-link: #000;
+    --rd-why: transparent;
+    --rd-real: transparent;
+    --rd-remember: transparent;
+    --rd-font: 11pt;
+    --fig-fill: rgba(0, 0, 0, 0.08);
+
+    margin: 0;
+    padding: 0;
+    background: #fff;
+    color: #000;
+  }
+  .print-doc .reader-article {
+    max-width: none;
+    padding-top: 0;
+  }
+  .print-doc .reader-prose {
+    max-width: none;
+  }
+  .print-doc .reader-header h1 {
+    font-size: 22pt;
+  }
+
+  .print-doc h1,
+  .print-doc h2,
+  .print-doc h3,
+  .print-doc summary {
+    break-after: avoid;
+    break-inside: avoid;
+  }
+  .print-doc p,
+  .print-doc li {
+    orphans: 3;
+    widows: 3;
+  }
+  .print-doc .figure,
+  .print-doc .katex-display,
+  .print-doc tr,
+  .print-doc details.answer {
+    break-inside: avoid;
+  }
+  /* на хартия няма превъртане – нищо не се реже отстрани */
+  .print-doc .table-scroll,
+  .print-doc .katex-display {
+    overflow: visible;
+  }
+
+  .print-doc a {
+    color: inherit;
+    text-decoration: none;
+  }
+  /* на хартия връзката не се натиска – показваме адреса на източника */
+  .print-doc .reader-sources a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    overflow-wrap: anywhere;
+  }
+
+  /* отговорите се печатат отворени, дори ако някой е затворен на екрана */
+  .print-doc details.answer::details-content {
+    display: block;
+    content-visibility: visible;
+  }
+  .print-doc details.answer > summary {
+    min-height: 0;
+    padding-top: 8px;
+    padding-bottom: 6px;
+    list-style: none;
+  }
+
+  /* position: fixed се повтаря на всеки отпечатан лист */
+  .print-watermark {
+    display: block;
+    position: fixed;
+    z-index: 50;
+    pointer-events: none;
+    user-select: none;
+    font-family: var(--font-sans);
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+  .print-watermark-diagonal {
+    top: 50%;
+    left: 50%;
+    width: 150mm;
+    transform: translate(-50%, -50%) rotate(-35deg);
+    font-size: 19pt;
+    font-weight: 800;
+    line-height: 1.4;
+    color: rgba(0, 0, 0, 0.1);
+  }
+  .print-watermark-footer {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    font-size: 7.5pt;
+    color: #6b6b6b;
+  }
+  .print-note {
+    margin-bottom: 8pt;
+    font-size: 8pt;
+    color: #444;
+  }
+}
