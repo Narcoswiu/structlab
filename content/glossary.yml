@@ -114,3 +114,24 @@
   en: critical (Euler) load
 - preferred: армировка
   en: reinforcement
+- preferred: специално огъване
+  en: uniaxial (plane) bending
+  also_ok: [просто огъване, право огъване]
+  note: "товарната равнина съдържа една от главните централни оси на сечението"
+- preferred: чисто огъване
+  en: pure bending
+  note: "единственото разрезно усилие е огъващият момент (Q = 0)"
+- preferred: неутрален слой
+  en: neutral surface
+- preferred: коравина на огъване
+  symbol: "E·I"
+  en: flexural rigidity
+- preferred: допустимо напрежение
+  symbol: "σ_доп"
+  en: allowable stress
+- preferred: пояс
+  en: flange
+  note: "хоризонталната част на профил „I“ или „Т“"
+- preferred: стебло
+  en: web
+  note: "вертикалната част на профил „I“ или „Т“"

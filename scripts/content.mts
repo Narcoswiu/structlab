@@ -20,6 +20,10 @@ import {
   type BarFigureSpec,
   type RigidBeamFigureSpec,
 } from "../lib/content/axial-figure.ts";
+import {
+  renderBendingStressFigure,
+  type BendingStressFigureSpec,
+} from "../lib/content/bending-figure.ts";
 import { renderSectionFigure } from "../lib/content/section-figure.ts";
 import { findSvgProblem } from "../lib/content/svg.ts";
 import {
@@ -35,24 +39,26 @@ type FigureSpec =
   | { title: string; beam: Beam; parts?: BeamFigureOptions["parts"] }
   | { title: string; section: Rect[]; principal?: boolean }
   | ({ kind: "bar" } & BarFigureSpec)
-  | ({ kind: "rigid-beam" } & RigidBeamFigureSpec);
+  | ({ kind: "rigid-beam" } & RigidBeamFigureSpec)
+  | ({ kind: "bending-stress" } & BendingStressFigureSpec);
 
 function renderFigure(spec: FigureSpec): string {
+  if ("kind" in spec) {
+    if (spec.kind === "bending-stress") return renderBendingStressFigure(spec);
+    return spec.kind === "bar"
+      ? renderBarFigure(spec)
+      : renderRigidBeamFigure(spec);
+  }
   if ("beam" in spec) {
     return renderBeamFigure(spec.beam, {
       title: spec.title,
       parts: spec.parts,
     });
   }
-  if ("section" in spec) {
-    return renderSectionFigure(spec.section, {
-      title: spec.title,
-      principal: spec.principal,
-    });
-  }
-  return spec.kind === "bar"
-    ? renderBarFigure(spec)
-    : renderRigidBeamFigure(spec);
+  return renderSectionFigure(spec.section, {
+    title: spec.title,
+    principal: spec.principal,
+  });
 }
 type Meta = {
   number: number;
