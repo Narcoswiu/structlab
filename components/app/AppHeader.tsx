@@ -1,40 +1,26 @@
-import Link from "next/link";
 import { Logo } from "@/components/layout/Logo";
+import { AppNav, type NavItem } from "@/components/app/AppNav";
 import { Button } from "@/components/ui/button";
 import type { CurrentUser } from "@/lib/auth";
 
-const navLinkClass =
-  "inline-flex min-h-11 items-center text-[15px] font-semibold text-muted-foreground no-underline hover:text-foreground";
+const navItems: NavItem[] = [
+  // главите на учебника се отварят от таблото
+  { href: "/dashboard", label: "Табло", also: ["/learn"] },
+  { href: "/review", label: "Повторение" },
+  { href: "/tasks", label: "Задания" },
+  { href: "/labs", label: "Лаборатории" },
+  { href: "/account", label: "Профил" },
+];
 
 export function AppHeader({ user }: { user: CurrentUser }) {
+  const items =
+    user.role === "admin"
+      ? [...navItems, { href: "/admin", label: "Админ" }]
+      : navItems;
   return (
-    <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 py-[18px]">
+    <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 pt-3 pb-1 md:py-[18px]">
       <Logo />
-      <nav
-        aria-label="Навигация"
-        className="order-last flex w-full flex-wrap gap-x-7 md:order-none md:w-auto md:flex-1"
-      >
-        <Link href="/dashboard" className={navLinkClass}>
-          Табло
-        </Link>
-        <Link href="/review" className={navLinkClass}>
-          Повторение
-        </Link>
-        <Link href="/tasks" className={navLinkClass}>
-          Задания
-        </Link>
-        <Link href="/labs" className={navLinkClass}>
-          Лаборатории
-        </Link>
-        <Link href="/account" className={navLinkClass}>
-          Профил
-        </Link>
-        {user.role === "admin" ? (
-          <Link href="/admin" className={navLinkClass}>
-            Админ
-          </Link>
-        ) : null}
-      </nav>
+      <AppNav items={items} />
       <form
         action="/auth/signout"
         method="post"
