@@ -11,6 +11,8 @@ const buttonVariants = cva(
         default:
           "border-transparent bg-primary font-extrabold text-primary-foreground hover:bg-link",
         warm: "border-transparent bg-warm font-extrabold text-primary-foreground hover:bg-warn-fg",
+        success:
+          "border-transparent bg-success font-extrabold text-primary-foreground hover:bg-success-fg",
         outline:
           "border-line-strong bg-surface font-bold text-foreground hover:bg-surface-2",
         ghost: "border-transparent font-bold text-foreground hover:bg-surface-2",
