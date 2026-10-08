@@ -42,7 +42,7 @@ export default async function SectionLabPage() {
         >
           ← Лаборатории
         </Link>
-        <h1 className="font-display text-[clamp(24px,5vw,36px)] leading-[1.15] font-bold">
+        <h1 className="sl-page-title">
           Лаборатория за сечения
         </h1>
         <p className="max-w-[640px] text-muted-foreground">

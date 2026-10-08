@@ -45,7 +45,7 @@ export default async function ModulePage(props: PageProps<"/learn/[module]">) {
         >
           ← Табло
         </Link>
-        <h1 className="font-display text-[clamp(24px,5vw,36px)] leading-[1.15] font-bold">
+        <h1 className="sl-page-title">
           {data.title}
         </h1>
         <p className="max-w-[640px] text-muted-foreground">
@@ -58,7 +58,7 @@ export default async function ModulePage(props: PageProps<"/learn/[module]">) {
             <li key={chapter.slug}>
               <Link
                 href={`/learn/${slug}/${chapter.slug}`}
-                className="lift flex flex-col gap-1.5 rounded-2xl border border-line bg-surface p-5 no-underline sm:p-6"
+                className="sl-card sl-card-link flex flex-col gap-1.5 no-underline"
               >
                 <span className="flex flex-wrap items-center justify-between gap-3">
                   <span className="font-mono text-sm text-primary">
@@ -81,7 +81,7 @@ export default async function ModulePage(props: PageProps<"/learn/[module]">) {
           ))}
         </ol>
       ) : (
-        <p className="rounded-2xl border border-line bg-surface p-6 text-muted-foreground">
+        <p className="sl-card text-muted-foreground">
           Главите по тази дисциплина се подготвят.
         </p>
       )}
