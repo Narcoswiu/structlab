@@ -47,9 +47,7 @@ export default async function ReviewPage() {
       </PageIntro>
 
       <div className="flex flex-col gap-2">
-        <h1 className="sl-page-title">
-          Повторение
-        </h1>
+        <h1 className="sl-page-title">Повторение</h1>
         <p className="text-muted-foreground">
           {summary.due > 0
             ? `Днес имаш ${questionsLabel(summary.due)} за повторение.`

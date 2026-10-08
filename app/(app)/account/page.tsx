@@ -12,9 +12,7 @@ export default async function AccountPage() {
   const user = await requireUser();
   return (
     <>
-      <h1 className="sl-page-title">
-        Профил
-      </h1>
+      <h1 className="sl-page-title">Профил</h1>
       <section className="sl-card flex flex-wrap items-center gap-x-10 gap-y-4">
         <span
           aria-hidden="true"

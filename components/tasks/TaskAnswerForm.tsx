@@ -74,7 +74,8 @@ export function TaskAnswerForm({ task, fields, initial }: TaskAnswerFormProps) {
   // На екран с докосване не го местим – клавиатурата би закрила резултата.
   useEffect(() => {
     if (state === initial || state.solved) return;
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches)
+      return;
     const first = formRef.current?.querySelector<HTMLInputElement>(
       'input[aria-invalid="true"]',
     );
@@ -144,9 +145,7 @@ export function TaskAnswerForm({ task, fields, initial }: TaskAnswerFormProps) {
                 id={`${inputId}-note`}
                 className={cn(
                   "text-sm leading-normal",
-                  note
-                    ? "sl-rise max-w-[68ch] border-l-2 pl-3"
-                    : "sr-only",
+                  note ? "sl-rise max-w-[68ch] border-l-2 pl-3" : "sr-only",
                   fieldError
                     ? "border-destructive text-danger-fg"
                     : "border-warm text-muted-foreground",

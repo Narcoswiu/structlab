@@ -42,9 +42,7 @@ export default async function BeamLabPage() {
         >
           ← Лаборатории
         </Link>
-        <h1 className="sl-page-title">
-          Лаборатория за греди
-        </h1>
+        <h1 className="sl-page-title">Лаборатория за греди</h1>
         <p className="max-w-[640px] text-muted-foreground">
           Знаци: сила и разпределен товар са положителни надолу, момент – по
           часовниковата стрелка. Диаграмата M е от страната на опънатите нишки.

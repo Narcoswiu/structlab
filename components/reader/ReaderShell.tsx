@@ -59,7 +59,8 @@ export function ReaderShell({
       if (!article || !bar) return;
       const box = article.getBoundingClientRect();
       const distance = box.height - window.innerHeight;
-      const done = distance > 0 ? Math.min(1, Math.max(0, -box.top / distance)) : 0;
+      const done =
+        distance > 0 ? Math.min(1, Math.max(0, -box.top / distance)) : 0;
       bar.style.transform = `scaleX(${done})`;
     }
     function schedule() {
@@ -112,7 +113,11 @@ export function ReaderShell({
   }
 
   return (
-    <div className="reader reader-shell" data-theme={theme} data-size={fontSize}>
+    <div
+      className="reader reader-shell"
+      data-theme={theme}
+      data-size={fontSize}
+    >
       <div aria-hidden="true" className="reader-progress">
         <span ref={progressRef} />
       </div>

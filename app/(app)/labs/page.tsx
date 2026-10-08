@@ -30,9 +30,7 @@ export default async function LabsPage() {
   return (
     <>
       <div className="flex flex-col gap-2">
-        <h1 className="sl-page-title">
-          Лаборатории
-        </h1>
+        <h1 className="sl-page-title">Лаборатории</h1>
         <p className="max-w-[640px] text-muted-foreground">
           Тук променяш числата и веднага виждаш резултата. Използвай ги, за да
           провериш собствено решение или да видиш как се променя диаграмата.

@@ -93,10 +93,7 @@ export function StudyPlan({
         </p>
       </div>
       {plan.map((year) => (
-        <div
-          key={year.year}
-          className="sl-card flex flex-col gap-4"
-        >
+        <div key={year.year} className="sl-card flex flex-col gap-4">
           <h3 className="text-lg font-extrabold">
             {yearNames[year.year - 1]} курс
           </h3>

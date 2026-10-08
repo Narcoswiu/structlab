@@ -42,9 +42,7 @@ export default async function TasksPage() {
       </PageIntro>
 
       <div className="flex flex-col gap-2">
-        <h1 className="sl-page-title">
-          Лични задания
-        </h1>
+        <h1 className="sl-page-title">Лични задания</h1>
         {allowed && variant ? (
           <p className="text-muted-foreground">
             Вариант{" "}

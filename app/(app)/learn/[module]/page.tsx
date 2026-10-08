@@ -45,9 +45,7 @@ export default async function ModulePage(props: PageProps<"/learn/[module]">) {
         >
           ← Табло
         </Link>
-        <h1 className="sl-page-title">
-          {data.title}
-        </h1>
+        <h1 className="sl-page-title">{data.title}</h1>
         <p className="max-w-[640px] text-muted-foreground">
           {data.description}
         </p>

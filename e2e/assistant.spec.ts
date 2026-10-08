@@ -298,20 +298,8 @@ test("въпрос извън учебника: ясно съобщение и �
     dialog.getByRole("link", { name: "Списък с главите →" }),
   ).toHaveAttribute("href", "/dashboard");
 
-  // термин, който го няма в учебника, но е близо до някоя глава
-  const near = await ask(
-    page,
-    "Каква е формулата на Ойлер за критичната сила?",
-  );
-  const body = (await near.json()) as {
-    excerpts: unknown[];
-    related: { href: string }[];
-  };
-  expect(body.excerpts).toEqual([]);
-  expect(body.related.length).toBeGreaterThan(0);
-  await expect(
-    dialog.locator(`a[href="${body.related[0]!.href}"]`),
-  ).toBeVisible();
+  // „близки глави“ при непознат термин се проверяват с unit тестове върху
+  // примерни глави – тук зависят от това кои глави вече са написани.
 });
 
 test("потребител без достъп вижда бутона, но не получава съдържание", async ({

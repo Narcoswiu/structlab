@@ -42,9 +42,7 @@ export default async function SectionLabPage() {
         >
           ← Лаборатории
         </Link>
-        <h1 className="sl-page-title">
-          Лаборатория за сечения
-        </h1>
+        <h1 className="sl-page-title">Лаборатория за сечения</h1>
         <p className="max-w-[640px] text-muted-foreground">
           Всички характеристики са спрямо централните оси – хоризонталната x и
           вертикалната y през центъра на тежестта.

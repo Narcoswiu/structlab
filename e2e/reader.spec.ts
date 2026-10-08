@@ -185,6 +185,10 @@ test("всяка глава от таблото се отваря цяла – �
   page,
 }) => {
   await signIn(page, E2E_READER.email, E2E_READER.password);
+  // таблото се зарежда на части – изчакваме списъка с главите
+  await expect(
+    page.getByRole("link", { name: /Разрезни усилия в греди/ }).first(),
+  ).toBeVisible();
   const links = await page.locator('a[href^="/learn/"]').evaluateAll((items) =>
     items
       .map((item) => item.getAttribute("href")!)

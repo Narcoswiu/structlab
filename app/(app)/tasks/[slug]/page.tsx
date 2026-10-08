@@ -81,10 +81,7 @@ export default async function TaskPage(props: PageProps<"/tasks/[slug]">) {
         </h1>
       </div>
 
-      <section
-        aria-label="Условие"
-        className="sl-card flex flex-col gap-5"
-      >
+      <section aria-label="Условие" className="sl-card flex flex-col gap-5">
         <div className="flex max-w-[68ch] flex-col gap-3 leading-[1.65]">
           {task.statement.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>

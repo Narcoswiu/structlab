@@ -13,11 +13,7 @@ export function PageSkeleton({
   wideFirst?: boolean;
 }) {
   return (
-    <div
-      role="status"
-      aria-label="Зареждане…"
-      className="flex flex-col gap-8"
-    >
+    <div role="status" aria-label="Зареждане…" className="flex flex-col gap-8">
       <div className="flex flex-col gap-3">
         <div className="sl-skeleton h-9 w-64 max-w-full" />
         <div className="sl-skeleton h-5 w-80 max-w-full" />
