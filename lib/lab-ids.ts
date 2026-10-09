@@ -5,6 +5,8 @@ export const LAB_IDS = [
   "stresses",
   "deflection",
   "buckling",
+  "reactions",
+  "truss",
 ] as const;
 
 export type LabId = (typeof LAB_IDS)[number];

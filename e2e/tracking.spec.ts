@@ -226,7 +226,14 @@ test("/api/events приема само валидни събития", async ({
 
   expect((await post({ type: "lab_open", lab: "beam" })).status()).toBe(204);
   // всяка лаборатория има свой идентификатор
-  for (const lab of ["section", "stresses", "deflection", "buckling"]) {
+  for (const lab of [
+    "section",
+    "stresses",
+    "deflection",
+    "buckling",
+    "reactions",
+    "truss",
+  ]) {
     expect((await post({ type: "lab_open", lab })).status()).toBe(204);
   }
   // непознат вид, „login“ отвън, излишно поле, непозната секция, непозната лаборатория

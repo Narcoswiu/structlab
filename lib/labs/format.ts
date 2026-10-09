@@ -67,3 +67,28 @@ export function toMpa(stress: number): number {
 export function allFinite(values: readonly number[]): boolean {
   return values.every((value) => Number.isFinite(value));
 }
+
+/** Събираемо в уравнение: знак и запис без знак („24·2“, „S_AC“). */
+export type LabTerm = { sign: 1 | -1; text: string };
+
+/** Събираемо, чийто знак идва от стойността му. */
+export function signedTerm(value: number, text: string): LabTerm {
+  return { sign: value < 0 ? -1 : 1, text };
+}
+
+/** „−24·2 + 12 − S_AC“; празен списък → „0“. */
+export function joinTerms(terms: readonly LabTerm[]): string {
+  if (terms.length === 0) return "0";
+  return terms
+    .map((term, index) =>
+      index === 0
+        ? `${term.sign < 0 ? "−" : ""}${term.text}`
+        : `${term.sign < 0 ? "−" : "+"} ${term.text}`,
+    )
+    .join(" ");
+}
+
+/** Много малките стойности от плаващата запетая стават точно нула. */
+export function snapZero(value: number, eps = 1e-9): number {
+  return Math.abs(value) < eps ? 0 : value;
+}
