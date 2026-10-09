@@ -16,19 +16,24 @@ modules:
     title: Теоретична механика – I част
     description: Редукция на системи сили, равновесие, герберови греди, триставни системи, ферми.
     sort: 2
+  - slug: teoretichna-mehanika-2
+    title: Теоретична механика – II част
+    description: Кинематика на точка и на тяло, релативно движение, динамика на частица и на системи, трептения.
+    sort: 3
   - slug: inzhenerna-geologiya
     title: Инженерна геология и хидрогеология
     description: Скали и строителни почви, геоложки процеси, подземни води, инженерно-геоложки проучвания.
-    sort: 3
+    sort: 4
   - slug: stroitelni-mashini
     title: Строителни машини
     description: Машинни елементи, кранове, машини за бетон и разтвори, машини за пилоти.
-    sort: 4
+    sort: 5
 
 # Коя дисциплина от плановете към кой модул води (по точното име в плана).
 links:
   Съпротивление на материалите: saprotivlenie-na-materialite
   Теоретична механика – I част: teoretichna-mehanika-1
+  Теоретична механика – II част: teoretichna-mehanika-2
   Инженерна геология и хидрогеология: inzhenerna-geologiya
   Инженерна геология: inzhenerna-geologiya
   Строителни машини: stroitelni-mashini
