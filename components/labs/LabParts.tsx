@@ -84,6 +84,29 @@ export function LabFigure({
   );
 }
 
+/**
+ * „I_x“ → I с долен индекс x. Долната черта остава в текста (скрита за окото),
+ * за да се чете и търси по същия начин, както е записано в учебника.
+ */
+export function Sym({ text }: { text: string }) {
+  const parts = text.split(/_([A-Za-zА-Яа-я0-9]+)/);
+  if (parts.length === 1) return <>{text}</>;
+  return (
+    <>
+      {parts.map((part, index) =>
+        index % 2 === 1 ? (
+          <sub key={index}>
+            <span className="sr-only">_</span>
+            {part}
+          </sub>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  );
+}
+
 export function LabResults({ results }: { results: readonly LabResult[] }) {
   return (
     <dl className="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3">
@@ -92,10 +115,14 @@ export function LabResults({ results }: { results: readonly LabResult[] }) {
           key={item.name}
           className="flex flex-col gap-1 rounded-xl bg-surface-2 p-4"
         >
-          <dt className="text-xs text-dim">{item.name}</dt>
+          <dt className="text-xs text-dim">
+            <Sym text={item.name} />
+          </dt>
           <dd className="font-mono text-[15px]">{item.value}</dd>
           {item.note ? (
-            <dd className="text-xs leading-normal text-dim">{item.note}</dd>
+            <dd className="text-xs leading-normal text-dim">
+              <Sym text={item.note} />
+            </dd>
           ) : null}
         </div>
       ))}
@@ -115,7 +142,7 @@ export function LabVerdict({ ok, text }: { ok: boolean; text: string }) {
       <span aria-hidden="true" className="mr-2">
         {ok ? "✓" : "✗"}
       </span>
-      {text}
+      <Sym text={text} />
     </p>
   );
 }
@@ -156,7 +183,7 @@ export function LabSteps({ steps }: { steps: readonly LabStep[] }) {
                     isFormula(line) && "font-mono text-[15px] text-foreground",
                   )}
                 >
-                  {line}
+                  <Sym text={line} />
                 </p>
               ))}
             </li>

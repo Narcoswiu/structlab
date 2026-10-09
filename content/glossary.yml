@@ -135,7 +135,7 @@
   note: "две значения: хоризонталната част на профил „I“ или „Т“; при ферма – редът от пръти по горния или по долния ѝ ръб (горен и долен пояс)"
 - preferred: стебло
   en: web
-  note: "вертикалната част на профил „I“ или „Т“"
+  note: "вертикалната част на профил „I“ или „Т“; в Глава 13 – и цилиндричната част на болт или нит (стебло на болта, en: shank)"
 - preferred: общо огъване
   en: biaxial (unsymmetrical) bending
   also_ok: [двойно огъване, косо огъване]
@@ -328,7 +328,7 @@
   en: vector (cross) product
 - preferred: инвариант
   en: invariant
-  note: "величина, която не зависи от редукционния център"
+  note: "величина, която не зависи от редукционния център (Теоретична механика); при напрегнатото състояние – величина, която не зависи от ъгъла на площадката, напр. σ_x + σ_y"
 - preferred: динама
   en: wrench
   also_ok: [силов винт]
@@ -348,3 +348,114 @@
 - preferred: пространствено запъване
   en: fixed support in space
   note: "шест неизвестни: три сили и три момента"
+- preferred: площадка
+  en: section plane (through a point)
+  note: "малък въображаем разрез през точката; определя се от нормалата си"
+- preferred: напрегнато състояние в точка
+  en: state of stress at a point
+  note: "съвкупността от напреженията върху всички площадки през точката"
+- preferred: взаимност на тангенциалните напрежения
+  symbol: "τ_xy = τ_yx"
+  en: complementary shear stresses
+  also_ok: [закон за взаимност]
+- preferred: главни площадки
+  en: principal planes
+  note: "площадките без тангенциални напрежения"
+- preferred: главни напрежения
+  symbol: "σ_1, σ_2"
+  en: principal stresses
+  note: "в равнинно състояние σ_1 ≥ σ_2 са двете в равнината; третото главно напрежение е равно на нула и не се преномерира"
+- preferred: окръжност на Мор
+  en: Mohr's circle
+  note: "център (σ_x + σ_y)/2, радиус τ_max; в Глава 11 оста τ се чертае надолу"
+- preferred: линейна деформация
+  symbol: "ε"
+  en: normal strain
+  note: "относителното удължение от Глава 3"
+- preferred: ъглова деформация
+  symbol: "γ"
+  en: shear strain
+  also_ok: [ъгъл на плъзгане]
+  note: "изменението на правия ъгъл, в радиани"
+- preferred: напречна деформация
+  symbol: "ε'"
+  en: lateral strain
+  note: "ε' = −ν·ε"
+- preferred: коефициент на Поасон
+  symbol: "ν"
+  en: Poisson's ratio
+  note: "за стоманата 0,3"
+- preferred: обобщен закон на Хук
+  en: generalized Hooke's law
+- preferred: обемна деформация
+  symbol: "θ"
+  en: volumetric strain
+  note: "θ = ε_x + ε_y + ε_z; в Глава 8 със същата буква е означен относителният ъгъл на усукване"
+- preferred: деформирано състояние
+  en: state of strain
+- preferred: срязване
+  en: shear
+- preferred: чисто срязване
+  en: pure shear
+  note: "действат само тангенциални напрежения; равностойно на опън и натиск под 45°"
+- preferred: срез
+  en: shear plane
+  note: "равнината, по която се срязва болтът"
+- preferred: едносрезно съединение
+  en: single-shear connection
+- preferred: двусрезно съединение
+  en: double-shear connection
+- preferred: смачкване
+  symbol: "σ_см"
+  en: bearing
+  note: "местен натиск между стеблото на болта и стената на отвора; условна площ d·t"
+- preferred: отслабено сечение
+  symbol: "A_нето"
+  en: net section
+  note: "сечението на планката през отворите"
+- preferred: ъглов шев
+  en: fillet weld
+  note: "флангов – успореден на силата; напречен (челен ъглов) – перпендикулярен на нея; да не се бърка с шева на челно (стиково) съединение"
+- preferred: катет
+  symbol: "k"
+  en: weld leg
+  note: "страната на сечението на ъгловия шев; изчислителна дебелина a = 0,7·k"
+- preferred: потенциална енергия на деформацията
+  symbol: "U"
+  en: strain energy
+- preferred: работа на външните сили
+  symbol: "A_e"
+  en: work of external forces
+  note: "A без индекс е площ, W е съпротивителен момент"
+- preferred: теорема на Клапейрон
+  en: Clapeyron's theorem
+  note: "U = ½·ΣF_i·δ_i"
+- preferred: теорема на Кастилияно
+  en: Castigliano's theorem
+  note: "δ_i = ∂U/∂F_i; изписва се „Кастилияно“, както в програмите на УАСГ и ВСУ"
+- preferred: единична сила
+  en: unit load
+  note: "безразмерна сила, равна на единица, на мястото и по посоката на търсеното преместване"
+- preferred: интеграл на Максвел–Мор
+  en: Maxwell–Mohr integral
+  note: "δ = Σ∫M·M̄ dx/(E·I)"
+- preferred: правило на Верешчагин
+  en: Vereshchagin's rule (graph multiplication)
+  also_ok: [метод на Верешчагин]
+  note: "δ = Σ Ω·η_c/(E·I); ординатата се взема от права диаграма"
+- preferred: товарно състояние
+  en: loaded state
+  note: "действа действителният товар"
+- preferred: единично състояние
+  en: unit-load state
+  note: "действа само единичната сила"
+- preferred: теория за якост
+  en: strength theory (failure criterion)
+- preferred: еквивалентно напрежение
+  symbol: "σ_екв"
+  en: equivalent stress
+  also_ok: [приведено напрежение]
+- preferred: еквивалентен момент
+  symbol: "M_екв"
+  en: equivalent moment
+  note: "за кръгъл вал на огъване с усукване: σ_екв = M_екв / W"
