@@ -1,15 +1,23 @@
 import type { Metadata } from "next";
 import { UserRound } from "lucide-react";
 import { ChangePasswordForm } from "@/components/auth/ChangePasswordForm";
+import { ReminderToggle } from "@/components/app/ReminderToggle";
 import { SpecialtyPicker } from "@/components/app/SpecialtyPicker";
 import { buttonClass } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth";
 import { listSpecialties } from "@/lib/catalog";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Профил" };
 
 export default async function AccountPage() {
   const user = await requireUser();
+  const supabase = await createClient();
+  const { data: settings } = await supabase
+    .from("user_settings")
+    .select("reminders_enabled")
+    .eq("user_id", user.id)
+    .maybeSingle();
   return (
     <>
       <h1 className="sl-page-title">Профил</h1>
@@ -38,6 +46,20 @@ export default async function AccountPage() {
           specialties={await listSpecialties()}
           currentId={user.specialtyId}
         />
+      </section>
+      <section
+        aria-labelledby="reminders-title"
+        className="sl-card flex flex-col gap-4"
+      >
+        <h2 id="reminders-title" className="text-xl font-extrabold">
+          Напомняния по имейл
+        </h2>
+        <p className="text-muted-foreground">
+          Пишем ти, когато имаш въпроси за повторение или недовършена глава, и в
+          понеделник – с отчет за седмицата. Най-много едно писмо на три дни и
+          никога между 21:00 и 08:00.
+        </p>
+        <ReminderToggle enabled={settings?.reminders_enabled ?? false} />
       </section>
       <section className="sl-card flex flex-col gap-4">
         <h2 className="text-xl font-extrabold">Смяна на паролата</h2>

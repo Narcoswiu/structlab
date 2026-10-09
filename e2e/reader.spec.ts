@@ -116,6 +116,16 @@ test("Леко ⇄ Подробно сменя текста и пази секц
   await expect(page).toHaveURL(/mode=easy/);
 });
 
+// Отговорът на самия запис на настройките (server action). Само „POST“ не
+// стига: събитията на проследяването също са POST и при натоварен сървър
+// пристигат първи – тогава презареждането прекъсва още незавършения запис.
+const settingsSaved = (page: Page) =>
+  page.waitForResponse(
+    (r) =>
+      r.request().method() === "POST" &&
+      r.request().headers()["next-action"] !== undefined,
+  );
+
 test("темата и размерът на шрифта се сменят и се помнят", async ({ page }) => {
   await signIn(page, E2E_READER.email, E2E_READER.password);
   await page.goto(CHAPTER);
@@ -131,14 +141,14 @@ test("темата и размерът на шрифта се сменят и с
   await expect(reader).toHaveAttribute("data-theme", "dark");
   const dark = await background();
 
-  let saved = page.waitForResponse((r) => r.request().method() === "POST");
+  let saved = settingsSaved(page);
   await page.getByRole("button", { name: "Тема: Сепия" }).click();
   await saved;
   await expect(reader).toHaveAttribute("data-theme", "sepia");
   expect(await background()).not.toBe(dark);
 
   const before = await fontSize();
-  saved = page.waitForResponse((r) => r.request().method() === "POST");
+  saved = settingsSaved(page);
   await page.getByRole("button", { name: "По-голям шрифт" }).click();
   await saved;
   expect(await fontSize()).toBeGreaterThan(before);
@@ -148,10 +158,10 @@ test("темата и размерът на шрифта се сменят и с
   expect(await fontSize()).toBeGreaterThan(before);
 
   // връщаме настройките, за да не влияят на другите тестове
-  saved = page.waitForResponse((r) => r.request().method() === "POST");
+  saved = settingsSaved(page);
   await page.getByRole("button", { name: "По-малък шрифт" }).click();
   await saved;
-  saved = page.waitForResponse((r) => r.request().method() === "POST");
+  saved = settingsSaved(page);
   await page.getByRole("button", { name: "Тема: Тъмна" }).click();
   await saved;
 });

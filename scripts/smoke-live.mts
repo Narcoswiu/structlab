@@ -4,7 +4,8 @@
 //   pnpm smoke:live https://друг.адрес   проверява друг адрес
 //
 // Хваща: паднала страница, изчезнали защитни заглавки, вътрешна страница,
-// отворена без вход, отворен служебен адрес, изтекъл ключ в HTML-а.
+// отворена без вход, отворен служебен адрес, изтекъл ключ в HTML-а, счупена
+// страница за отписване от напомнянията.
 const SITE = (process.argv[2] ?? "https://structlab-ivory.vercel.app").replace(
   /\/$/,
   "",
@@ -113,6 +114,23 @@ for (const path of PRIVATE_PAGES) {
     [401, 403].includes(cron.response.status),
     "служебният адрес за нощната задача е затворен",
     String(cron.response.status),
+  );
+  // напомнянията: дневната задача е затворена, а страницата за отписване се
+  // отваря за всеки код (и за несъществуващ) с един и същ неутрален текст
+  const reminders = await get("/api/cron/reminders");
+  check(
+    [401, 403].includes(reminders.response.status),
+    "служебният адрес за напомнянията е затворен",
+    String(reminders.response.status),
+  );
+  const unsubscribe = await get(`/unsubscribe/${crypto.randomUUID()}`);
+  const unsubscribeHtml = await unsubscribe.response.text();
+  check(
+    unsubscribe.response.status === 200 &&
+      unsubscribeHtml.includes("Спиране на напомнянията") &&
+      unsubscribeHtml.includes("Спри напомнянията"),
+    "страницата за отписване се отваря с неутрален текст и за непознат код",
+    String(unsubscribe.response.status),
   );
   const chapter = await get(
     "/learn/saprotivlenie-na-materialite/razrezni-usiliya",

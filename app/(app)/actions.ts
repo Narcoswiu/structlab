@@ -180,3 +180,18 @@ export async function answerQuiz(
   revalidatePath("/review");
   return { ...result, knew: parsed.data.knew };
 }
+
+/**
+ * Ключът „Напомняния по имейл“ в профила. Записът е с клиента на самия
+ * потребител: RLS и правата по колони пускат само собствения му ред.
+ */
+export async function setReminders(formData: FormData): Promise<void> {
+  const user = await requireUser();
+  const enabled = formData.get("enabled") === "true";
+  const supabase = await createClient();
+  await supabase
+    .from("user_settings")
+    .update({ reminders_enabled: enabled })
+    .eq("user_id", user.id);
+  revalidatePath("/account");
+}

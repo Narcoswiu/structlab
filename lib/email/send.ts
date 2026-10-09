@@ -14,12 +14,14 @@ export function getContactEmail(): string {
   return from.match(/<([^>]+)>/)?.[1] ?? from;
 }
 
-type SendEmailInput = {
+export type SendEmailInput = {
   to: string;
   subject: string;
   template: ReactElement;
   /** на кого да отиде отговорът, ако не е подателят */
   replyTo?: string;
+  /** допълнителни заглавки, напр. „List-Unsubscribe“ за напомнянията */
+  headers?: Record<string, string>;
 };
 
 export async function sendEmail({
@@ -27,6 +29,7 @@ export async function sendEmail({
   subject,
   template,
   replyTo,
+  headers,
 }: SendEmailInput) {
   if (!isEmailConfigured()) {
     throw new Error("Пощата не е настроена (липсват SMTP_HOST / EMAIL_FROM).");
@@ -56,5 +59,6 @@ export async function sendEmail({
     subject,
     html,
     text,
+    headers,
   });
 }

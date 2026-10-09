@@ -14,7 +14,7 @@ const serverEnvSchema = z.object({
   SMTP_USER: optional,
   SMTP_PASS: optional,
   EMAIL_FROM: optional,
-  // защитава нощната задача /api/cron/aggregate
+  // защитава задачите по разписание: /api/cron/aggregate и /api/cron/reminders
   CRON_SECRET: optional,
   // Помощникът по учебника. Без ключ търси само в уроците (безплатно);
   // с ключ въпросите се пращат към избраната AI услуга.

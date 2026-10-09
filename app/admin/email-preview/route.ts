@@ -3,12 +3,29 @@ import { InviteEmail } from "@/emails/InviteEmail";
 import { requireAdmin } from "@/lib/auth";
 import { formatDate } from "@/lib/format-date";
 import { computeAccessExpiry } from "@/lib/invites";
+import { sampleReminder } from "@/lib/reminders/samples";
+import { isSampleTemplate } from "@/lib/reminders/templates";
 import { absoluteUrl } from "@/lib/site-url";
 import { createClient } from "@/lib/supabase/server";
 
-// Показва как изглежда имейлът с покана, без да изпраща нищо.
-export async function GET() {
+const htmlHeaders = {
+  "content-type": "text/html; charset=utf-8",
+  "x-robots-tag": "noindex",
+};
+
+// Показва как изглежда имейл, без да изпраща нищо. Без параметър – поканата;
+// с ?template=review|continue|weekly|new-chapter – напомняне с примерни данни.
+export async function GET(request: Request) {
   await requireAdmin();
+  const template = new URL(request.url).searchParams.get("template");
+  if (isSampleTemplate(template)) {
+    const sample = sampleReminder(template, {
+      firstName: "Мария",
+      url: absoluteUrl,
+    });
+    return new Response(await render(sample.element), { headers: htmlHeaders });
+  }
+
   const supabase = await createClient();
   const { data: plan } = await supabase
     .from("access_plans")
@@ -29,10 +46,5 @@ export async function GET() {
       contactEmail: "kontakt@example.com",
     }),
   );
-  return new Response(html, {
-    headers: {
-      "content-type": "text/html; charset=utf-8",
-      "x-robots-tag": "noindex",
-    },
-  });
+  return new Response(html, { headers: htmlHeaders });
 }

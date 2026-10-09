@@ -6,6 +6,7 @@ import { changeEnrollment } from "@/app/admin/actions";
 import { InviteCreateForm } from "@/components/admin/InviteCreateForm";
 import { InviteRowActions } from "@/components/admin/InviteRowActions";
 import { PlanDurationForm } from "@/components/admin/PlanDurationForm";
+import { RemindersPanel } from "@/components/admin/RemindersPanel";
 import { WaitlistInviteForm } from "@/components/admin/WaitlistInviteForm";
 import { PageIntro } from "@/components/PageIntro";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import { requireAdmin } from "@/lib/auth";
 import { isEmailConfigured } from "@/lib/email/send";
 import { daysUntil, formatDate } from "@/lib/format-date";
 import { getInviteStatus, type InviteStatus } from "@/lib/invites";
+import { getRemindersSwitch } from "@/lib/reminders/settings";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getDismissedIntros } from "@/lib/user-settings";
@@ -27,6 +29,26 @@ const inviteStatusLabel: Record<InviteStatus, string> = {
   revoked: "ОТМЕНЕНА",
   expired: "ИЗТЕКЛА",
 };
+
+const emailKindLabel: Record<string, string> = {
+  review_due: "Повторение",
+  continue: "Продължи",
+  weekly: "Седмичен отчет",
+  new_chapter: "Нова глава",
+  test: "Пробно писмо",
+};
+
+const dateTimeFormatter = new Intl.DateTimeFormat("bg-BG", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Europe/Sofia",
+});
+/** „21.10.2026, 10:12“ по българско време. */
+const formatDateTime = (value: string) =>
+  dateTimeFormatter.format(new Date(value)).replace(/\s*г\./, "");
 
 function Panel({
   title,
@@ -60,6 +82,8 @@ export default async function AdminPage() {
     authUsers,
     waitlist,
     contactMessages,
+    remindersSwitch,
+    emailLog,
   ] = await Promise.all([
     supabase
       .from("access_plans")
@@ -102,7 +126,28 @@ export default async function AdminPage() {
       .select("id, name, email, message, created_at")
       .order("created_at", { ascending: false })
       .limit(20),
+    getRemindersSwitch(supabase),
+    supabase
+      .from("email_log")
+      .select("id, user_id, kind, status, error, sent_at")
+      .order("sent_at", { ascending: false })
+      .order("id", { ascending: false })
+      .limit(30),
   ]);
+  // имената за лога и за „кой смени ключа“ – отделно от списъка с последните
+  // 200 профила, за да не липсва име на по-стар потребител
+  const nameIds = [
+    ...new Set([
+      ...(emailLog.data ?? []).map((row) => row.user_id),
+      ...(remindersSwitch.updatedBy ? [remindersSwitch.updatedBy] : []),
+    ]),
+  ];
+  const { data: logNames } = nameIds.length
+    ? await supabase.from("profiles").select("id, full_name").in("id", nameIds)
+    : { data: [] };
+  const nameById = new Map(
+    (logNames ?? []).map((row) => [row.id, row.full_name]),
+  );
   const waiting = (waitlist.data ?? []).filter((entry) => !entry.invited_at);
 
   const emailById = new Map(
@@ -294,6 +339,49 @@ export default async function AdminPage() {
             );
           })}
         </ul>
+      </Panel>
+
+      <Panel title="Напомняния">
+        <RemindersPanel
+          enabled={remindersSwitch.enabled}
+          changed={
+            remindersSwitch.updatedBy && remindersSwitch.updatedAt
+              ? `${formatDateTime(remindersSwitch.updatedAt)} от ${
+                  nameById.get(remindersSwitch.updatedBy) || "администратор"
+                }`
+              : null
+          }
+          emailConfigured={emailConfigured}
+        />
+        <div className="flex flex-col gap-3 border-t border-line pt-5">
+          <h3 className="text-base font-extrabold">Последни писма (до 30)</h3>
+          {emailLog.data?.length ? (
+            <ul className="flex flex-col">
+              {emailLog.data.map((row) => (
+                <li
+                  key={row.id}
+                  className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-line py-3 text-sm first:border-0 first:pt-0"
+                >
+                  <span className="text-dim">
+                    {formatDateTime(row.sent_at)}
+                  </span>
+                  <span className="font-bold break-all">
+                    {nameById.get(row.user_id) || "без име"}
+                  </span>
+                  <span>{emailKindLabel[row.kind] ?? row.kind}</span>
+                  <Badge variant={row.status === "sent" ? "success" : "soon"}>
+                    {row.status === "sent" ? "ИЗПРАТЕНО" : "НЕУСПЕШНО"}
+                  </Badge>
+                  {row.error ? (
+                    <span className="break-all text-dim">{row.error}</span>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-muted-foreground">Още няма изпратени писма.</p>
+          )}
+        </div>
       </Panel>
 
       <Panel title="Срок на плановете">

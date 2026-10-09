@@ -51,6 +51,20 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"app_settings": {
+                  Row: {
+                    "key": string,"updated_at": string,"updated_by": string | null,"value": NonNullable<Json>
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "key": string,"updated_at"?: string,"updated_by"?: string | null,"value": NonNullable<Json>
+                  }
+                  Update: {
+                    "key"?: string,"updated_at"?: string,"updated_by"?: string | null,"value"?: NonNullable<Json>
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"chapter_bodies": {
                   Row: {
                     "body": string,"chapter_id": string,"mode": Database["public"]['Enums']["content_mode"],"updated_at": string
@@ -161,6 +175,20 @@ isOneToOne: false
                   }
                   Update: {
                     "day"?: string,"events"?: number,"seconds"?: number,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"email_log": {
+                  Row: {
+                    "error": string | null,"id": number,"kind": string,"sent_at": string,"status": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "error"?: string | null,"id"?: never,"kind": string,"sent_at"?: string,"status": string,"user_id": string
+                  }
+                  Update: {
+                    "error"?: string | null,"id"?: never,"kind"?: string,"sent_at"?: string,"status"?: string,"user_id"?: string
                   }
                   Relationships: [
                     
@@ -451,14 +479,14 @@ isOneToOne: false
                   ]
                 },"user_settings": {
                   Row: {
-                    "font_size": number,"intro_dismissed": NonNullable<Json>,"marketing_consent": boolean,"reader_mode": string,"reminders_enabled": boolean,"terms_accepted_at": string | null,"theme": string,"tracking_notice_accepted_at": string | null,"updated_at": string,"user_id": string
+                    "font_size": number,"intro_dismissed": NonNullable<Json>,"marketing_consent": boolean,"reader_mode": string,"reminders_enabled": boolean,"terms_accepted_at": string | null,"theme": string,"tracking_notice_accepted_at": string | null,"unsubscribe_token": string,"updated_at": string,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "font_size"?: number,"intro_dismissed"?: NonNullable<Json>,"marketing_consent"?: boolean,"reader_mode"?: string,"reminders_enabled"?: boolean,"terms_accepted_at"?: string | null,"theme"?: string,"tracking_notice_accepted_at"?: string | null,"updated_at"?: string,"user_id": string
+                    "font_size"?: number,"intro_dismissed"?: NonNullable<Json>,"marketing_consent"?: boolean,"reader_mode"?: string,"reminders_enabled"?: boolean,"terms_accepted_at"?: string | null,"theme"?: string,"tracking_notice_accepted_at"?: string | null,"unsubscribe_token"?: string,"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "font_size"?: number,"intro_dismissed"?: NonNullable<Json>,"marketing_consent"?: boolean,"reader_mode"?: string,"reminders_enabled"?: boolean,"terms_accepted_at"?: string | null,"theme"?: string,"tracking_notice_accepted_at"?: string | null,"updated_at"?: string,"user_id"?: string
+                    "font_size"?: number,"intro_dismissed"?: NonNullable<Json>,"marketing_consent"?: boolean,"reader_mode"?: string,"reminders_enabled"?: boolean,"terms_accepted_at"?: string | null,"theme"?: string,"tracking_notice_accepted_at"?: string | null,"unsubscribe_token"?: string,"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     
