@@ -225,12 +225,17 @@ test("/api/events приема само валидни събития", async ({
   const post = (data: unknown) => page.request.post("/api/events", { data });
 
   expect((await post({ type: "lab_open", lab: "beam" })).status()).toBe(204);
+  // всяка лаборатория има свой идентификатор
+  for (const lab of ["section", "stresses", "deflection", "buckling"]) {
+    expect((await post({ type: "lab_open", lab })).status()).toBe(204);
+  }
   // непознат вид, „login“ отвън, излишно поле, непозната секция, непозната лаборатория
   for (const bad of [
     { type: "something" },
     { type: "login" },
     { type: "lab_open", lab: "beam", userId: "x" },
     { type: "lab_open", lab: "../etc" },
+    { type: "lab_open", lab: "torsion" },
     {
       type: "section_view",
       module: "saprotivlenie-na-materialite",

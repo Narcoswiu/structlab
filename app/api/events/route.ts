@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { getCurrentUser } from "@/lib/auth";
 import { CHAPTER_SECTIONS } from "@/lib/content/sections";
+import { LAB_IDS } from "@/lib/lab-ids";
 import { createClient } from "@/lib/supabase/server";
 import { getTrackingAcceptedAt, recordEvent } from "@/lib/tracking";
 
@@ -27,7 +28,7 @@ const eventSchema = z.discriminatedUnion("type", [
   z.strictObject({ type: z.literal("pdf_download"), ...chapterRef }),
   z.strictObject({
     type: z.literal("lab_open"),
-    lab: z.enum(["beam", "section"]),
+    lab: z.enum(LAB_IDS),
   }),
 ]);
 
