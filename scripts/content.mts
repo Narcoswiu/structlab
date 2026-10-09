@@ -373,8 +373,14 @@ if (process.argv[1] && path.resolve(process.argv[1]) === import.meta.filename) {
     ?.slice("--only=".length)
     .split(",")
     .map(Number);
+  // --module=<slug> ограничава работата до един модул
+  const onlyModule = process.argv
+    .find((arg) => arg.startsWith("--module="))
+    ?.slice("--module=".length);
   let chapters = loadChapters().filter(
-    (chapter) => !only || only.includes(chapter.meta.number),
+    (chapter) =>
+      (!only || only.includes(chapter.meta.number)) &&
+      (!onlyModule || chapter.moduleSlug === onlyModule),
   );
   const ok = report(chapters);
   if (!ok) {
