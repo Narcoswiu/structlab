@@ -131,8 +131,8 @@
   symbol: "σ_доп"
   en: allowable stress
 - preferred: пояс
-  en: flange
-  note: "хоризонталната част на профил „I“ или „Т“"
+  en: flange (of a section); chord (of a truss)
+  note: "две значения: хоризонталната част на профил „I“ или „Т“; при ферма – редът от пръти по горния или по долния ѝ ръб (горен и долен пояс)"
 - preferred: стебло
   en: web
   note: "вертикалната част на профил „I“ или „Т“"
@@ -268,3 +268,83 @@
   also_ok: [окачена част]
 - preferred: етажна схема
   en: storey (interaction) scheme
+- preferred: триставна система
+  en: three-hinged system
+  note: "два диска, свързани със става и закрепени с по една неподвижна шарнирна опора"
+- preferred: триставна рамка
+  en: three-hinged frame
+- preferred: триставна дъга
+  en: three-hinged arch
+- preferred: стойка
+  en: column (leg) of a frame
+  note: "вертикалният прът на рамка"
+- preferred: ригел
+  en: girder (beam) of a frame
+  note: "хоризонталният прът на рамка"
+- preferred: разпор
+  symbol: "H"
+  en: horizontal thrust
+  note: "хоризонталната реакция при вертикален товар"
+- preferred: обтегач
+  en: tie (tie rod)
+  note: "прът между двете опори, който поема разпора; да се свери с лекциите на курса"
+- preferred: диада
+  en: two-bar system (dyad)
+  note: "два пръта, свързани със става и закрепени в две неподвижни точки"
+- preferred: прътово усилие
+  symbol: "S"
+  en: member (bar) force
+  note: "силата по оста на прът; положително при опън, отрицателно при натиск; да не се бърка със статичния момент S_x, S_y, нито с броя на ставите във формулата за n"
+- preferred: ферма
+  en: truss
+- preferred: прът
+  en: member (bar)
+- preferred: нулев прът
+  en: zero-force member
+- preferred: Ритеров разрез
+  en: Ritter section (method of sections)
+- preferred: Ритерова точка
+  en: Ritter point (moment centre)
+  note: "пресечната точка на другите два разрязани пръта"
+- preferred: проста ферма
+  en: simple truss
+  note: "започва от триъгълник; всеки нов възел се закрепва с два пръта, които не са на една права"
+- preferred: съставна фигура
+  en: composite figure (area)
+- preferred: ос на симетрия
+  en: axis of symmetry
+- preferred: централна ос
+  en: central axis (of a force system)
+  note: "в теоретичната механика – оста на динамата (Глава 8); в „Съпротивление на материалите“ централна ос е ос през центъра на тежестта на сечението"
+- preferred: отрицателна площ
+  en: negative area
+  note: "така влиза отворът в сборовете за съставна фигура"
+- preferred: момент на сила спрямо ос
+  symbol: "M_x, M_y, M_z"
+  en: moment of a force about an axis
+  note: "положителен обратно на часовниковата стрелка, гледано от положителния край на оста"
+- preferred: векторно произведение
+  symbol: "a × b"
+  en: vector (cross) product
+- preferred: инвариант
+  en: invariant
+  note: "величина, която не зависи от редукционния център"
+- preferred: динама
+  en: wrench
+  also_ok: [силов винт]
+  note: "сила по централната ос и двоица около нея"
+- preferred: директорни косинуси
+  symbol: "cos α, cos β, cos γ"
+  en: direction cosines
+- preferred: опорен прът
+  en: support link (pendulum bar)
+  note: "прът със става в двата края; една опорна връзка"
+- preferred: цилиндрична става
+  en: cylindrical hinge (journal bearing)
+  also_ok: [радиален лагер]
+  note: "две неизвестни, перпендикулярни на оста ѝ"
+- preferred: сферична става
+  en: spherical (ball-and-socket) joint
+- preferred: пространствено запъване
+  en: fixed support in space
+  note: "шест неизвестни: три сили и три момента"
