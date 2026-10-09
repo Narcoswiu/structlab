@@ -196,3 +196,75 @@
 - preferred: граница на пропорционалност
   symbol: "σ_p"
   en: proportional limit
+- preferred: момент на сила
+  symbol: "M_O"
+  en: moment of a force
+  note: "спрямо точка; положителен обратно на часовниковата стрелка; да не се бърка с огъващия момент"
+- preferred: рамо
+  symbol: "d"
+  en: moment arm
+  note: "перпендикулярът от точката до директрисата на силата"
+- preferred: двоица сили
+  en: couple
+  also_ok: [двоица]
+- preferred: проекция на сила
+  symbol: "F_x, F_y"
+  en: force component (projection)
+  note: "със знак: оста x е надясно, оста y е нагоре"
+- preferred: сходящи сили
+  en: concurrent forces
+- preferred: равнодействаща
+  symbol: "R"
+  en: resultant
+  note: "за равнодействащата на разпределен товар означението е R_q, за да не се бърка с напречната сила Q"
+- preferred: абсолютно твърдо тяло
+  en: rigid body
+  also_ok: [идеално твърдо тяло, твърдо тяло]
+  note: "„твърдо тяло“ тук е установеният термин в теоретичната механика; не е „твърдостта/коравината“ на материалите"
+- preferred: теорема на Вариньон
+  en: Varignon's theorem
+- preferred: редукция
+  en: reduction of a force system
+- preferred: редукционен център
+  symbol: "O"
+  en: reduction centre
+- preferred: главен вектор
+  symbol: "R"
+  en: resultant (principal) vector
+- preferred: главен момент
+  symbol: "M_O"
+  en: resultant (principal) moment
+- preferred: директриса
+  en: line of action
+- preferred: разпределен товар
+  symbol: "q"
+  en: distributed load
+  note: "в kN/m; формата му е „товарна фигура“"
+- preferred: равновесие
+  en: equilibrium
+- preferred: статически определима система
+  en: statically determinate system
+- preferred: статически неопределима система
+  en: statically indeterminate system
+- preferred: геометрично неизменяема система
+  en: geometrically stable system
+  note: "обратното: геометрично изменяема; три връзки през една точка – мигновено изменяема"
+- preferred: теорема за трите сили
+  en: three-force theorem
+- preferred: рамка
+  en: frame
+- preferred: герберова греда
+  en: Gerber beam
+- preferred: става
+  en: hinge
+- preferred: ставна сила
+  symbol: "G_v, G_h"
+  en: hinge force
+- preferred: основна част
+  en: main (supporting) part
+  also_ok: [носеща част]
+- preferred: второстепенна част
+  en: secondary (suspended) part
+  also_ok: [окачена част]
+- preferred: етажна схема
+  en: storey (interaction) scheme
