@@ -31,7 +31,7 @@ export default defineConfig({
     command: `pnpm build && pnpm start --port ${PORT}`,
     url: baseURL,
     reuseExistingServer: false,
-    timeout: 180_000,
+    timeout: 600_000,
     // Сайтът под тест говори с ЛОКАЛНАТА база и не праща имейли.
     env: {
       NEXT_PUBLIC_SITE_URL: baseURL,

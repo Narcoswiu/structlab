@@ -159,6 +159,20 @@ function rows(): MyDataRows {
         created_at: "2026-10-08T10:00:00.000Z",
       },
     ],
+    emails: [
+      {
+        user_id: ME,
+        kind: "review_due",
+        status: "sent",
+        sent_at: "2026-10-08T07:00:00.000Z",
+      },
+      {
+        user_id: OTHER,
+        kind: "ЧУЖДО ПИСМО",
+        status: "sent",
+        sent_at: "2026-10-08T07:00:00.000Z",
+      },
+    ],
   };
 }
 
@@ -179,6 +193,7 @@ describe("shapeMyData: какво влиза във файла", () => {
       "вариант_за_задания",
       "лични_задания",
       "обратна_връзка",
+      "изпратени_писма",
     ]);
     expect(data.обяснение).toContain("само твои данни");
     expect(data.изготвено_на).toBe("2026-10-09T08:30:00.000Z");
@@ -287,6 +302,7 @@ describe("shapeMyData: какво влиза във файла", () => {
         taskVariant: null,
         personalTasks: [],
         feedback: [],
+        emails: [],
       },
       me,
       NOW,
@@ -380,6 +396,7 @@ function tables(eventCount: number): Record<string, Row[]> {
     ],
     personal_tasks: source.personalTasks,
     feedback: source.feedback,
+    email_log: source.emails,
   };
 }
 
@@ -402,6 +419,7 @@ describe("fetchMyDataRows: какво се чете от базата", () => {
         "task_variants",
         "personal_tasks",
         "feedback",
+        "email_log",
       ]),
     );
     for (const call of calls) {
@@ -412,6 +430,13 @@ describe("fetchMyDataRows: какво се чете от базата", () => {
     expect(data.достъп).toHaveLength(1);
     expect(data.събития).toMatchObject({ общо: 3, включени: 3 });
     expect(data.вариант_за_задания).toMatchObject({ a: 1, b: 4, c: 7 });
+    expect(data.изпратени_писма).toEqual([
+      {
+        вид: "review_due",
+        състояние: "sent",
+        кога: "2026-10-08T07:00:00.000Z",
+      },
+    ]);
   });
 
   it("събитията се четат на страници и спират на ограничението", async () => {

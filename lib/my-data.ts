@@ -118,6 +118,12 @@ export type MyDataRows = {
     page: string;
     created_at: string;
   }[];
+  emails: {
+    user_id: string;
+    kind: string;
+    status: string;
+    sent_at: string;
+  }[];
 };
 
 type PageResult<T> = {
@@ -163,6 +169,7 @@ export async function fetchMyDataRows(
     taskVariant,
     personalTasks,
     feedback,
+    emails,
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -259,6 +266,15 @@ export async function fetchMyDataRows(
         .order("id")
         .range(from, to),
     ),
+    readAll("изпратени писма", (from, to) =>
+      supabase
+        .from("email_log")
+        .select("user_id, kind, status, sent_at")
+        .eq("user_id", user.id)
+        .order("sent_at")
+        .order("id")
+        .range(from, to),
+    ),
   ]);
 
   if (profile.error) throw readError("профил");
@@ -278,6 +294,7 @@ export async function fetchMyDataRows(
     taskVariant: taskVariant.data,
     personalTasks,
     feedback,
+    emails,
   };
 }
 
@@ -389,6 +406,11 @@ export function shapeMyData(rows: MyDataRows, user: MyDataUser, now: Date) {
       съобщение: row.message,
       страница: row.page,
       изпратено_на: row.created_at,
+    })),
+    изпратени_писма: mine(rows.emails).map((row) => ({
+      вид: row.kind,
+      състояние: row.status,
+      кога: row.sent_at,
     })),
   };
 }
