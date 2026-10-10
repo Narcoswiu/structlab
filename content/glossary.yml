@@ -69,6 +69,7 @@
 - preferred: радиус на инерция
   symbol: "i"
   en: radius of gyration
+  note: "на сечение: i = √(I/A); в „Теоретична механика – II част“ – и за масата: i = √(J/m), в m"
 - preferred: главни оси
   en: principal axes
 - preferred: неутрална ос
@@ -108,6 +109,7 @@
   symbol: "μ·L"
   en: effective (buckling) length
   also_ok: [изчислителна дължина, приведена дължина, изкълчвателна дължина]
+  note: "само за изкълчването на прът; дължината на недеформирана пружина е „дължина в ненапрегнато състояние“ l_0, а l_пр на махалото е „приведена дължина на физичното махало“"
 - preferred: гъвкавост
   symbol: "λ"
   en: slenderness
@@ -637,7 +639,7 @@
   note: "точка, чието движение е ограничено от връзка; връзката се заменя с реакция"
 - preferred: връзка
   en: constraint
-  note: "повърхност, нишка или прът, които ограничават движението"
+  note: "повърхност, нишка или прът, които ограничават движението; в аналитичната механика – ограничение върху положенията или скоростите: геометрична или кинематична, стационарна или нестационарна, двустранна или едностранна"
 - preferred: нормална реакция
   symbol: "N"
   en: normal reaction
@@ -688,3 +690,193 @@
 - preferred: покой
   en: rest
   note: "точката не се движи; „равновесие“ остава за силите"
+- preferred: работа
+  symbol: "A"
+  en: work
+  note: "A = ∫F·dr, в J = N·m; в Глава 12 буквата A е амплитуда"
+- preferred: елементарна работа
+  symbol: "dA"
+  en: elementary work
+  note: "dA = F·dr = F·cos α·ds"
+- preferred: мощност
+  symbol: "P"
+  en: power
+  note: "P = dA/dt = F·v; при ротация P = M·ω; във W = J/s"
+- preferred: коравина на пружина
+  symbol: "c"
+  en: spring stiffness
+  note: "в N/m; силата на пружината е −c·x; дължината на недеформираната пружина е „дължина в ненапрегнато състояние“ l_0"
+- preferred: силово поле
+  en: force field
+  note: "област, в която силата зависи само от положението на точката"
+- preferred: потенциално силово поле
+  en: conservative force field
+  also_ok: [потенциално поле]
+  note: "работата не зависи от формата на пътя; ∂F_x/∂y = ∂F_y/∂x"
+- preferred: потенциална енергия
+  symbol: "Π"
+  en: potential energy
+  note: "A_12 = Π_1 − Π_2; тегло Π = m·g·y, пружина Π = c·x²/2; U остава за потенциалната енергия на деформацията"
+- preferred: механична система
+  en: mechanical system
+  note: "съвкупност от материални точки или тела със свързани движения; силите са външни (индекс e) и вътрешни (индекс i)"
+- preferred: масов център
+  symbol: "C"
+  en: centre of mass
+  note: "m·r_C = Σm_i·r_i; в еднородно поле на тежестта съвпада с центъра на тежестта"
+- preferred: масов инерционен момент
+  symbol: "J"
+  en: mass moment of inertia
+  also_ok: [инерционен момент на масата]
+  note: "J = Σm_i·r_i², в kg·m²; I остава за геометричния инерционен момент на сечение"
+- preferred: масов центробежен инерционен момент
+  symbol: "J_xy"
+  en: mass product of inertia
+  note: "J_xy = ∫x·y dm"
+- preferred: теорема на Щайнер
+  en: parallel axis theorem
+  also_ok: [теорема на Хюйгенс–Щайнер]
+  note: "за масите: J = J_C + m·d²; d е разстоянието между успоредните оси"
+- preferred: количество на движение
+  symbol: "Q"
+  en: linear momentum
+  note: "Q = Σm_i·v_i = m·v_C, в kg·m/s; обобщената сила се пише с индекс: Q_j, Q_q"
+- preferred: импулс на сила
+  symbol: "S"
+  en: impulse of a force
+  note: "S = ∫F dt, в N·s; пише се като вектор или с индекс на силата (S_F, S_тр); да не се бърка със силата в нишка S (в N)"
+- preferred: сила в нишка
+  symbol: "S"
+  en: tension in a string
+  also_ok: [опън в нишката, сила във въжето]
+  note: "в N, с номер на тялото (S_1, S_3); в Глава 8 буквата S е само импулс"
+- preferred: импулсна сила
+  en: impulsive force
+  note: "много голяма сила с много кратко действие и краен импулс (удар); теглото и силата на пружина са неимпулсни"
+- preferred: кинетичен момент
+  symbol: "K_O"
+  en: angular momentum
+  also_ok: [момент на количеството на движение]
+  note: "K_O = r × m·v; при въртене около ос K_z = J_z·ω; на относителното движение спрямо масовия център – K_C^r"
+- preferred: кинетична енергия
+  symbol: "T"
+  en: kinetic energy
+  note: "точка: m·v²/2; ротация: J_z·ω²/2; равнинно движение: m·v_C²/2 + J_C·ω²/2; „T“ без индекс не е период"
+- preferred: теорема на Кьониг
+  en: König's theorem
+  note: "T = m·v_C²/2 + T_r – енергията на масовия център плюс енергията на движението спрямо него"
+- preferred: механична енергия
+  en: mechanical energy
+  note: "сборът T + Π"
+- preferred: консервативна система
+  en: conservative system
+  note: "работа вършат само потенциални сили; T + Π = const"
+- preferred: търкаляне без плъзгане
+  en: rolling without slipping
+  note: "v_C = ω·R; точката на допиране е моментен център на скоростите; триенето там не върши работа; радиусът на тялото е R, а r е разстояние на точка до ос"
+- preferred: тънкостенна тръба
+  en: thin-walled tube
+  note: "търкалящото се тяло с J = m·R²; равнинното тяло със същия J е „тънък пръстен“"
+- preferred: динамично равновесие
+  en: dynamic equilibrium
+  note: "външните и инерционните сили заедно са уравновесена система: ΣF + Φ = 0, ΣM_O + M_O^Φ = 0"
+- preferred: метод на кинетостатиката
+  en: kinetostatics
+  also_ok: [кинетостатика]
+  note: "към силите се добавят Φ = −m·a_C в масовия център и M^Φ = −J_C·ε и се пишат уравненията на статиката"
+- preferred: статична реакция
+  en: static reaction
+  note: "реакцията при ω = 0 и ε = 0 – само от активните сили"
+- preferred: динамична реакция
+  en: dynamic reaction
+  note: "добавката към реакцията от инерционните сили"
+- preferred: физично махало
+  en: compound pendulum
+  note: "тяло, окачено на хоризонтална ос O; T_0 = 2π·√(J_O/(m·g·d)), d = OC"
+- preferred: приведена дължина на физичното махало
+  symbol: "l_пр"
+  en: equivalent length of a compound pendulum
+  note: "l_пр = J_O/(m·d) – дължината на математично махало със същия период; не е приведената (изкълчвателната) дължина на прът"
+- preferred: възможно преместване
+  symbol: "δr, δs, δφ"
+  en: virtual displacement
+  also_ok: [виртуално преместване]
+  note: "безкрайно малко мислено преместване, съвместимо с връзките при спряно време; δ тук не е логаритмичният декремент"
+- preferred: възможна работа
+  symbol: "δA"
+  en: virtual work
+  also_ok: [виртуална работа]
+  note: "работата на силите при възможно преместване"
+- preferred: идеална връзка
+  en: ideal constraint
+  note: "сборът от възможните работи на реакциите е нула"
+- preferred: холономна връзка
+  en: holonomic constraint
+  note: "геометрична връзка или кинематична, която се свежда до геометрична чрез интегриране"
+- preferred: степени на свобода
+  symbol: "n"
+  en: degrees of freedom
+  also_ok: [степен на свобода]
+  note: "броят на независимите обобщени координати"
+- preferred: обобщена координата
+  symbol: "q"
+  en: generalized coordinate
+- preferred: обобщена сила
+  symbol: "Q_j"
+  en: generalized force
+  note: "δA = ΣQ_j·δq_j; за потенциални сили Q_j = −∂Π/∂q_j; с индекс, за да не се бърка с количеството на движение"
+- preferred: обобщена реакция
+  symbol: "R_j"
+  en: generalized constraint force
+  note: "при идеални връзки R_j = 0"
+- preferred: принцип на възможните премествания
+  en: principle of virtual work
+  also_ok: [принцип на Лагранж]
+  note: "при идеални, стационарни и двустранни връзки: равновесие ⇔ ΣδA на активните сили е нула"
+- preferred: общо уравнение на динамиката
+  en: general equation of dynamics
+  also_ok: [принцип на Даламбер–Лагранж]
+  note: "Σ(F_i − m_i·a_i)·δr_i = 0"
+- preferred: уравнения на Лагранж от II род
+  en: Lagrange's equations of the second kind
+  also_ok: [уравнения на Лагранж]
+  note: "d/dt(∂T/∂q̇_j) − ∂T/∂q_j = Q_j"
+- preferred: устойчиво равновесие
+  en: stable equilibrium
+  note: "теорема на Лагранж–Дирихле: строг минимум на Π; за една координата Π″(q_0) > 0"
+- preferred: кръгова честота
+  symbol: "k"
+  en: natural circular frequency
+  also_ok: [собствена честота]
+  note: "k = √(c/m), в rad/s; ω остава за ъгловата скорост, θ е честотата на смущението"
+- preferred: амплитуда
+  symbol: "A"
+  en: amplitude
+  note: "най-голямото отклонение; в Глава 12 буквата A е амплитуда, не работа"
+- preferred: статично преместване
+  symbol: "x_ст"
+  en: static displacement
+  note: "x_ст = m·g/c или F_0/c"
+- preferred: демпфер
+  symbol: "b"
+  en: damper
+  note: "сила −b·ẋ, b в N·s/m; коефициент на затихване n = b/(2m) – тук n не е обороти и не е брой степени на свобода"
+- preferred: критично затихване
+  en: critical damping
+  also_ok: [гранично затихване]
+  note: "n = k, b_кр = 2·√(c·m)"
+- preferred: логаритмичен декремент
+  symbol: "δ"
+  en: logarithmic decrement
+  note: "δ = ln(x_i/x_i+1) = n·τ_1 – за два поредни върха от една и съща страна; не е знакът за възможно преместване"
+- preferred: динамичен коефициент
+  symbol: "η"
+  en: dynamic magnification factor
+  note: "отношението на амплитудата на принудените трептения към статичното преместване"
+- preferred: резонанс
+  en: resonance
+  note: "честотата на смущението θ е равна на собствената k"
+- preferred: кинематично смущение
+  symbol: "ξ"
+  en: support (kinematic) excitation
+  note: "опората се движи по закона ξ = ξ_0·sin θt"
