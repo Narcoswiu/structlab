@@ -880,3 +880,420 @@
   symbol: "ξ"
   en: support (kinematic) excitation
   note: "опората се движи по закона ξ = ξ_0·sin θt"
+
+# Инженерна геология и хидрогеология – глави 1, 4, 11, 13, 14, 15.
+# Вариантите са тези от отворените документи на УАСГ (plans/00-iztochnitsi.md, раздел 6.3).
+- preferred: геосфера
+  en: geosphere
+  note: "концентрична обвивка на Земята: ядро, мантия, земна кора, хидросфера, атмосфера, биосфера"
+- preferred: земна кора
+  en: Earth's crust
+  note: "континентална и океанска; не е същото като литосфера"
+- preferred: литосфера
+  en: lithosphere
+  note: "земната кора заедно с коравата най-горна част на мантията; на плочи е разделена литосферата, не кората"
+- preferred: астеносфера
+  en: asthenosphere
+- preferred: мантия
+  en: mantle
+- preferred: външно ядро
+  en: outer core
+- preferred: вътрешно ядро
+  en: inner core
+- preferred: граница на Мохоровичич
+  en: Mohorovičić discontinuity (Moho)
+  also_ok: [Мохо]
+- preferred: граница на Гутенберг
+  en: Gutenberg discontinuity
+  also_ok: [граница мантия–ядро]
+- preferred: геоид
+  en: geoid
+- preferred: надлъжни вълни
+  symbol: "P"
+  en: P-waves (primary waves)
+- preferred: напречни вълни
+  symbol: "S"
+  en: S-waves (secondary waves)
+  note: "не минават през течности"
+- preferred: хидросфера
+  en: hydrosphere
+- preferred: атмосфера
+  en: atmosphere
+- preferred: биосфера
+  en: biosphere
+- preferred: литосферна плоча
+  en: lithospheric (tectonic) plate
+- preferred: тектоника на плочите
+  en: plate tectonics
+- preferred: тектонски движения
+  en: tectonic movements
+  note: "радиални (отвесни) и тангенциални (хоризонтални)"
+- preferred: дивергентна граница
+  en: divergent boundary
+- preferred: субдукция
+  en: subduction
+- preferred: трансформна граница
+  en: transform boundary
+- preferred: пласт
+  en: bed, layer
+  note: "горнище и долнище; истинска и привидна дебелина"
+- preferred: елементи на залягане
+  en: strike and dip (attitude of a bed)
+  note: "линия на разпространение, посока на потъване, ъгъл на наклона"
+- preferred: линия на разпространение
+  en: strike
+- preferred: ъгъл на наклона
+  symbol: "α"
+  en: dip angle
+- preferred: съгласно залягане
+  en: conformable bedding
+  also_ok: [конкордантно залягане]
+- preferred: несъгласно залягане
+  en: unconformity
+  also_ok: [дискордантно залягане]
+- preferred: моноклинала
+  en: monocline
+- preferred: флексура
+  en: flexure
+- preferred: гънка
+  en: fold
+- preferred: антиклинала
+  en: anticline
+- preferred: синклинала
+  en: syncline
+- preferred: разлом
+  en: fault
+  also_ok: [тектонско разривно нарушение]
+  note: "общото понятие; разсед, възсед и отсед са видовете му"
+- preferred: разсед
+  en: normal fault
+  note: "висящото крило е слязло; опън"
+- preferred: възсед
+  en: reverse fault
+  note: "висящото крило е качено; натиск"
+- preferred: отсед
+  en: strike-slip fault
+  note: "хоризонтално разместване; срязване"
+- preferred: висящо крило
+  en: hanging wall
+  note: "блокът над повърхнината на разлома"
+- preferred: лежащо крило
+  en: footwall
+- preferred: грабен
+  en: graben
+- preferred: хорст
+  en: horst
+- preferred: навлак
+  en: thrust (nappe)
+  note: "преместеният блок е алохтон, останалият на място – автохтон"
+- preferred: пукнатина
+  en: joint, fracture
+- preferred: подземни води
+  en: groundwater
+- preferred: хидрогеология
+  en: hydrogeology
+- preferred: водоносен пласт
+  en: aquifer (water-bearing layer)
+- preferred: водоносен хоризонт
+  en: aquifer
+  note: "един или няколко хидравлично свързани водоносни пласта с общо ниво"
+- preferred: водоупор
+  en: aquiclude, confining layer
+  also_ok: [водоупорен пласт, водонепропусклив пласт]
+- preferred: безнапорен пласт
+  en: unconfined aquifer
+  note: "безнапорни води – със свободно водно ниво"
+- preferred: напорен пласт
+  en: confined aquifer
+  note: "напорни води – между два водоупора"
+- preferred: полунапорен пласт
+  en: leaky (semi-confined) aquifer
+- preferred: свободно водно ниво
+  en: water table
+- preferred: пиезометрично ниво
+  en: piezometric (potentiometric) level
+- preferred: наситена зона
+  en: saturated zone
+  note: "„зона на насищане“ само когато се предава текстът на Директива 2000/60/ЕО; в карстов масив – „зона на пълно водонасищане“"
+- preferred: зона на аерация
+  en: unsaturated (vadose) zone
+- preferred: капилярна ивица
+  en: capillary fringe
+- preferred: висяща вода
+  en: perched water
+- preferred: артезиански басейн
+  en: artesian basin
+- preferred: артезиански кладенец
+  en: flowing artesian well
+  note: "в курса – само преливащият; в част от литературата – всеки кладенец в напорен пласт"
+- preferred: подземно водно тяло
+  en: body of groundwater
+  note: "в българския превод на Директива 2000/60/ЕО – „подземен воден обект“"
+- preferred: инфилтрация
+  en: infiltration
+- preferred: зона на подхранване
+  en: recharge zone
+- preferred: зона на движение
+  en: zone of flow
+- preferred: зона на дрениране
+  en: discharge zone
+- preferred: порестост
+  symbol: "n"
+  en: porosity
+  avoid: [порьозност]
+- preferred: активна порестост
+  symbol: "n_0"
+  en: effective porosity
+  also_ok: [ефективна порестост]
+- preferred: филтрация
+  en: seepage, groundwater flow
+- preferred: закон на Дарси
+  en: Darcy's law
+  note: "v = k·I"
+- preferred: коефициент на филтрация
+  symbol: "k"
+  en: hydraulic conductivity (coefficient of permeability)
+  avoid: [коефициент на водопропускливост]
+  note: "в m/d"
+- preferred: напор
+  symbol: "H"
+  en: hydraulic head
+  note: "в безнапорен пласт напорът над водоупора е равен на дебелината на потока h"
+- preferred: напорен градиент
+  symbol: "I"
+  en: hydraulic gradient
+  also_ok: [хидравличен градиент]
+- preferred: начален градиент
+  symbol: "I_н"
+  en: threshold gradient
+- preferred: фиктивна скорост
+  symbol: "v"
+  en: Darcy velocity (specific discharge)
+  also_ok: [скорост на филтрация]
+- preferred: действителна скорост
+  symbol: "u"
+  en: average linear (seepage) velocity
+  note: "u = v / n_0"
+- preferred: разход
+  symbol: "Q"
+  en: discharge, flow rate
+  note: "при водовземно съоръжение същата величина се нарича дебит"
+- preferred: дебит
+  symbol: "Q"
+  en: well discharge (yield)
+  note: "разходът Q, отнесен към водовземно съоръжение; m³/d, за помпите l/s"
+- preferred: единичен разход
+  symbol: "q"
+  en: discharge per unit width
+  also_ok: [единичен дебит]
+  note: "m²/d"
+- preferred: проводимост на пласта
+  symbol: "T"
+  en: transmissivity
+  avoid: [водопроводимост]
+  note: "T = k·m"
+- preferred: коефициент на пиезопредаване
+  symbol: "a"
+  en: hydraulic diffusivity
+- preferred: хидродинамична мрежа
+  en: flow net
+  note: "токови и еквипотенциални линии"
+- preferred: стабилизирана филтрация
+  en: steady-state flow
+- preferred: нестабилизирана филтрация
+  en: unsteady (transient) flow
+- preferred: водовземно съоръжение
+  en: groundwater abstraction structure (well or drain)
+- preferred: съвършен кладенец
+  en: fully penetrating well
+  note: "несъвършен – филтърът обхваща само част от пласта"
+- preferred: дренаж
+  en: drain
+- preferred: статично водно ниво
+  symbol: "СВН"
+  en: static water level
+- preferred: динамично водно ниво
+  symbol: "ДВН"
+  en: pumping water level
+- preferred: понижение
+  symbol: "s"
+  en: drawdown
+  note: "s_0 – в кладенеца"
+- preferred: депресионна фуния
+  en: cone of depression
+  note: "формата на пониженото ниво около кладенеца; в безнапорен пласт обемът между статичното ниво и фунията се осушава"
+- preferred: депресионна крива
+  en: drawdown curve
+  note: "разрезът на фунията; не „депресионна линия“"
+- preferred: радиус на влияние
+  symbol: "R"
+  en: radius of influence
+- preferred: формула на Дюпюи
+  en: Dupuit (Thiem) formula
+- preferred: формула на Форхаймер
+  en: Forchheimer formula (well near a river)
+- preferred: метод на огледалното отражение
+  en: method of images
+- preferred: метод на суперпозицията
+  en: superposition
+- preferred: приведен радиус
+  symbol: "r_п"
+  en: equivalent radius
+  note: "r_п = √(F/π)"
+- preferred: открито отводняване
+  en: open (sump) pumping
+  also_ok: [отводняване с водосборни ями]
+- preferred: водосборна яма
+  en: sump
+- preferred: изветряне
+  en: weathering
+  note: "физично, химично и биологично"
+- preferred: изветрителна кора
+  en: weathering crust (profile)
+  also_ok: [елувий]
+- preferred: ерозия
+  en: erosion
+  note: "площна и линейна (дълбочинна и странична)"
+- preferred: базис на ерозия
+  en: base level
+- preferred: делувий
+  en: colluvium (slope wash)
+- preferred: пролувий
+  en: proluvium (alluvial fan deposits)
+- preferred: алувий
+  en: alluvium
+  note: "руслов и терасен"
+- preferred: речна тераса
+  en: river terrace
+  note: "ерозионна, акумулативна (най-ниската е заливната), ерозионно-акумулативна, структурна"
+- preferred: меандър
+  en: meander
+- preferred: абразия
+  en: marine (wave) erosion, abrasion
+- preferred: морена
+  en: moraine
+- preferred: суфозия
+  en: suffusion (internal erosion)
+- preferred: колматация
+  en: clogging (colmation)
+- preferred: карст
+  en: karst
+- preferred: въртоп
+  en: sinkhole (doline)
+- preferred: понор
+  en: ponor (swallow hole)
+- preferred: коефициент на разнозърнестост
+  symbol: "U_c"
+  en: coefficient of uniformity
+  note: "U_c = d_60/d_10; d_60 и d_10 са диаметрите, под които са 60 % и 10 % от масата на зърната"
+- preferred: торкретиране
+  en: shotcreting
+- preferred: еднокошов багер
+  en: single-bucket excavator
+  avoid: [еднокофов]
+  note: "по конспекта на УАСГ и Наредба № 2; в минната литература – „еднокофов“"
+- preferred: кош
+  en: bucket
+  note: "работният орган на багер и товарач; в минната литература – „кофа“, не го ползваме за багери"
+- preferred: обратна лопата
+  en: backhoe (hoe)
+- preferred: права лопата
+  en: front shovel
+- preferred: драглайн
+  en: dragline
+- preferred: грайфер
+  en: clamshell (grab)
+- preferred: стрела
+  en: boom
+- preferred: рамо на багера
+  en: stick (arm)
+  also_ok: [ръка]
+  note: "звеното между стрелата и коша; в част от литературата – „ръка“; да се свери с учебника на курса"
+- preferred: двучелюстен кош
+  en: multipurpose bucket
+  note: "собствен превод"
+- preferred: товарач
+  en: loader
+  also_ok: [товарачна машина]
+- preferred: багер-товарач
+  en: backhoe loader
+- preferred: самосвал
+  en: dump truck
+  also_ok: [автосамосвал]
+  note: "„автосамосвал“ само в цитат от Наредба № 2"
+- preferred: плътно състояние
+  symbol: "V_пл"
+  en: bank (in-place) state
+  also_ok: [плътен обем]
+  note: "почвата в естественото си залягане"
+- preferred: разрохкано състояние
+  symbol: "V_р"
+  en: loose state
+  also_ok: [разрохкан обем]
+  note: "след изкопаване; в главите не пишем „разбухнал обем“"
+- preferred: уплътнено състояние
+  symbol: "V_у"
+  en: compacted state
+  also_ok: [уплътнен обем]
+- preferred: разбухване
+  symbol: "s"
+  en: swell
+  note: "относителното увеличение на обема при изкопаване; V_р = V_пл·(1 + s)"
+- preferred: коефициент на разбухване
+  symbol: "K_р"
+  en: swell factor
+  note: "K_р = V_р/V_пл = 1 + s; по-голям от 1"
+- preferred: преводен коефициент към плътно състояние
+  symbol: "k_пл"
+  en: load factor
+  note: "k_пл = 1/K_р; собствен превод"
+- preferred: коефициент на свиване
+  symbol: "k_у"
+  en: shrinkage factor
+  note: "k_у = V_у/V_пл; собствен превод; не е степента на уплътняване"
+- preferred: коефициент на напълване
+  symbol: "k_н"
+  en: bucket fill factor
+- preferred: коефициент на използване по време
+  symbol: "k_в, E"
+  en: job efficiency factor
+  note: "работните минути в часа, делени на 60; k_в в глава 10, E във формулата за валяка; едно име – без „за използване на времето“"
+- preferred: цикъл
+  symbol: "t_ц, T"
+  en: cycle
+  note: "t_ц – на багера или товарача; T – на самосвала"
+- preferred: уплътняване
+  en: compaction
+- preferred: оптимална влажност
+  en: optimum moisture content
+- preferred: валяк
+  en: roller
+- preferred: бандаж
+  symbol: "b"
+  en: drum
+  note: "b – широчина на бандажа"
+- preferred: валяк с шипове
+  en: sheepsfoot roller; tamping-foot roller
+  note: "описателно име, собствен превод; да се свери с учебника на курса"
+- preferred: вибрационен валяк с гладък бандаж
+  en: smooth-drum vibratory roller
+  also_ok: [вибрационен валяк]
+- preferred: валяк с пневматични гуми
+  en: pneumatic-tired roller
+  also_ok: [пневматичен валяк]
+  note: "пълното име при първата поява (по БДС 10140:1972)"
+- preferred: двубандажен вибрационен валяк
+  en: dual-drum vibratory roller
+  note: "собствен превод"
+- preferred: вибрационна плоча
+  en: vibratory plate compactor
+- preferred: трамбовка
+  en: tamper (rammer)
+  note: "„пневматична трамбовка“ е собствен превод на pneumatic backfill tamper"
+- preferred: свързани почви
+  en: cohesive soils
+- preferred: несвързани почви
+  en: cohesionless (granular) soils
+  note: "пясък, чакъл; във фигурите и текста не пишем „зърнести почви“ за тях"
+- preferred: опитен участък
+  en: test strip

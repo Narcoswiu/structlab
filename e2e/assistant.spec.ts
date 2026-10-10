@@ -280,7 +280,7 @@ test("въпрос извън учебника: ясно съобщение и �
   test.skip(!hasChapters, "главите на учебника не са в локалната база");
   await signIn(page, student);
   await opener(page).click();
-  const response = await ask(page, "Колко е часът в Токио?");
+  const response = await ask(page, "Кой спечели футболното първенство?");
   expect(await response.json()).toEqual({
     kind: "lessons",
     excerpts: [],

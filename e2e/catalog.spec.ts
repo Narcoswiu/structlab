@@ -87,10 +87,10 @@ test("дисциплина с готови глави води към модул
   });
   // броят расте с всяка нова глава – проверяваме само че е показан
   await expect(link).toContainText(/\d+ ГЛАВИ/);
-  // дисциплина с модул, но още без глави, води към плана си
+  // всеки модул с поне една глава води към учебника си
   const machines = plan(page).getByRole("link", { name: /Строителни машини/ });
-  await expect(machines).toContainText("ПОДГОТВЯ СЕ");
-  await expect(machines).toHaveAttribute("href", "/plan/stroitelni-mashini");
+  await expect(machines).toContainText(/\d+ ГЛАВИ/);
+  await expect(machines).toHaveAttribute("href", "/learn/stroitelni-mashini");
   // дисциплина без модул също има план
   const bridges = plan(page).getByRole("link", { name: /^Мостове/ });
   await expect(bridges).toContainText("ПЛАН");
@@ -169,14 +169,15 @@ test("специалността се сменя от профила и план
   ).toBeVisible();
 });
 
-test("модул без глави и непознат модул", async ({ page }) => {
+test("страница на модул и непознат модул", async ({ page }) => {
   await signIn(page);
   await page.goto("/learn/stroitelni-mashini");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "Строителни машини",
   );
+  // всички модули вече имат глави – страницата ги изброява
   await expect(
-    page.getByText("Главите по тази дисциплина се подготвят."),
+    page.locator('a[href^="/learn/stroitelni-mashini/"]').first(),
   ).toBeVisible();
 
   const response = await page.goto("/learn/nyama-takav-modul");

@@ -218,7 +218,8 @@ test("всяка глава от таблото се отваря цяла – �
       expect(await page.locator(".figure svg").count()).toBeGreaterThanOrEqual(
         2,
       );
-      expect(await prose.locator(".katex").count()).toBeGreaterThan(10);
+      // описателните глави имат малко формули, но никоя не е без означения
+      expect(await prose.locator(".katex").count()).toBeGreaterThan(0);
       // няма останали сурови означения и неизрисувани формули
       await expect(prose).not.toContainText("$$");
       await expect(prose).not.toContainText(":::");
