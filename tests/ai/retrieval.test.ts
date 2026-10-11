@@ -4,6 +4,7 @@ import {
   buildSynonymIndex,
   cleanChunkText,
   currentChapterChunks,
+  highlightTerms,
   makeExcerpt,
   rankChunks,
   relatedChapters,
@@ -11,6 +12,7 @@ import {
   splitBlocks,
   splitChapter,
   stem,
+  suggestQuestions,
   tokenize,
   type Chunk,
 } from "@/lib/ai/retrieval";
@@ -367,5 +369,208 @@ describe("свързани глави, когато няма откъс", () => 
 
   it("нищо общо – празен списък", () => {
     expect(relatedChapters("времето в Токио", chapters, synonyms)).toEqual([]);
+  });
+});
+
+describe("случайна обща дума не е отговор", () => {
+  it("една всекидневна дума или поздрав не връща нищо", () => {
+    for (const question of [
+      "пример",
+      "стъпка",
+      "Здравей!",
+      "благодаря",
+      "Благодаря ти много",
+      "ок",
+    ]) {
+      expect(ask(question), question).toEqual([]);
+    }
+  });
+
+  it("една обикновена дума от текста не стига, когато останалото го няма", () => {
+    // „балкон“ и „линийка“ ги има в главите, но не са понятия
+    expect(ask("Колко струва един балкон?")).toEqual([]);
+    expect(ask("Къде се продава линийка?")).toEqual([]);
+    expect(ask("Кой спечели футболното първенство?")).toEqual([]);
+  });
+
+  it("име, което учебникът не познава, обезсилва и намерен термин", () => {
+    expect(ask("Какъв е инерционният момент на Токио?")).toEqual([]);
+    expect(
+      where(ask("Какъв е инерционният момент на правоъгълник?")[0]),
+    ).toContain("inertsionni-momenti");
+  });
+
+  it("непозната дума с малка буква (правописна грешка) не пречи на термина", () => {
+    expect(where(ask("какво е съпротивителен момент накратичко")[0])).toContain(
+      "spetsialno-ogavane",
+    );
+  });
+
+  it("въпрос от една дума намира подсекцията, в чието заглавие е", () => {
+    expect(where(ask("Щайнер")[0])).toBe(
+      "inertsionni-momenti/easy/razberi/Теорема на Щайнер",
+    );
+    expect(where(ask("навие")[0])).toBe(
+      "spetsialno-ogavane/easy/razberi/Формулата на Навие",
+    );
+  });
+
+  it("всички думи на въпроса заедно стигат и без термин", () => {
+    expect(where(ask("Защо армировката на балкона е горе?")[0])).toBe(
+      "razrezni-usiliya/easy/zhivot/-",
+    );
+  });
+});
+
+describe("коя глава излиза първа", () => {
+  const twin = (moduleSlug: string, chapterSlug: string, title: string) =>
+    splitChapter({
+      moduleSlug,
+      chapterSlug,
+      number: 1,
+      title,
+      summary: "",
+      mode: "easy",
+      body: "## Разбери\n\n### Триене\n\n**Триенето** пречи на плъзгането на тялото.",
+    });
+  // в учебник от две парчета всяка дума е „навсякъде“ – трябват и други
+  const filler = ["Първо", "Второ", "Трето", "Четвърто"].flatMap((name, i) =>
+    splitChapter({
+      moduleSlug: "z",
+      chapterSlug: `filler-${i}`,
+      number: 9,
+      title: name,
+      summary: "",
+      mode: "easy",
+      body: `## Разбери\n\n### ${name}\n\nТекст за нещо съвсем различно номер ${i}.`,
+    }),
+  );
+
+  it("глава, чието заглавие е за същото, е пред глава, която го споменава", () => {
+    const both = [
+      ...twin("a", "obshti", "Общи понятия"),
+      ...twin("a", "triene", "Триене при плъзгане"),
+      ...filler,
+    ];
+    expect(rankChunks("триене", both)[0]!.chapterSlug).toBe("triene");
+  });
+
+  it("на страница на глава другите глави от същия модул са пред чуждите", () => {
+    const both = [
+      ...twin("a", "edno", "Първа"),
+      ...twin("b", "dve", "Втора"),
+      ...twin("b", "tri", "Трета"),
+      ...filler,
+      ...filler.map((chunk) => ({ ...chunk, chapterSlug: "oshte" })),
+    ];
+    const ranked = rankChunks("триене", both, {
+      current: { module: "b", chapter: "tri" },
+    });
+    expect(ranked.map((chunk) => chunk.chapterSlug)).toEqual([
+      "tri",
+      "dve",
+      "edno",
+    ]);
+  });
+
+  it("подсекция със заглавие точно по въпроса е пред по-дълго заглавие", () => {
+    const parts = splitChapter({
+      moduleSlug: "a",
+      chapterSlug: "sili",
+      number: 1,
+      title: "Сили",
+      summary: "",
+      mode: "easy",
+      body: [
+        "## Разбери",
+        "### Главен вектор на инерционните сили",
+        "**Главният вектор** на инерционните сили е сборът им. Главният вектор се смята така.",
+        "### Главен вектор",
+        "**Главният вектор** е сборът на силите.",
+      ].join("\n\n"),
+    });
+    expect(
+      rankChunks("Какво е главен вектор?", [...parts, ...filler])[0]!
+        .subsectionTitle,
+    ).toBe("Главен вектор");
+  });
+});
+
+describe("думи за оцветяване в откъса", () => {
+  const excerpt =
+    "Числото $W_x = I_x / y_{max}$ се нарича **съпротивителен момент**. Колкото по-голям е съпротивителният момент, толкова по-малко е напрежението. Моментът $M$ е даден.";
+
+  it("връща изразите така, както са написани, най-дългите първи", () => {
+    expect(
+      highlightTerms(excerpt, "Какво е съпротивителен момент?", synonyms),
+    ).toEqual(["съпротивителният момент", "съпротивителен момент"]);
+  });
+
+  it("синоним от речника оцветява термина в текста", () => {
+    expect(
+      highlightTerms(
+        "Оста минава през **центъра на тежестта** на сечението.",
+        "къде е тежището",
+        synonyms,
+      ),
+    ).toEqual(["центъра на тежестта"]);
+  });
+
+  it("формулите и служебните думи не се пипат; без въпрос – нищо", () => {
+    expect(highlightTerms("Силата $момент$ и `момент`.", "момент")).toEqual([]);
+    expect(highlightTerms(excerpt, "какво е това?", synonyms)).toEqual([]);
+    for (const term of highlightTerms(excerpt, "W x напрежението", synonyms)) {
+      expect(term).not.toMatch(/[$_\\*]/);
+    }
+  });
+});
+
+describe("предложени въпроси", () => {
+  const all = suggestQuestions(chunks, { limit: 20 }).map((s) => s.question);
+
+  it("правят се от подсекциите, чието заглавие е въведен термин", () => {
+    const fromBeams = suggestQuestions(chunks, {
+      current: { module: "sm", chapter: "razrezni-usiliya" },
+      limit: 2,
+    });
+    expect(fromBeams.map((s) => s.question).sort()).toEqual([
+      "Какво означава „метод на сечението“?",
+      "Какво са разрезните усилия?",
+    ]);
+    expect(all).toContain("Какво означава „теорема на Щайнер“?");
+    // „Знаци“ и „Най-голямото напрежение“ не въвеждат термин със същото име
+    expect(all.join(" ")).not.toMatch(/знаци|най-голямото/i);
+  });
+
+  it("първи са от главата, която се чете, после по един от другите", () => {
+    const picked = suggestQuestions(chunks, {
+      current: { module: "sm", chapter: "inertsionni-momenti" },
+      limit: 4,
+    });
+    expect(picked.map((s) => s.chapterSlug)).toEqual([
+      "inertsionni-momenti",
+      "inertsionni-momenti",
+      "razrezni-usiliya",
+      "spetsialno-ogavane",
+    ]);
+    expect(new Set(picked.map((s) => s.question)).size).toBe(4);
+  });
+
+  it("всеки предложен въпрос има отговор в главата си", () => {
+    expect(all.length).toBeGreaterThanOrEqual(5);
+    for (const item of suggestQuestions(chunks, { limit: 20 })) {
+      expect(ask(item.question)[0]?.chapterSlug, item.question).toBe(
+        item.chapterSlug,
+      );
+    }
+    for (let seed = 0; seed < 5; seed++) {
+      for (const item of suggestQuestions(chunks, { limit: 3, seed })) {
+        expect(ask(item.question).length, item.question).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("без глави няма какво да се предложи", () => {
+    expect(suggestQuestions([])).toEqual([]);
   });
 });

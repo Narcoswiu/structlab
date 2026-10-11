@@ -5,21 +5,28 @@ import { loadReadableContent, loadSavedReaderMode } from "@/lib/ai/load";
 import {
   AI_MODE_IDS,
   ASSISTANT_TEXT,
+  EXAMPLE_QUESTIONS,
   HISTORY_ITEM_MAX,
   HISTORY_MAX_ITEMS,
+  MORE_CHAPTERS,
+  NOT_FOUND_SUGGESTIONS,
   QUESTION_MAX,
   type AssistantJson,
+  type AssistantSuggestions,
+  type RelatedChapter,
 } from "@/lib/ai/modes";
 import { buildMessages, buildSystemPrompt } from "@/lib/ai/prompt";
 import { ProviderError, openProviderStream } from "@/lib/ai/providers";
 import {
   LESSON_EXCERPTS,
   currentChapterChunks,
+  highlightTerms,
   makeExcerpt,
   rankChunks,
   relatedChapters,
   selectWithinBudget,
   splitChapter,
+  suggestQuestions,
   type ChapterInfo,
   type Chunk,
   type ContentMode,
@@ -42,17 +49,18 @@ const MAX_BODY_CHARS = 32_000;
 
 const slug = z.string().regex(/^[a-z0-9-]{1,80}$/);
 
+/** Главата, на която е потребителят, и режимът, в който я чете. */
+const contextSchema = z.strictObject({
+  module: slug,
+  chapter: slug,
+  mode: z.enum(["easy", "detailed"]).optional(),
+});
+
 // Всичко извън тези полета се отхвърля.
 const requestSchema = z.strictObject({
   question: z.string().trim().min(1).max(QUESTION_MAX),
   mode: z.enum(AI_MODE_IDS).default("explain"),
-  context: z
-    .strictObject({
-      module: slug,
-      chapter: slug,
-      mode: z.enum(["easy", "detailed"]).optional(),
-    })
-    .optional(),
+  context: contextSchema.optional(),
   history: z
     .array(
       z.strictObject({
@@ -82,8 +90,47 @@ const TEXT = {
 
 const noStore = { "Cache-Control": "no-store" };
 
-function json(body: AssistantJson | { error: string }, status = 200) {
+function json(
+  body: AssistantJson | AssistantSuggestions | { error: string },
+  status = 200,
+) {
   return Response.json(body, { status, headers: noStore });
+}
+
+/**
+ * Примерни въпроси за празния панел – от главите, които потребителят може
+ * да чете, като първи са тези от главата, на която е в момента. Връща само
+ * заглавия на подсекции, никога текст от уроците.
+ */
+export async function GET(request: Request) {
+  const user = await getCurrentUser();
+  if (!user) return new Response(null, { status: 401 });
+
+  const params = new URL(request.url).searchParams;
+  const context = contextSchema.safeParse({
+    module: params.get("module") ?? undefined,
+    chapter: params.get("chapter") ?? undefined,
+    mode: params.get("mode") ?? undefined,
+  });
+  if (!(await allowAssistantRequest(user.id))) {
+    return json({ error: TEXT.tooFast }, 429);
+  }
+  const [{ sources }, savedMode] = await Promise.all([
+    loadReadableContent(),
+    loadSavedReaderMode(user.id),
+  ]);
+  const current = context.success ? context.data : undefined;
+  return json({
+    suggestions: suggestQuestions(sources.flatMap(splitChapter), {
+      current: current
+        ? { module: current.module, chapter: current.chapter }
+        : undefined,
+      preferredMode: current?.mode ?? savedMode,
+      limit: EXAMPLE_QUESTIONS,
+      // всеки ден – други примери
+      seed: Math.floor(Date.now() / 86_400_000),
+    }).map((item) => item.question),
+  });
 }
 
 export async function POST(request: Request) {
@@ -141,31 +188,79 @@ type Found = {
 const chapterHref = (chapter: { moduleSlug: string; chapterSlug: string }) =>
   `/learn/${chapter.moduleSlug}/${chapter.chapterSlug}`;
 
-/** Без AI услуга: най-подходящите откъси от уроците, с връзка към секцията. */
+const sectionHref = (chunk: Chunk) =>
+  `${chapterHref(chunk)}?mode=${chunk.mode}${chunk.sectionId ? `#${chunk.sectionId}` : ""}`;
+
+/**
+ * Без AI услуга: най-подходящите откъси от уроците, с връзка към секцията.
+ * Всичко тук идва от found.chunks и found.chapters – главите, които RLS е
+ * върнал за този потребител. Нищо друго не влиза в отговора.
+ */
 function answerFromLessons(input: AssistantRequest, found: Found) {
   if (found.chunks.length === 0) {
     return json({ kind: "lessons", excerpts: [], related: [], noAccess: true });
   }
   const ranked = rankChunks(input.question, found.chunks, found);
-  const excerpts = ranked.slice(0, LESSON_EXCERPTS).map((chunk) => ({
-    chapterNumber: chunk.chapterNumber,
-    chapterTitle: chunk.chapterTitle,
-    sectionTitle: chunk.sectionTitle,
-    subsectionTitle: chunk.subsectionTitle,
-    markdown: makeExcerpt(chunk.text, input.question, found.synonyms),
-    href: `${chapterHref(chunk)}?mode=${chunk.mode}${chunk.sectionId ? `#${chunk.sectionId}` : ""}`,
-  }));
-  const related =
-    excerpts.length > 0
-      ? []
-      : relatedChapters(input.question, found.chapters, found.synonyms).map(
-          (chapter) => ({
-            number: chapter.number,
-            title: chapter.title,
-            href: chapterHref(chapter),
-          }),
-        );
-  return json({ kind: "lessons", excerpts, related, noAccess: false });
+  const shown = ranked.slice(0, LESSON_EXCERPTS);
+  const excerpts = shown.map((chunk) => {
+    const markdown = makeExcerpt(chunk.text, input.question, found.synonyms);
+    return {
+      chapterNumber: chunk.chapterNumber,
+      chapterTitle: chunk.chapterTitle,
+      sectionTitle: chunk.sectionTitle,
+      subsectionTitle: chunk.subsectionTitle,
+      markdown,
+      href: sectionHref(chunk),
+      highlights: highlightTerms(markdown, input.question, found.synonyms),
+    };
+  });
+  if (excerpts.length === 0) {
+    const related = relatedChapters(
+      input.question,
+      found.chapters,
+      found.synonyms,
+    ).map((chapter) => ({
+      number: chapter.number,
+      title: chapter.title,
+      href: chapterHref(chapter),
+    }));
+    const suggestions = suggestQuestions(found.chunks, {
+      current: found.current,
+      preferredMode: found.preferredMode,
+      limit: NOT_FOUND_SUGGESTIONS,
+      seed: input.question.length,
+    }).map((item) => item.question);
+    return json({
+      kind: "lessons",
+      excerpts,
+      related,
+      suggestions,
+      noAccess: false,
+    });
+  }
+
+  // „Виж още“: другите глави, в които също пише за това – с връзка към
+  // най-доброто място в тях
+  const key = (chunk: Chunk) => `${chunk.moduleSlug}/${chunk.chapterSlug}`;
+  const taken = new Set(shown.map(key));
+  const more: RelatedChapter[] = [];
+  for (const chunk of ranked.slice(LESSON_EXCERPTS)) {
+    if (more.length >= MORE_CHAPTERS) break;
+    if (taken.has(key(chunk))) continue;
+    taken.add(key(chunk));
+    more.push({
+      number: chunk.chapterNumber,
+      title: chunk.chapterTitle,
+      href: sectionHref(chunk),
+    });
+  }
+  return json({
+    kind: "lessons",
+    excerpts,
+    related: [],
+    more,
+    noAccess: false,
+  });
 }
 
 /** С AI услуга: откъсите отиват при модела, а отговорът се връща на части. */

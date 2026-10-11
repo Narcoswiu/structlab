@@ -130,6 +130,8 @@ test("бутонът е на всяка вътрешна страница и н�
 test("панелът: фокус, обяснение без външни услуги, Esc затваря", async ({
   page,
 }) => {
+  // без движение: проверката на контраста не бива да хване панела, докато влиза
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await signIn(page, student);
   await expect(panel(page)).toHaveCount(0);
   await opener(page).click();
@@ -149,9 +151,47 @@ test("панелът: фокус, обяснение без външни усл�
     dialog.getByRole("button", { name: "Обясни по-просто" }),
   ).toHaveCount(0);
   await expect(dialog.getByText(/Остават ти/)).toHaveCount(0);
+
+  // под името пише за какво е помощникът и за какво не е
+  await expect(dialog).toHaveAccessibleDescription(
+    "Търся само в уроците на платформата и ти показвам точния откъс с връзка към него. Не решавам курсови и не измислям отговори.",
+  );
   await expect(
-    dialog.getByRole("button", { name: "Какво е съпротивителен момент?" }),
+    dialog.getByText("Не решавам курсови и не измислям отговори."),
   ).toBeVisible();
+
+  // примерните въпроси са от главите, до които потребителят има достъп
+  if (hasChapters) {
+    const examples = dialog
+      .getByRole("list", { name: "Примерни въпроси" })
+      .getByRole("button");
+    await expect(examples.first()).toBeVisible();
+    expect(await examples.count()).toBeLessThanOrEqual(4);
+    for (const height of await examples.evaluateAll((items) =>
+      items.map((item) => Math.round(item.getBoundingClientRect().height)),
+    )) {
+      expect(height).toBeGreaterThanOrEqual(44);
+    }
+  }
+  // празният панел е достъпен и не излиза от екрана
+  await expectNoViolations(page);
+  const box = (await dialog.boundingBox())!;
+  const viewport = page.viewportSize()!;
+  expect(box.x).toBeGreaterThanOrEqual(0);
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
+  expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+  if (viewport.width < 640) {
+    // на телефон е на цял екран и Tab не излиза от него
+    expect(box.width).toBe(viewport.width);
+    await expect(dialog).toHaveAttribute("aria-modal", "true");
+    for (let i = 0; i < 12; i++) {
+      await page.keyboard.press("Tab");
+      expect(
+        await dialog.evaluate((node) => node.contains(document.activeElement)),
+      ).toBe(true);
+    }
+  }
 
   await page.keyboard.press("Escape");
   await expect(panel(page)).toHaveCount(0);
@@ -189,8 +229,24 @@ test("въпрос от таблото → откъс от главата за �
   expect(await excerpts.count()).toBeGreaterThanOrEqual(1);
   expect(await excerpts.count()).toBeLessThanOrEqual(3);
 
+  // най-добрият откъс е първи и е отворен; останалите са затворени
   const bending = excerpts.filter({ hasText: "Глава 4 „Специално огъване" });
+  await expect(excerpts.first()).toContainText("Най-близкият откъс");
+  await expect(excerpts.first()).toContainText("Глава 4 „Специално огъване");
   await expect(bending.first()).toContainText("съпротивителен момент");
+  // думите от въпроса са оцветени в текста
+  await expect(bending.first().locator("mark").first()).toContainText(
+    /съпротивител/i,
+  );
+  for (const other of (await excerpts.all()).slice(1)) {
+    await expect(other.locator("details")).not.toHaveAttribute("open", "");
+    await expect(other.getByRole("link")).toBeHidden();
+  }
+  // „Виж още“ води към други глави, не към показаните
+  const more = dialog
+    .getByRole("navigation", { name: "Виж още" })
+    .getByRole("link");
+  expect(await more.count()).toBeLessThanOrEqual(2);
   // формулите са изписани с KaTeX, а не като суров текст
   await expect(bending.first().locator(".katex").first()).toBeVisible();
   await expect(dialog.getByText("$$")).toHaveCount(0);
@@ -250,53 +306,94 @@ test("на страница на глава пита по нея; готовит
     dialog.getByText("Питаш по: Глава 1 „Разрезни усилия в греди“"),
   ).toBeVisible();
 
-  const answered = page.waitForResponse((response) =>
-    response.url().endsWith("/api/assistant"),
+  // първият готов въпрос е от главата, която се чете
+  const example = dialog
+    .getByRole("list", { name: "Примерни въпроси" })
+    .getByRole("button")
+    .first();
+  const text = (await example.textContent())!;
+  const answered = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/assistant") &&
+      response.request().method() === "POST",
   );
-  await dialog
-    .getByRole("button", { name: "Какво е метод на сечението?" })
-    .click();
+  await example.click();
   const response = await answered;
   expect(response.request().postDataJSON()).toEqual({
-    question: "Какво е метод на сечението?",
+    question: text,
     context: { module: MODULE, chapter: "razrezni-usiliya", mode: "easy" },
   });
 
   const first = dialog.getByRole("article").first();
   await expect(first).toContainText("Глава 1 „Разрезни усилия в греди“");
-  await expect(first).toContainText("Метод на сечението");
-  await expect(first).toContainText("метод на сечението");
+  await expect(first).toContainText("Разбери");
   await expect(
     first.getByRole("link", { name: "Отвори в Глава 1 →" }),
   ).toHaveAttribute("href", `${CHAPTER}?mode=easy#razberi`);
+
+  // и написан въпрос предпочита главата, която се чете
+  await ask(page, "Какво е метод на сечението?");
+  const second = dialog.getByRole("article").filter({
+    hasText: "Най-близкият откъс",
+  });
+  await expect(second).toHaveCount(2);
+  await expect(second.last()).toContainText(
+    "Глава 1 „Разрезни усилия в греди“",
+  );
+  await expect(second.last()).toContainText("Метод на сечението");
+  await expect(second.last()).toContainText("метод на сечението");
 
   // достъпност на панела върху страницата на четеца
   await expectNoViolations(page);
 });
 
-test("въпрос извън учебника: ясно съобщение и връзка към главите", async ({
+test("въпрос извън учебника: ясно съобщение, предложени въпроси и връзка към главите", async ({
   page,
 }) => {
   test.skip(!hasChapters, "главите на учебника не са в локалната база");
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await signIn(page, student);
   await opener(page).click();
-  const response = await ask(page, "Кой спечели футболното първенство?");
-  expect(await response.json()).toEqual({
-    kind: "lessons",
-    excerpts: [],
-    related: [],
-    noAccess: false,
-  });
   const dialog = panel(page);
-  await expect(
-    dialog.getByText(
-      "Не намерих това в учебника. Опитай с други думи или виж списъка с главите.",
-    ),
-  ).toBeVisible();
+  // вторият въпрос преди връщаше откъс заради случайната дума „час“
+  for (const question of [
+    "Кой спечели футболното първенство?",
+    "Колко е часът в Токио?",
+  ]) {
+    const response = await ask(page, question);
+    const body = await response.json();
+    expect(body).toMatchObject({
+      kind: "lessons",
+      excerpts: [],
+      related: [],
+      noAccess: false,
+    });
+    expect(body.suggestions).toHaveLength(3);
+  }
+  await expect(dialog.getByText("Не намерих това в уроците.")).toHaveCount(2);
   await expect(dialog.getByRole("article")).toHaveCount(0);
   await expect(
-    dialog.getByRole("link", { name: "Списък с главите →" }),
+    dialog.getByRole("link", { name: "Списък с главите →" }).first(),
   ).toHaveAttribute("href", "/dashboard");
+  await expectNoViolations(page);
+
+  // предложеният въпрос се задава с едно натискане и има отговор
+  const suggestion = dialog
+    .getByRole("list", { name: "Предложени въпроси" })
+    .last()
+    .getByRole("button")
+    .first();
+  const text = (await suggestion.textContent())!;
+  const answered = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/assistant") &&
+      response.request().method() === "POST",
+  );
+  await suggestion.click();
+  expect((await answered).request().postDataJSON()).toEqual({ question: text });
+  await expect(dialog.getByRole("article").first()).toContainText(
+    "Най-близкият откъс",
+  );
 
   // „близки глави“ при непознат термин се проверяват с unit тестове върху
   // примерни глави – тук зависят от това кои глави вече са написани.
@@ -323,6 +420,10 @@ test("потребител без достъп вижда бутона, но н�
   ).toBeVisible();
   await expect(dialog.getByRole("article")).toHaveCount(0);
   await expect(dialog.getByText("съпротивителен момент")).toHaveCount(1); // само въпросът му
+  // и примерни въпроси от чужди глави не получава
+  await expect(dialog.getByRole("list")).toHaveCount(0);
+  const examples = await page.request.get("/api/assistant");
+  expect(await examples.json()).toEqual({ suggestions: [] });
 });
 
 test("невалидна заявка се отхвърля; без вход – 401", async ({
@@ -354,5 +455,8 @@ test("невалидна заявка се отхвърля; без вход –
   });
   expect(response.status()).toBe(401);
   expect(await response.text()).toBe("");
+  const examples = await anonymous.get("/api/assistant");
+  expect(examples.status()).toBe(401);
+  expect(await examples.text()).toBe("");
   await anonymous.dispose();
 });

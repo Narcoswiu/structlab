@@ -108,11 +108,24 @@ const STOP_WORDS = new Set(
   сте съм със същ също та така там те тези ти то това този тази тук тя трябва
   ще я
   колко колкото толкова кому чий чия чие
+  здравей здравейте здрасти привет благодаря мерси довиждане чао
+  накратко изобщо всъщност значи пак гласи
+  разбирам разбрах знам питам търся интересува помогни помощ обяснете кажете
   дай дайте кажи намери напиши покажи разкажи реши
   the and for with what how why`
     .split(/\s+/)
     .filter(Boolean),
 );
+
+/**
+ * Думи от „скелета“ на главите и от всекидневната реч. Срещат се в заглавия и
+ * удебелен текст („Пример 1“, „Стъпка 2“, „Рецептата“), но не са понятия: само
+ * по такава дума не се познава за какво е въпросът.
+ */
+const GENERIC_WORD_LIST = `пример задача стъпка решение рецепта формула въпрос
+  отговор внимание проверка извод случай начин правило вид част число стойност
+  резултат час минута ден година време днес утре вчера добре лошо голям малък
+  нов стар човек място работя правя зная мисля казвам`;
 
 /** Кратки думи, които са термини и не бива да се изхвърлят. */
 const KEEP_SHORT = new Set(["ос"]);
@@ -170,6 +183,8 @@ export function tokenize(text: string): string[] {
   }
   return stems;
 }
+
+const GENERIC_WORDS = new Set(tokenize(GENERIC_WORD_LIST));
 
 // ------------------------------------------------------------ синоними
 
@@ -313,6 +328,8 @@ type IndexedChunk = {
   title: Set<string>;
   summary: Set<string>;
   bold: Set<string>[];
+  /** удебеленото, което прилича на въведен термин, а не на изречение */
+  terms: Set<string>[];
 };
 
 const GREEK: Record<string, string> = {
@@ -335,7 +352,18 @@ function mathSymbols(text: string): string[] {
   return out;
 }
 
+// Едно и също парче се разчита веднъж, колкото и въпроса да се зададат.
+const indexed = new WeakMap<Chunk, IndexedChunk>();
+
 function indexChunk(chunk: Chunk): IndexedChunk {
+  const ready = indexed.get(chunk);
+  if (ready) return ready;
+  const item = buildIndex(chunk);
+  indexed.set(chunk, item);
+  return item;
+}
+
+function buildIndex(chunk: Chunk): IndexedChunk {
   const stems = tokenize(chunk.text);
   const counts = new Map<string, number>();
   const bigrams = new Set<string>();
@@ -343,9 +371,18 @@ function indexChunk(chunk: Chunk): IndexedChunk {
     counts.set(value, (counts.get(value) ?? 0) + 1);
     if (i > 0) bigrams.add(`${stems[i - 1]} ${value}`);
   });
-  const bold = [...chunk.text.matchAll(/\*\*([^*\n]+)\*\*/g)].map(
-    (match) => new Set(tokenize(match[1]!)),
-  );
+  const spans = [...chunk.text.matchAll(/\*\*([^*\n]+)\*\*/g)].map((match) => ({
+    raw: match[1]!,
+    stems: new Set(tokenize(match[1]!)),
+  }));
+  const bold = spans.map((span) => span.stems);
+  // „**Стъпка 1.**“ и „**А ако стълбът е по-висок?**“ са изречения
+  const terms = spans
+    .filter(
+      (span) =>
+        span.stems.size <= MAX_NOTION_WORDS && !/[.?!:]\s*$/.test(span.raw),
+    )
+    .map((span) => span.stems);
   const symbols = new Map<string, number>();
   for (const symbol of mathSymbols(chunk.text)) {
     symbols.set(symbol, (symbols.get(symbol) ?? 0) + 1);
@@ -366,6 +403,7 @@ function indexChunk(chunk: Chunk): IndexedChunk {
     title: new Set(tokenize(chunk.chapterTitle)),
     summary: new Set(tokenize(chunk.chapterSummary)),
     bold,
+    terms,
   };
 }
 
@@ -429,6 +467,19 @@ const EXAMPLE = /\d|пример|задач|реши|решен|сметн|из�
 
 /** Под тази част от „теглото“ на въпроса парчето не се смята за отговор. */
 const MIN_COVERAGE = 0.4;
+/**
+ * Когато в парчето няма нито един термин от въпроса, а само обикновени думи,
+ * или когато във въпроса има име, непознато на целия учебник, парчето трябва
+ * да покрива повече от половината въпрос. „Колко е часът в Токио?“ –
+ * намерена е „час“, но не и „Токио“: точно половината, значи не е отговор.
+ */
+const MIN_COVERAGE_PLAIN = 0.55;
+/** Удебелен текст с повече думи е изречение, а не въведен термин. */
+const MAX_NOTION_WORDS = 4;
+/** Колко по-напред излиза глава, чието заглавие говори за същото. */
+const TITLE_BOOST = 0.5;
+const SUMMARY_BOOST = 0.2;
+const HEADING_BOOST = 1.5;
 /** Парче се показва само ако е поне толкова добро спрямо най-доброто. */
 const MIN_RELATIVE = 0.3;
 
@@ -474,7 +525,7 @@ export function rankChunks(
   );
   // Дума, която я няма никъде: ако е термин от речника, въпросът е за нещо
   // извън учебника и тежи с пълна сила; ако е случайна дума, тежи колкото
-  // най-рядката намерена.
+  // най-рядката намерена – никога по-малко от позната дума.
   const idf = units.map((unit, u) => {
     if (found[u]! > 0) return rarity(found[u]!);
     return unit.isTerm ? rarity(0) : Math.min(rarity(0), knownMax);
@@ -484,6 +535,42 @@ export function rankChunks(
     0,
   );
   if (total === 0) return [];
+  // Във въпроса има име, което го няма никъде в учебника („Франция“,
+  // „Токио“): тогава намереното трябва да тежи повече от него. Иначе термин
+  // с второ значение („столица“ е и греда от покрив) дава отговор на въпрос
+  // за друго. Първата дума не се гледа – тя винаги е с главна буква.
+  const properNames = new Set(
+    (question.match(/[\p{L}\p{N}]+/gu) ?? [])
+      .slice(1)
+      .filter((word) => /^\p{Lu}\p{Ll}/u.test(word))
+      .flatMap((word) => tokenize(word)),
+  );
+  const unknown = units.filter(
+    (unit, u) => unit.counts && !unit.isTerm && found[u] === 0,
+  );
+  const hasUnknown = unknown.length > 0;
+  const hasUnknownName = unknown.some((unit) =>
+    properNames.has(unit.alternatives[0]![0]!),
+  );
+
+  // Понятията на учебника: термините от речника, думите от заглавията на
+  // главите и подсекциите и това, което е въведено с удебелен текст. Всичко
+  // останало са обикновени думи – „балкон“, „линийка“, „Токио“.
+  const notions = new Set<string>(synonyms.groups.flat(2));
+  for (const item of items) {
+    for (const value of item.title) notions.add(value);
+    for (const value of item.subsection) notions.add(value);
+    for (const span of item.terms) {
+      for (const value of span) notions.add(value);
+    }
+  }
+  for (const value of GENERIC_WORDS) notions.delete(value);
+  const isNotion = units.map(
+    (unit) => unit.isTerm || notions.has(unit.alternatives[0]![0]!),
+  );
+  const askedStems = new Set(
+    units.flatMap((unit) => (unit.counts ? unit.alternatives.flat() : [])),
+  );
 
   // съседни думи от въпроса, които са съседни и в текста („метод на сечението“)
   const singles = units.filter((unit) => unit.counts && !unit.isTerm);
@@ -498,9 +585,45 @@ export function rankChunks(
   const wantsDefinition = DEFINITION.test(lower);
   const wantsExample = EXAMPLE.test(lower);
 
+  // Каква част от въпроса е в заглавието и в резюмето на всяка глава: глава,
+  // която е за това, излиза пред глава, която само го споменава.
+  const chapterKey = (chunk: Chunk) =>
+    `${chunk.moduleSlug}/${chunk.chapterSlug}`;
+  const chapterBoost = new Map<string, number>();
+  for (const item of items) {
+    const key = chapterKey(item.chunk);
+    if (chapterBoost.has(key)) continue;
+    let inTitle = 0;
+    let inSummary = 0;
+    units.forEach((unit, u) => {
+      if (!unit.counts) return;
+      if (unit.alternatives.some((alt) => hasAll(item.title, alt))) {
+        inTitle += idf[u]!;
+      } else if (unit.alternatives.some((alt) => hasAll(item.summary, alt))) {
+        inSummary += idf[u]!;
+      }
+    });
+    chapterBoost.set(
+      key,
+      1 + (TITLE_BOOST * inTitle + SUMMARY_BOOST * inSummary) / total,
+    );
+  }
+
+  const within = (stems: Set<string>) =>
+    stems.size > 0 && hasAll(askedStems, [...stems]);
+  const counted = units.filter((unit) => unit.counts);
+  /** единствената дума на въпроса, когато той е само една дума */
+  const keyword =
+    counted.length === 1 && !counted[0]!.isTerm
+      ? counted[0]!.alternatives[0]![0]!
+      : null;
+
   let scored = items.map((item, i) => {
     let score = 0;
     let covered = 0;
+    let matched = 0;
+    let hasTerm = false;
+    let rare = false;
     let distinctive = false;
     units.forEach((unit, u) => {
       const strength = strengths[u]![i]!;
@@ -508,11 +631,38 @@ export function rankChunks(
       score += unit.weight * idf[u]! * strength;
       if (!unit.counts) return;
       covered += idf[u]!;
+      matched += 1;
+      if (unit.isTerm) hasTerm = true;
       // дума, която я има в повече от половината парчета, не отличава нищо
-      if (found[u]! <= items.length / 2) distinctive = true;
+      if (found[u]! > items.length / 2) return;
+      rare = true;
+      // обикновена дума („висок“, „връх“) също – отличава само понятие
+      if (isNotion[u]) distinctive = true;
     });
+    // Парчето е точно за това, за което се пита: заглавието на подсекцията
+    // или удебелен термин в него се състои само от думи от въпроса. При
+    // въпрос от една дума („Щайнер“, „гънки“) стига тя да е част от тях.
+    const names = [item.subsection, item.title, ...item.terms];
+    const defined =
+      distinctive &&
+      (names.some(within) ||
+        (keyword !== null && names.some((stems) => stems.has(keyword))));
     const coverage = covered / total;
-    if (!distinctive || coverage < MIN_COVERAGE) return { item, score: 0 };
+    // Отговор е само парче, в което има термин от въпроса, мястото, където
+    // е въведено търсеното понятие, или поне две различни думи от въпроса –
+    // без дума, която учебникът изобщо не познава, и с понятие сред тях (или
+    // всички думи на въпроса наведнъж). Една случайна обща дума („час“,
+    // „време“) не стига.
+    const plain =
+      matched >= 2 && !hasUnknown && (distinctive || covered === total);
+    if (!rare || !((hasTerm && distinctive) || defined || plain)) {
+      return { item, score: 0, exact: false };
+    }
+    const needed =
+      (hasTerm && !hasUnknownName) || (defined && !hasUnknown)
+        ? MIN_COVERAGE
+        : MIN_COVERAGE_PLAIN;
+    if (coverage < needed) return { item, score: 0, exact: false };
 
     score += pairs.filter((pair) => item.bigrams.has(pair)).length * 1.5;
     score *= 0.4 + 0.6 * coverage;
@@ -525,22 +675,18 @@ export function rankChunks(
     }
     if (wantsExample && chunk.sectionId === "primer") score *= 1.4;
     if (chunk.mode === preferredMode) score *= 1.1;
-    if (
-      options.current &&
-      chunk.moduleSlug === options.current.module &&
-      chunk.chapterSlug === options.current.chapter
-    ) {
-      score *= 1.5;
+    score *= chapterBoost.get(chapterKey(chunk))!;
+    // на страница на глава: първо тя, после останалите глави от същия модул
+    if (options.current && chunk.moduleSlug === options.current.module) {
+      score *= chunk.chapterSlug === options.current.chapter ? 1.5 : 1.15;
     }
-    return { item, score };
+    return { item, score, exact: within(item.subsection) };
   });
   scored = scored.filter((entry) => entry.score > 0);
 
   // „Леко“ и „Подробно“ имат едни и същи секции: от всяка глава остава само
   // единият режим – този на потребителя, освен ако другият е много по-добър.
   const bestByChapter = new Map<string, { mine: number; other: number }>();
-  const chapterKey = (chunk: Chunk) =>
-    `${chunk.moduleSlug}/${chunk.chapterSlug}`;
   for (const { item, score } of scored) {
     const key = chapterKey(item.chunk);
     const best = bestByChapter.get(key) ?? { mine: 0, other: 0 };
@@ -554,6 +700,13 @@ export function rankChunks(
     const keepMine = best.mine > 0 && best.mine * 2 >= best.other;
     return (item.chunk.mode === preferredMode) === keepMine;
   });
+
+  // Подсекция, чието заглавие е точно това, за което се пита („Основният
+  // закон“), е по-добър отговор от подсекция, която само го споменава. Смята
+  // се след избора на режим, за да не измести „Леко“ с „Подробно“.
+  for (const entry of scored) {
+    if (entry.exact) entry.score *= HEADING_BOOST;
+  }
 
   scored.sort((a, b) => b.score - a.score);
   const top = scored[0]?.score ?? 0;
@@ -773,4 +926,173 @@ export function relatedChapters(
     .sort((a, b) => b.score - a.score || a.chapter.number - b.chapter.number)
     .slice(0, limit)
     .map((entry) => entry.chapter);
+}
+
+// ---------------------------------------------------------- оцветяване
+
+/** Най-много толкова израза се оцветяват в един откъс. */
+const MAX_HIGHLIGHTS = 12;
+
+/**
+ * Думите и изразите от откъса, които отговарят на въпроса – точно както са
+ * написани в текста („съпротивителният момент“, „центъра на тежестта“), за да
+ * ги оцвети панелът. Формулите и кодът не се гледат.
+ */
+export function highlightTerms(
+  markdown: string,
+  question: string,
+  synonyms: SynonymIndex = EMPTY_SYNONYMS,
+): string[] {
+  const phrases = buildUnits(question, synonyms, 1, true)
+    .flatMap((unit) => unit.alternatives)
+    // най-дългите първи: „инерционен момент“ преди „момент“
+    .sort((a, b) => b.length - a.length);
+  if (phrases.length === 0) return [];
+
+  // формулите и кодът стават интервали – местата на думите се запазват
+  const text = markdown.replace(
+    /\$\$[\s\S]*?\$\$|\$[^$\n]*\$|`[^`\n]*`/g,
+    (m) => " ".repeat(m.length),
+  );
+  const words: { start: number; end: number; stem: string }[] = [];
+  for (const match of text.matchAll(/[\p{L}\p{N}]+/gu)) {
+    const value = stem(match[0].toLowerCase());
+    if (!value) continue;
+    words.push({
+      start: match.index,
+      end: match.index + match[0].length,
+      stem: value,
+    });
+  }
+
+  const found = new Map<string, string>();
+  const used = new Array<boolean>(words.length).fill(false);
+  for (const phrase of phrases) {
+    for (let at = 0; at + phrase.length <= words.length; at++) {
+      if (!phrase.every((value, i) => words[at + i]!.stem === value)) continue;
+      if (used.slice(at, at + phrase.length).some(Boolean)) continue;
+      const surface = text.slice(
+        words[at]!.start,
+        words[at + phrase.length - 1]!.end,
+      );
+      // между думите на израза може да има само „на“, „за“ и интервали
+      if (!/^[\p{L}\p{N} -]+$/u.test(surface) || surface.length > 60) continue;
+      for (let i = at; i < at + phrase.length; i++) used[i] = true;
+      found.set(surface.toLowerCase(), surface);
+    }
+  }
+  return [...found.values()]
+    .sort((a, b) => b.length - a.length)
+    .slice(0, MAX_HIGHLIGHTS);
+}
+
+// ------------------------------------------------- предложени въпроси
+
+const QUESTION_HEADING = /^(какво|какъв|каква|какви)\s+(е|са)\s/i;
+
+export type SuggestedQuestion = {
+  question: string;
+  moduleSlug: string;
+  chapterSlug: string;
+};
+
+/**
+ * Готови въпроси от главите, които потребителят може да чете: подсекциите
+ * на „Разбери“, чието заглавие е термин, въведен с удебелен текст в тях
+ * („Закон на Хук“ → „Какво означава „закон на Хук“?“). Първи са въпросите
+ * от главата, която се чете, после от нейния модул, после от останалите –
+ * по един на глава. „seed“ сменя кои точно се падат.
+ */
+export function suggestQuestions(
+  chunks: Chunk[],
+  options: {
+    current?: { module: string; chapter: string };
+    preferredMode?: ContentMode;
+    limit?: number;
+    seed?: number;
+  } = {},
+): SuggestedQuestion[] {
+  const mode = options.preferredMode ?? "easy";
+  const limit = options.limit ?? 3;
+  const seed = Math.abs(Math.trunc(options.seed ?? 0));
+  const { current } = options;
+
+  // основите на всички думи, които учебникът пише с малка буква
+  const ordinary = new Set<string>();
+  for (const chunk of chunks) {
+    for (const word of chunk.text.match(/\p{Ll}[\p{L}\p{N}]*/gu) ?? []) {
+      const value = stem(word);
+      if (value) ordinary.add(value);
+    }
+  }
+
+  const byChapter = new Map<string, SuggestedQuestion[]>();
+  const seen = new Set<string>();
+  for (const chunk of chunks) {
+    if (chunk.mode !== mode || chunk.sectionId !== "razberi") continue;
+    const heading = chunk.subsectionTitle;
+    if (!heading) continue;
+    const stems = tokenize(heading);
+    if (stems.length === 0 || stems.length > MAX_NOTION_WORDS) continue;
+    if (stems.every((value) => GENERIC_WORDS.has(value))) continue;
+    const term = [...chunk.text.matchAll(/\*\*([^*\n]+)\*\*/g)]
+      .map((match) => match[1]!)
+      .find((raw) => sameStems(tokenize(raw), stems));
+    if (!term) continue;
+    // Главната буква остава само при име („Ритеров разрез“): ако първата
+    // дума я има и с малка буква някъде в учебника, значи е обикновена дума.
+    const first = /^[\p{L}\p{N}]+/u.exec(heading)?.[0] ?? "";
+    const lowered = first.toLowerCase();
+    const firstStem = stem(lowered);
+    const isName = firstStem !== null && !ordinary.has(firstStem);
+    const name = isName ? heading : lowered + heading.slice(first.length);
+    // „Какво е герберова греда“ вече е въпрос
+    const question = QUESTION_HEADING.test(heading)
+      ? `${heading}?`
+      : `Какво означава „${name}“?`;
+    if (seen.has(question.toLowerCase())) continue;
+    seen.add(question.toLowerCase());
+    const key = `${chunk.moduleSlug}/${chunk.chapterSlug}`;
+    byChapter.set(key, [
+      ...(byChapter.get(key) ?? []),
+      {
+        question,
+        moduleSlug: chunk.moduleSlug,
+        chapterSlug: chunk.chapterSlug,
+      },
+    ]);
+  }
+
+  const currentKey = current ? `${current.module}/${current.chapter}` : null;
+  const mine = currentKey ? (byChapter.get(currentKey) ?? []) : [];
+  const others = [...byChapter.entries()]
+    .filter(([key]) => key !== currentKey)
+    .map(([, list]) => list);
+  const sameModule = others.filter(
+    (list) => current && list[0]!.moduleSlug === current.module,
+  );
+  const rest = others.filter((list) => !sameModule.includes(list));
+  // от коя глава да започне редът – за да не са все едни и същи
+  const rotate = <T>(list: T[]) =>
+    list.map((_, i) => list[(seed + i) % list.length]!);
+  const order = [...rotate(sameModule), ...rotate(rest), mine];
+
+  const picked: SuggestedQuestion[] = [];
+  const taken = new Map<SuggestedQuestion[], number>();
+  const take = (list: SuggestedQuestion[]) => {
+    const count = taken.get(list) ?? 0;
+    if (count >= list.length || picked.length >= limit) return false;
+    picked.push(list[(seed + count) % list.length]!);
+    taken.set(list, count + 1);
+    return true;
+  };
+  // от главата, която се чете – два, за да остане място и за други глави;
+  // после по един на глава, докато се събере исканият брой
+  take(mine);
+  take(mine);
+  for (let added = true; added && picked.length < limit;) {
+    added = false;
+    for (const list of order) added = take(list) || added;
+  }
+  return picked;
 }

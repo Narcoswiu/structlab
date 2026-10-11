@@ -1248,3 +1248,44 @@
       color 0.15s;
   }
 }
+
+/* Помощникът: думите от въпроса, оцветени в откъса. */
+.assistant-prose mark {
+  padding: 0 2px;
+  border-radius: 4px;
+  background: rgba(255, 164, 92, 0.24);
+  color: var(--sl-text);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+/* втори и трети откъс: затворени, отварят се с натискане */
+.assistant-more > summary {
+  list-style: none;
+}
+.assistant-more > summary::-webkit-details-marker {
+  display: none;
+}
+.assistant-more[open] > summary .assistant-more-chevron {
+  transform: rotate(90deg);
+}
+/* панелът влиза плавно – само когато движението не пречи */
+@media (prefers-reduced-motion: no-preference) {
+  .assistant-panel {
+    animation: assistant-in 0.22s var(--sl-ease-out);
+  }
+  .assistant-more-chevron {
+    transition: transform 0.15s;
+  }
+}
+@keyframes assistant-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+/* откъсът е цитат от учебника – със същия шрифт като в четеца */
+.assistant-excerpt .assistant-prose {
+  font-family: var(--font-reading);
+  font-size: 15.5px;
+  line-height: 1.65;
+}

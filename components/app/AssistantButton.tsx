@@ -1,10 +1,20 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
-import dynamic from "next/dynamic";
-import Link from "next/link";
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { BookOpenText, Sparkles, X } from "lucide-react";
+import {
+  BookOpenText,
+  Library,
+  SendHorizontal,
+  Sparkles,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { inputClass } from "@/components/ui/form";
 import {
@@ -16,18 +26,17 @@ import {
   type AiModeId,
   type AssistantJson,
   type AssistantMode,
+  type AssistantSuggestions,
   type ChapterRef,
   type ChatMessage,
-  type LessonExcerpt,
-  type RelatedChapter,
 } from "@/lib/ai/modes";
 import { cn } from "@/lib/utils";
-
-// Markdown и KaTeX са тежки – зареждат се чак при първия отговор.
-const AssistantMarkdown = dynamic(() => import("./AssistantMarkdown"), {
-  ssr: false,
-  loading: () => <p className="text-sm text-dim">Зареждане…</p>,
-});
+import {
+  AssistantMessage,
+  LoadingLines,
+  QuestionChip,
+  type Entry,
+} from "./AssistantResults";
 
 type AssistantButtonProps = {
   /** „lessons“ – търси само в уроците; „ai“ – отговаря AI услуга */
@@ -39,31 +48,24 @@ type AssistantButtonProps = {
   providerName?: string;
 };
 
-type Entry =
-  | { id: number; kind: "question"; text: string }
-  | { id: number; kind: "answer"; text: string; streaming: boolean }
-  | {
-      id: number;
-      kind: "lessons";
-      excerpts: LessonExcerpt[];
-      related: RelatedChapter[];
-      noAccess: boolean;
-    }
-  | { id: number; kind: "error"; text: string };
-
 type WithoutId<T> = T extends unknown ? Omit<T, "id"> : never;
 type NewEntry = WithoutId<Entry>;
 
-const EXAMPLES = [
-  "Какво е съпротивителен момент?",
-  "Какво е метод на сечението?",
-  "Защо армировката на балкона е горе?",
-  "Какво гласи теоремата на Щайнер?",
-];
-
 const GENERIC_ERROR = "Нещо се обърка. Опитай пак след малко.";
-const linkClass =
-  "inline-flex min-h-11 items-center font-bold text-link hover:text-link-hover";
+const PHONE = "(max-width: 639px)";
+
+/** На телефон панелът заема целия екран и държи фокуса в себе си. */
+function useIsPhone() {
+  return useSyncExternalStore(
+    (onChange) => {
+      const query = window.matchMedia(PHONE);
+      query.addEventListener("change", onChange);
+      return () => query.removeEventListener("change", onChange);
+    },
+    () => window.matchMedia(PHONE).matches,
+    () => false,
+  );
+}
 
 /** Главата и режимът от адреса: /learn/<модул>/<глава>?mode=… */
 function useCurrentChapter(chapters: ChapterRef[]) {
@@ -94,7 +96,10 @@ export function AssistantButton({
   const isAi = mode === "ai";
   const title = isAi ? "Попитай асистента" : "Попитай учебника";
   const current = useCurrentChapter(chapters);
+  const isPhone = useIsPhone();
   const fieldId = useId();
+  const titleId = useId();
+  const aboutId = useId();
 
   const [open, setOpen] = useState(false);
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -102,8 +107,14 @@ export function AssistantButton({
   const [aiMode, setAiMode] = useState<AiModeId>("explain");
   const [busy, setBusy] = useState(false);
   const [remaining, setRemaining] = useState(initialRemaining);
+  // примерните въпроси за празния панел – за главата, на която сме
+  const [examples, setExamples] = useState<{
+    key: string;
+    items: string[];
+  } | null>(null);
 
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
   const nextId = useRef(1);
@@ -112,17 +123,86 @@ export function AssistantButton({
   const limitReached = isAi && remaining !== undefined && remaining <= 0;
 
   // При отваряне фокусът влиза в полето; Esc затваря и го връща на бутона.
+  // На телефон панелът е на цял екран, затова Tab обикаля само в него.
   useEffect(() => {
     if (!open) return;
     inputRef.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      setOpen(false);
-      buttonRef.current?.focus();
+      if (event.key === "Escape") {
+        setOpen(false);
+        buttonRef.current?.focus();
+        return;
+      }
+      const dialog = dialogRef.current;
+      if (event.key !== "Tab" || !dialog) return;
+      if (!window.matchMedia(PHONE).matches) return;
+      const items = [
+        ...dialog.querySelectorAll<HTMLElement>(
+          "a[href], button:not(:disabled), textarea:not(:disabled), summary, [tabindex='0']",
+        ),
+      ].filter((item) => item.getClientRects().length > 0);
+      const first = items[0];
+      const last = items.at(-1);
+      if (!first || !last) return;
+      const active = document.activeElement;
+      if (event.shiftKey && (active === first || !dialog.contains(active))) {
+        event.preventDefault();
+        last.focus();
+      } else if (
+        !event.shiftKey &&
+        (active === last || !dialog.contains(active))
+      ) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [open]);
+
+  // Примерните въпроси идват от главите, които потребителят може да чете.
+  // Зареждат се при първото отваряне и пак, ако се смени главата.
+  const hasChapters = chapters.length > 0;
+  const examplesKey = current
+    ? `${current.chapter.module}/${current.chapter.slug}`
+    : "all";
+  const examplesReady = examples?.key === examplesKey;
+  const contextModule = current?.chapter.module;
+  const contextChapter = current?.chapter.slug;
+  const contextMode = current?.readerMode;
+  useEffect(() => {
+    if (!open || isAi || !hasChapters || examplesReady) return;
+    const controller = new AbortController();
+    const params = new URLSearchParams();
+    if (contextModule && contextChapter) {
+      params.set("module", contextModule);
+      params.set("chapter", contextChapter);
+      if (contextMode) params.set("mode", contextMode);
+    }
+    const query = params.size > 0 ? `?${params}` : "";
+    fetch(`/api/assistant${query}`, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) return [];
+        const body = (await response.json()) as AssistantSuggestions;
+        return Array.isArray(body.suggestions) ? body.suggestions : [];
+      })
+      .catch(() => [] as string[])
+      .then((items) => {
+        // без примери панелът пак работи – показва само поканата да питаш
+        if (!controller.signal.aborted)
+          setExamples({ key: examplesKey, items });
+      });
+    return () => controller.abort();
+  }, [
+    open,
+    isAi,
+    hasChapters,
+    examplesReady,
+    examplesKey,
+    contextModule,
+    contextChapter,
+    contextMode,
+  ]);
 
   // Новият въпрос застава най-горе, така че отговорът се чете от началото
   // му, а не от края.
@@ -208,7 +288,11 @@ export function AssistantButton({
         if (response.status === 401) {
           add({ kind: "error", text: "Сесията ти е изтекла. Влез отново." });
         } else {
-          add({ kind: "error", text: body?.error ?? GENERIC_ERROR });
+          add({
+            kind: "error",
+            text: body?.error ?? GENERIC_ERROR,
+            retry: value,
+          });
         }
         return;
       }
@@ -248,7 +332,7 @@ export function AssistantButton({
       }
     } catch {
       if (!controller.signal.aborted)
-        add({ kind: "error", text: GENERIC_ERROR });
+        add({ kind: "error", text: GENERIC_ERROR, retry: value });
     } finally {
       setBusy(false);
       request.current = null;
@@ -256,19 +340,57 @@ export function AssistantButton({
   }
 
   const Icon = isAi ? Sparkles : BookOpenText;
+  const waiting = busy && entries.at(-1)?.kind === "question";
 
   return (
-    <div className="fixed bottom-4 left-4 z-40 flex flex-col items-start gap-3">
+    <div
+      className={cn(
+        "fixed bottom-4 left-4 flex flex-col items-start gap-3",
+        // отвореният панел стои над „Обратна връзка“
+        open ? "z-50" : "z-40",
+      )}
+    >
       {open ? (
         <div
+          ref={dialogRef}
           role="dialog"
-          aria-label={title}
-          className="flex h-[640px] max-h-[calc(100dvh-6.5rem)] w-[min(440px,calc(100vw-2rem))] flex-col gap-3 rounded-2xl border border-line-strong bg-surface p-4 shadow-[0_24px_48px_-20px_rgba(0,0,0,0.7)] sm:p-5"
+          aria-modal={isPhone || undefined}
+          aria-labelledby={titleId}
+          aria-describedby={aboutId}
+          className="assistant-panel fixed inset-0 flex flex-col overflow-hidden bg-surface pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] sm:static sm:h-[660px] sm:max-h-[calc(100dvh-6.5rem)] sm:w-[440px] sm:rounded-2xl sm:border sm:border-line-strong sm:p-0 sm:shadow-[0_24px_48px_-20px_rgba(0,0,0,0.7)]"
         >
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex min-w-0 flex-col gap-0.5">
-              <h2 className="text-lg font-extrabold">{title}</h2>
-              <p className="text-sm leading-normal text-dim">
+          <header className="flex flex-col gap-3 border-b border-line px-4 pt-3 pb-3.5 sm:px-5 sm:pt-4">
+            <div className="flex items-start gap-3">
+              <span aria-hidden="true" className="sl-chip-icon">
+                <Icon className="size-5" />
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col gap-1.5 pt-0.5">
+                <h2
+                  id={titleId}
+                  className="font-display text-base leading-tight font-bold"
+                >
+                  {title}
+                </h2>
+                <p
+                  id={aboutId}
+                  className="text-sm leading-normal text-muted-foreground"
+                >
+                  {isAi ? ASSISTANT_TEXT.aboutAi : ASSISTANT_TEXT.about}{" "}
+                  {ASSISTANT_TEXT.aboutNot}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                aria-label="Затвори"
+                className="-mt-1 -mr-2 min-w-11 px-2.5"
+                onClick={close}
+              >
+                <X aria-hidden="true" className="size-5" />
+              </Button>
+            </div>
+            <p className="flex items-start gap-2 text-[13px] leading-snug text-dim">
+              <Library aria-hidden="true" className="mt-px size-4 flex-none" />
+              <span>
                 {current
                   ? `Питаш по: Глава ${current.chapter.number} „${current.chapter.title}“`
                   : "Питаш по целия учебник"}
@@ -277,63 +399,78 @@ export function AssistantButton({
                     ? " · Остава ти 1 въпрос за днес"
                     : ` · Остават ти ${remaining} въпроса за днес`
                   : ""}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              aria-label="Затвори"
-              className="min-w-11 px-2.5"
-              onClick={close}
-            >
-              <X aria-hidden="true" className="size-5" />
-            </Button>
-          </div>
+              </span>
+            </p>
+          </header>
 
           <div
             ref={logRef}
             role="log"
             aria-label="Въпроси и отговори"
             tabIndex={0}
-            className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto rounded-xl border border-line bg-background p-3"
+            className="flex min-h-0 flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto overscroll-contain bg-background px-4 py-4 -outline-offset-2 sm:px-5"
           >
             {entries.length === 0 ? (
-              <div className="flex flex-col gap-2">
-                <p className="text-sm leading-normal text-muted-foreground">
-                  {isAi
-                    ? "Отговарям само по учебника и посочвам главата и секцията."
-                    : "Напиши въпрос и ще ти покажа къде в учебника пише за това. Например:"}
-                </p>
-                {isAi
-                  ? null
-                  : EXAMPLES.map((example) => (
-                      <button
-                        key={example}
-                        type="button"
-                        disabled={busy}
-                        onClick={() => ask(example)}
-                        className="min-h-11 cursor-pointer rounded-[10px] border border-line-strong bg-surface px-3.5 py-2 text-left text-[15px] font-semibold text-foreground hover:bg-surface-2"
-                      >
-                        {example}
-                      </button>
+              <div className="flex flex-col gap-3">
+                {!hasChapters && !isAi ? (
+                  <p className="rounded-xl border border-line bg-surface px-4 py-3 leading-normal">
+                    {ASSISTANT_TEXT.noAccess}
+                  </p>
+                ) : (
+                  <p className="leading-normal text-muted-foreground">
+                    {isAi
+                      ? "Напиши въпроса си долу."
+                      : "Напиши въпроса си долу или започни с някой от тези:"}
+                  </p>
+                )}
+                {isAi || !hasChapters ? null : examplesReady ? (
+                  <ul
+                    aria-label="Примерни въпроси"
+                    className="flex flex-wrap gap-2"
+                  >
+                    {examples.items.map((example) => (
+                      <li key={example}>
+                        <QuestionChip disabled={busy} onAsk={ask}>
+                          {example}
+                        </QuestionChip>
+                      </li>
                     ))}
+                  </ul>
+                ) : (
+                  <div aria-hidden="true" className="flex flex-wrap gap-2">
+                    {["w-52", "w-64", "w-44"].map((width) => (
+                      <span
+                        key={width}
+                        className={cn(
+                          "h-11 max-w-full rounded-full bg-surface motion-safe:animate-pulse",
+                          width,
+                        )}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             ) : null}
             {entries.map((entry) => (
-              <Message
+              <AssistantMessage
                 key={entry.id}
                 entry={entry}
+                busy={busy}
+                onAsk={ask}
                 onNavigate={() => setOpen(false)}
               />
             ))}
-            {busy && entries.at(-1)?.kind === "question" ? (
-              <p className="text-sm text-dim">
-                {isAi ? "Асистентът пише…" : "Търся в учебника…"}
-              </p>
+            {waiting ? (
+              <div className="rounded-2xl border border-line bg-surface p-4">
+                <LoadingLines
+                  label={isAi ? "Асистентът пише…" : "Търся в уроците…"}
+                />
+              </div>
             ) : null}
           </div>
 
           <form
-            className="flex flex-col gap-2.5"
+            className="flex flex-col gap-2 border-t border-line px-4 pt-3 pb-3 sm:px-5 sm:pb-4"
             onSubmit={(event) => {
               event.preventDefault();
               void ask(question);
@@ -378,6 +515,9 @@ export function AssistantButton({
                 maxLength={QUESTION_MAX}
                 value={question}
                 disabled={limitReached}
+                placeholder={
+                  isAi ? undefined : "Например: Какво е огъващ момент?"
+                }
                 onChange={(event) => setQuestion(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key !== "Enter" || event.shiftKey) return;
@@ -385,10 +525,15 @@ export function AssistantButton({
                   event.preventDefault();
                   void ask(question);
                 }}
-                className={`${inputClass} resize-none py-2.5`}
+                className={`${inputClass} min-w-0 resize-none py-2.5 leading-snug`}
               />
-              <Button type="submit" disabled={busy || limitReached}>
-                Изпрати
+              <Button
+                type="submit"
+                disabled={busy || limitReached}
+                className="px-3.5"
+              >
+                <span>Изпрати</span>
+                <SendHorizontal aria-hidden="true" className="size-[18px]" />
               </Button>
             </div>
             {limitReached ? (
@@ -419,95 +564,6 @@ export function AssistantButton({
         <Icon aria-hidden="true" className="size-[18px]" />
         <span className="hidden sm:inline">{title}</span>
       </Button>
-    </div>
-  );
-}
-
-function Message({
-  entry,
-  onNavigate,
-}: {
-  entry: Entry;
-  onNavigate: () => void;
-}) {
-  if (entry.kind === "question") {
-    return (
-      <p
-        data-question
-        className="max-w-[88%] self-end rounded-[14px_14px_4px_14px] bg-chat-user px-3.5 py-2.5 leading-normal break-words whitespace-pre-wrap"
-      >
-        {entry.text}
-      </p>
-    );
-  }
-  if (entry.kind === "error") {
-    return (
-      <p
-        role="alert"
-        className="rounded-[10px] bg-warn-bg px-3.5 py-3 text-sm leading-normal text-warn-fg"
-      >
-        {entry.text}
-      </p>
-    );
-  }
-  if (entry.kind === "answer") {
-    return (
-      <div
-        aria-busy={entry.streaming}
-        className="rounded-[14px_14px_14px_4px] bg-surface-2 px-3.5 py-3 text-chat-text"
-      >
-        {entry.text ? <AssistantMarkdown>{entry.text}</AssistantMarkdown> : "…"}
-      </div>
-    );
-  }
-
-  if (entry.noAccess) {
-    return <p className="leading-normal">{ASSISTANT_TEXT.noAccess}</p>;
-  }
-  if (entry.excerpts.length === 0) {
-    return (
-      <div className="flex flex-col gap-1">
-        <p className="leading-normal">{ASSISTANT_TEXT.notFound}</p>
-        {entry.related.length > 0 ? (
-          <ul className="flex flex-col">
-            {entry.related.map((chapter) => (
-              <li key={chapter.href}>
-                <Link
-                  href={chapter.href}
-                  className={linkClass}
-                  onClick={onNavigate}
-                >
-                  Глава {chapter.number} „{chapter.title}“ →
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-        <Link href="/dashboard" className={linkClass} onClick={onNavigate}>
-          Списък с главите →
-        </Link>
-      </div>
-    );
-  }
-  return (
-    <div className="flex flex-col gap-3">
-      <p className="leading-normal font-semibold">{ASSISTANT_TEXT.found}</p>
-      {entry.excerpts.map((excerpt, index) => (
-        <article
-          key={`${excerpt.href}-${index}`}
-          className="flex flex-col gap-1.5 rounded-[14px] bg-surface-2 px-3.5 pt-3 pb-1 text-chat-text"
-        >
-          <h3 className="text-[13px] leading-snug font-bold tracking-wide text-dim">
-            Глава {excerpt.chapterNumber} „{excerpt.chapterTitle}“ ·{" "}
-            {excerpt.sectionTitle}
-            {excerpt.subsectionTitle ? ` · ${excerpt.subsectionTitle}` : ""}
-          </h3>
-          <AssistantMarkdown>{excerpt.markdown}</AssistantMarkdown>
-          <Link href={excerpt.href} className={linkClass} onClick={onNavigate}>
-            Отвори в Глава {excerpt.chapterNumber} →
-          </Link>
-        </article>
-      ))}
     </div>
   );
 }

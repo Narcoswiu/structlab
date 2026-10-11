@@ -52,7 +52,7 @@ vi.mock("@/lib/ai/usage", async (original) => ({
   },
 }));
 
-const { POST } = await import("@/app/api/assistant/route");
+const { GET, POST } = await import("@/app/api/assistant/route");
 
 const GROQ: AiConfig = {
   provider: "openai-compatible",
@@ -245,8 +245,9 @@ describe("само уроците (без ключ за AI услуга)", () =>
 
   it("нищо по въпроса – празен списък и най-близките глави", async () => {
     const response = await ask({ question: "Какво е изкълчване при огъване?" });
-    expect(await response.json()).toEqual({
-      kind: "lessons",
+    const body = (await response.json()) as AssistantJson;
+    if (body.kind !== "lessons") throw new Error("очаквах откъси");
+    expect(body).toMatchObject({
       excerpts: [],
       noAccess: false,
       related: [
@@ -262,6 +263,51 @@ describe("само уроците (без ключ за AI услуга)", () =>
         },
       ],
     });
+    expect(body.more).toBeUndefined();
+    // и три въпроса от главите му, на които помощникът има отговор
+    expect(body.suggestions).toHaveLength(3);
+    for (const question of body.suggestions!) {
+      const answer = (await (await ask({ question })).json()) as AssistantJson;
+      if (answer.kind !== "lessons") throw new Error("очаквах откъси");
+      expect(answer.excerpts.length, question).toBeGreaterThan(0);
+    }
+  });
+
+  it("въпрос извън учебника: нищо, освен предложени въпроси", async () => {
+    for (const question of ["Колко е часът в Токио?", "благодаря", "пример"]) {
+      const body = (await (await ask({ question })).json()) as AssistantJson;
+      if (body.kind !== "lessons") throw new Error("очаквах откъси");
+      expect(body.excerpts, question).toEqual([]);
+      expect(body.related, question).toEqual([]);
+      expect(body.suggestions).toHaveLength(3);
+    }
+  });
+
+  it("откъсът носи думите за оцветяване – точно както са в текста", async () => {
+    const response = await ask({ question: "Какво е съпротивителен момент?" });
+    const body = (await response.json()) as AssistantJson;
+    if (body.kind !== "lessons") throw new Error("очаквах откъси");
+    const [best] = body.excerpts;
+    expect(best!.highlights).toContain("съпротивителен момент");
+    for (const term of best!.highlights!) {
+      expect(best!.markdown.toLowerCase()).toContain(term.toLowerCase());
+      expect(term).not.toMatch(/[<>$*]/);
+    }
+  });
+
+  it("„Виж още“: до две други глави, без повторение на показаните", async () => {
+    const response = await ask({ question: "момент сила греда сечение" });
+    const body = (await response.json()) as AssistantJson;
+    if (body.kind !== "lessons") throw new Error("очаквах откъси");
+    expect(body.excerpts.length).toBeGreaterThan(0);
+    expect(body.more!.length).toBeLessThanOrEqual(2);
+    const shown = new Set(body.excerpts.map((e) => e.href.split("?")[0]));
+    const more = body.more!.map((chapter) => chapter.href.split("?")[0]);
+    expect(new Set(more).size).toBe(more.length);
+    for (const href of more) {
+      expect(shown.has(href)).toBe(false);
+      expect(href).toMatch(/^\/learn\/sm\/[a-z-]+$/);
+    }
   });
 
   it("потребител без достъп не получава никакво съдържание", async () => {
@@ -273,6 +319,60 @@ describe("само уроците (без ключ за AI услуга)", () =>
       related: [],
       noAccess: true,
     });
+  });
+});
+
+describe("примерни въпроси за празния панел (GET)", () => {
+  const suggest = (query = "") =>
+    GET(new Request(`http://localhost/api/assistant${query}`));
+
+  it("без вход – 401", async () => {
+    state.user = null;
+    const response = await suggest();
+    expect(response.status).toBe(401);
+    expect(await response.text()).toBe("");
+  });
+
+  it("до четири въпроса от главите на потребителя, без текст от уроците", async () => {
+    const response = await suggest();
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    const body = (await response.json()) as { suggestions: string[] };
+    expect(Object.keys(body)).toEqual(["suggestions"]);
+    expect(body.suggestions.length).toBeGreaterThanOrEqual(3);
+    expect(body.suggestions.length).toBeLessThanOrEqual(4);
+    for (const question of body.suggestions) {
+      expect(question).toMatch(/^Какво .{3,60}\?$/);
+    }
+  });
+
+  it("на страница на глава първите два са от нея", async () => {
+    const response = await suggest("?module=sm&chapter=razrezni-usiliya");
+    const { suggestions } = (await response.json()) as {
+      suggestions: string[];
+    };
+    expect(suggestions.slice(0, 2).sort()).toEqual([
+      "Какво означава „метод на сечението“?",
+      "Какво са разрезните усилия?",
+    ]);
+  });
+
+  it("невалидна глава в адреса се пренебрегва", async () => {
+    const response = await suggest("?module=../x&chapter=a");
+    expect(response.status).toBe(200);
+    expect(
+      ((await response.json()) as { suggestions: string[] }).suggestions.length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("потребител без достъп не получава нито един въпрос", async () => {
+    state.hasAccess = false;
+    expect(await (await suggest()).json()).toEqual({ suggestions: [] });
+  });
+
+  it("повече от позволените заявки в минута – 429", async () => {
+    state.allowed = false;
+    expect((await suggest()).status).toBe(429);
   });
 });
 
